@@ -2,31 +2,48 @@
 #define FSM_HH
 
 #include <stdint.h>
+#include <atomic>
+
+class Poller;
 
 class FSM
 {
 protected:
 	bool alive;
-	int refCnt;
+	std::atomic<int> refCnt;
 	int fd;
 	
 public:
 	FSM(int fd)
-		: alive(true), refCnt(1), fd(fd) {}
+		: alive(true), refCnt(0), fd(fd) {}
 	
-	virtual bool process(uint32_t events) = 0;
+	virtual void process(Poller *poller, uint32_t events) = 0;
 	
-	void use();
-	void unuse();
+	void use()
+	{
+		refCnt++;
+	}
+
+	void unuse()
+	{
+		refCnt--;
+		if (refCnt == 0)
+			delete this;
+	}
 	
-	void kill();
+	void kill()
+	{
+		alive = false;
+	}
 	
 	int getFD() const
 	{
 		return fd;
 	}
 	
-	virtual uint32_t desiredEvent() = 0;
+	virtual uint32_t desiredEvents() = 0;
+	
+	virtual ~FSM();
 };
 
 #endif // FSM_HH

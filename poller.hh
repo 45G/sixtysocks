@@ -16,14 +16,20 @@ class Poller
 	
 	std::vector<std::thread> threads;
 	
-	std::unordered_map<int, FSM *> fsms;
+	std::vector<bool> fds;
+	
+	volatile bool alive;
 	
 public:
 	Poller(int numThreads, int cpuOffset);
 	
 	void add(FSM *fsm);
 	
+	void start();
+	
 	void stop();
+	
+	static void threadFun(Poller *poller);
 	
 	~Poller();
 };
