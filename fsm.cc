@@ -1,3 +1,3 @@
-#include "fsm.hh"
+#include "reactor.hh"
 
-FSM::~FSM() {}
+Reactor::~Reactor() {}

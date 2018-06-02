@@ -5,7 +5,7 @@
 #include <thread>
 #include <vector>
 
-class FSM;
+class Reactor;
 
 class Poller
 {
@@ -23,7 +23,7 @@ class Poller
 public:
 	Poller(int numThreads, int cpuOffset);
 	
-	void add(FSM *fsm);
+	void add(Reactor *fsm);
 	
 	void start();
 	

@@ -11,9 +11,11 @@
 #include <sys/types.h>
 #include <time.h>
 #include <fcntl.h>
+#include <exception>
+#include <system_error>
 
 #include "poller.hh"
-#include "proxifieracceptfsm.hh"
+#include "proxifieracceptreactor.hh"
 
 using namespace std;
 
@@ -45,6 +47,7 @@ int main(int argc, char **argv)
 	in_addr_t proxyIP;
 	uint16_t proxyPort = 1080;
 	
+	//TODO: fix this shit
 	while ((c = getopt(argc, argv, "j:o:m:l:t:s:p:")) != -1)
 	{
 		switch (c)
@@ -109,9 +112,7 @@ int main(int argc, char **argv)
 	
 	int listenFD = socket(AF_INET, SOCK_STREAM, 0);
 	if (listenFD < 0)
-	{
-		//TODO
-	}
+		throw std::system_error(errno, std::system_category());
 	
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
@@ -122,21 +123,15 @@ int main(int argc, char **argv)
 	
 	int rc = bind(listenFD, (struct sockaddr *)&addr, sizeof(addr));
 	if (rc < 0)
-	{
-		//TODO
-	}
+		throw system_error(errno, std::system_category());
 	
 	rc = listen(listenFD, 100);
 	if (rc < 0)
-	{
-		//TODO
-	}
+		throw system_error(errno, std::system_category());
 	
 	rc = fcntl(listenFD, F_SETFD, O_NONBLOCK);
 	if (rc < 0)
-	{
-		//TODO
-	}
+		throw system_error(errno, std::system_category());
 	
 	poller.add(new ProxifierAcceptFSM(listenFD));
 	

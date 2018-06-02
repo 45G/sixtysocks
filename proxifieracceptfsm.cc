@@ -6,7 +6,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/tcp.h>
-#include "proxifieracceptfsm.hh"
+#include <system_error>
+#include "proxifieracceptreactor.hh"
 #include "poller.hh"
 
 #include <iostream>
@@ -14,7 +15,7 @@
 using namespace std;
 
 ProxifierAcceptFSM::ProxifierAcceptFSM(int fd)
-	: FSM(fd)
+	: Reactor(fd)
 {
 	
 }
@@ -42,16 +43,13 @@ void ProxifierAcceptFSM::process(Poller *poller, uint32_t events)
 		}
 		int rc = fcntl(newFD, F_SETFD, O_NONBLOCK);
 		if (rc < 0)
-		{
-			//TODO
-		}
+			throw system_error(errno, std::system_category());
 		
 		int one = 1;
 		rc = setsockopt(newFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int));
 		if (rc < 0)
-		{
-			//TODO
-		}
+			throw system_error(errno, std::system_category());
+		
 		//TODO
 		cout << "new connection" << endl;
 	}

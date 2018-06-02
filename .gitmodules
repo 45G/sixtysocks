@@ -1,0 +1,6 @@
+[submodule "libsocks6util"]
+	path = libsocks6util
+	url = https://github.com/45G/libsocks6util
+[submodule "libsocks6msg"]
+	path = libsocks6msg
+	url = https://github.com/45G/libsocks6msg

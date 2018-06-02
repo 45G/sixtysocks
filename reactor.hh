@@ -1,12 +1,12 @@
-#ifndef FSM_HH
-#define FSM_HH
+#ifndef REACTOR_HH
+#define REACTOR_HH
 
 #include <stdint.h>
 #include <atomic>
 
 class Poller;
 
-class FSM
+class Reactor
 {
 protected:
 	bool alive;
@@ -14,7 +14,7 @@ protected:
 	int fd;
 	
 public:
-	FSM(int fd)
+	Reactor(int fd)
 		: alive(true), refCnt(0), fd(fd) {}
 	
 	virtual void process(Poller *poller, uint32_t events) = 0;
@@ -43,7 +43,7 @@ public:
 	
 	virtual uint32_t desiredEvents() = 0;
 	
-	virtual ~FSM();
+	virtual ~Reactor();
 };
 
-#endif // FSM_HH
+#endif // REACTOR_HH

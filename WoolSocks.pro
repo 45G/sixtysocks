@@ -10,9 +10,11 @@ SOURCES += \
     fsm.cc \
     main.cc \
     poller.cc \
-    proxifieracceptfsm.cc
+    proxifieracceptfsm.cc \
+    streamreadreactor.cc
 
 HEADERS += \
-    fsm.hh \
     poller.hh \
-    proxifieracceptfsm.hh
+    reactor.hh \
+    proxifieracceptreactor.hh \
+    streamreadreactor.hh

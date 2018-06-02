@@ -3,7 +3,7 @@
 #include <sys/epoll.h>
 #include <boost/foreach.hpp>
 #include "poller.hh"
-#include "fsm.hh"
+#include "reactor.hh"
 
 using namespace std;
 
@@ -15,10 +15,10 @@ Poller::Poller(int numThreads, int cpuOffset)
 	threads.reserve(numThreads);
 	epollFD = epoll_create(1337);
 	if (epollFD < 0)
-		throw std::system_error(errno, std::system_category());
+		throw system_error(errno, std::system_category());
 }
 
-void Poller::add(FSM *fsm)
+void Poller::add(Reactor *fsm)
 {
 	epoll_event event;
 	event.events = fsm->desiredEvents() | EPOLLONESHOT;
@@ -28,7 +28,7 @@ void Poller::add(FSM *fsm)
 	
 	int rc = epoll_ctl(epollFD, EPOLL_CTL_ADD, fsm->getFD(), &event);
 	if (rc < 0)
-		throw std::system_error(errno, std::system_category());
+		throw system_error(errno, std::system_category());
 	
 	fds.reserve(fsm->getFD());
 	fds[fsm->getFD()] = true;
@@ -45,7 +45,7 @@ void Poller::start()
 		CPU_SET(i + cpuOffset, &cpuset);
 		int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
 		if (rc > 0)
-			throw std::system_error(rc, std::system_category());
+			throw system_error(rc, std::system_category());
 	}
 		
 }
@@ -65,7 +65,7 @@ void Poller::stop()
 		if (rc < 0)
 			throw std::system_error(errno, std::system_category());
 		
-		FSM *fsm = reinterpret_cast<FSM *>(event.data.ptr);
+		Reactor *fsm = reinterpret_cast<Reactor *>(event.data.ptr);
 		fsm->kill();
 		fsm->unuse();
 	}
@@ -91,7 +91,7 @@ void Poller::threadFun(Poller *poller)
 		if (rc == 0)
 			continue;
 		
-		FSM *fsm = reinterpret_cast<FSM *>(event.data.ptr);
+		Reactor *fsm = reinterpret_cast<Reactor *>(event.data.ptr);
 		poller->fds[fsm->getFD()] = false;
 		
 		fsm->process(poller, event.events);
