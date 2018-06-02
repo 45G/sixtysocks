@@ -18,10 +18,10 @@ Poller::Poller(int numThreads, int cpuOffset)
 		throw system_error(errno, std::system_category());
 }
 
-void Poller::add(Reactor *fsm)
+void Poller::add(Reactor *fsm, uint32_t events)
 {
 	epoll_event event;
-	event.events = fsm->desiredEvents() | EPOLLONESHOT;
+	event.events = events | EPOLLONESHOT;
 	event.data.ptr = fsm;
 	
 	fsm->use();

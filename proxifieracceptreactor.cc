@@ -27,9 +27,27 @@ void ProxifierAcceptReactor::process(Poller *poller, uint32_t events)
 	
 	if (events & EPOLLERR)
 	{
-		//TODO: error code
-		kill();
-		return;
+		int err;
+		socklen_t errLen;
+		
+		int rc = getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &errLen);
+		if (rc < 0)
+			throw system_error(errno, system_category());
+		
+		switch (err)
+		{
+		case ECONNABORTED:
+		case EINTR:
+		case EMFILE:
+		case ENFILE:
+		case ENOBUFS:
+		case ENOMEM:
+		case EPROTO:
+			break;
+			
+		default:
+			throw system_error(err, system_category());
+		}
 	}
 	
 	while (true)
@@ -38,26 +56,21 @@ void ProxifierAcceptReactor::process(Poller *poller, uint32_t events)
 		if (newFD < 0)
 		{
 			if (errno == EWOULDBLOCK || errno == EAGAIN)
-				poller->add(this);
+				poller->add(this, EPOLLIN);
 			return;
 		}
 		int rc = fcntl(newFD, F_SETFD, O_NONBLOCK);
 		if (rc < 0)
-			throw system_error(errno, std::system_category());
+			throw system_error(errno, system_category());
 		
 		int one = 1;
 		rc = setsockopt(newFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int));
 		if (rc < 0)
-			throw system_error(errno, std::system_category());
+			throw system_error(errno, system_category());
 		
 		//TODO
 		cout << "new connection" << endl;
 	}
-}
-
-uint32_t ProxifierAcceptReactor::desiredEvents()
-{
-	return EPOLLIN;
 }
 
 ProxifierAcceptReactor::~ProxifierAcceptReactor()

@@ -23,7 +23,7 @@ class Poller
 public:
 	Poller(int numThreads, int cpuOffset);
 	
-	void add(Reactor *fsm);
+	void add(Reactor *fsm, uint32_t events);
 	
 	void start();
 	

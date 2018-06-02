@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <exception>
 #include <system_error>
+#include <sys/epoll.h>
 
 #include "poller.hh"
 #include "proxifieracceptreactor.hh"
@@ -133,7 +134,7 @@ int main(int argc, char **argv)
 	if (rc < 0)
 		throw system_error(errno, std::system_category());
 	
-	poller.add(new ProxifierAcceptReactor(listenFD));
+	poller.add(new ProxifierAcceptReactor(listenFD), EPOLLIN);
 	
 	sleep(1000);
 	

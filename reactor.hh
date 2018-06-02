@@ -41,8 +41,6 @@ public:
 		return fd;
 	}
 	
-	virtual uint32_t desiredEvents() = 0;
-	
 	virtual ~Reactor();
 };
 
