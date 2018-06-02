@@ -14,13 +14,13 @@
 
 using namespace std;
 
-ProxifierAcceptFSM::ProxifierAcceptFSM(int fd)
+ProxifierAcceptReactor::ProxifierAcceptReactor(int fd)
 	: Reactor(fd)
 {
 	
 }
 
-void ProxifierAcceptFSM::process(Poller *poller, uint32_t events)
+void ProxifierAcceptReactor::process(Poller *poller, uint32_t events)
 {
 	if (!alive)
 		return;
@@ -55,12 +55,12 @@ void ProxifierAcceptFSM::process(Poller *poller, uint32_t events)
 	}
 }
 
-uint32_t ProxifierAcceptFSM::desiredEvents()
+uint32_t ProxifierAcceptReactor::desiredEvents()
 {
 	return EPOLLIN;
 }
 
-ProxifierAcceptFSM::~ProxifierAcceptFSM()
+ProxifierAcceptReactor::~ProxifierAcceptReactor()
 {
 	
 }

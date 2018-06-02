@@ -3,15 +3,15 @@
 
 #include "reactor.hh"
 
-class ProxifierAcceptFSM: public Reactor
+class ProxifierAcceptReactor: public Reactor
 {
 public:
-	ProxifierAcceptFSM(int fd);
+	ProxifierAcceptReactor(int fd);
 	
 	void process(Poller *poller, uint32_t events);
 	uint32_t desiredEvents();
 	
-	~ProxifierAcceptFSM();
+	~ProxifierAcceptReactor();
 };
 
 #endif // PROXIFIERACCEPTREACTOR_HH

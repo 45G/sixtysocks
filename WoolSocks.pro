@@ -7,11 +7,11 @@ LIBS += -lpthread
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
-    fsm.cc \
     main.cc \
     poller.cc \
-    proxifieracceptfsm.cc \
-    streamreadreactor.cc
+    streamreadreactor.cc \
+    reactor.cc \
+    proxifieracceptreactor.cc
 
 HEADERS += \
     poller.hh \

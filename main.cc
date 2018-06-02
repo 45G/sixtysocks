@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 	if (rc < 0)
 		throw system_error(errno, std::system_category());
 	
-	poller.add(new ProxifierAcceptFSM(listenFD));
+	poller.add(new ProxifierAcceptReactor(listenFD));
 	
 	sleep(1000);
 	
