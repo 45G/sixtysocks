@@ -8,7 +8,6 @@ class ListenReactor: public Reactor
 protected:
 	int listenFD;
 	
-	void processError();
 	void processError(int err);
 	
 public:

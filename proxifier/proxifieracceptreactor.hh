@@ -1,7 +1,7 @@
 #ifndef PROXIFIERACCEPTREACTOR_HH
 #define PROXIFIERACCEPTREACTOR_HH
 
-#include "listenreactor.hh"
+#include "../core/listenreactor.hh"
 
 class ProxifierAcceptReactor: public ListenReactor
 {

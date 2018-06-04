@@ -13,12 +13,12 @@ class Poller;
 class Reactor
 {
 protected:
-	bool alive;
+	bool active;
 	std::atomic<int> refCnt;
 	
 public:
 	Reactor()
-		: alive(true), refCnt(0) {}
+		: active(true), refCnt(0) {}
 	
 	virtual void process(Poller *poller, uint32_t events) = 0;
 	
@@ -34,9 +34,9 @@ public:
 			delete this;
 	}
 	
-	void kill()
+	void deactivate()
 	{
-		alive = false;
+		active = false;
 	}
 	
 	virtual int getFD() const = 0;

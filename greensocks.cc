@@ -16,8 +16,8 @@
 #include <sys/epoll.h>
 #include <socks6util/socks6util.hh>
 
-#include "poller.hh"
-#include "proxifieracceptreactor.hh"
+#include "core/poller.hh"
+#include "proxifier/proxifieracceptreactor.hh"
 
 using namespace std;
 

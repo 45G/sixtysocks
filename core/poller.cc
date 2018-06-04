@@ -16,7 +16,7 @@ Poller::Poller(int numThreads, int cpuOffset)
 	threads.reserve(numThreads);
 	epollFD = epoll_create(1337);
 	if (epollFD < 0)
-		throw system_error(errno, std::system_category());
+		throw system_error(errno, system_category());
 }
 
 void Poller::add(Reactor *reactor, int fd, uint32_t events)
@@ -29,7 +29,7 @@ void Poller::add(Reactor *reactor, int fd, uint32_t events)
 	
 	int rc = epoll_ctl(epollFD, EPOLL_CTL_ADD, fd, &event);
 	if (rc < 0)
-		throw system_error(errno, std::system_category());
+		throw system_error(errno, system_category());
 	
 	fds.reserve(fd);
 	fds[fd] = reactor;
@@ -46,7 +46,7 @@ void Poller::start()
 		CPU_SET(i + cpuOffset, &cpuset);
 		int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
 		if (rc > 0)
-			throw system_error(rc, std::system_category());
+			throw system_error(rc, system_category());
 	}
 		
 }
@@ -64,7 +64,7 @@ void Poller::stop()
 		if (rc < 0)
 			throw std::system_error(errno, std::system_category());
 		
-		fds[i]->kill();
+		fds[i]->deactivate();
 		fds[i]->unuse();
 	}
 	
@@ -89,11 +89,18 @@ void Poller::threadFun(Poller *poller)
 		if (rc == 0)
 			continue;
 		
-		Reactor *fsm = reinterpret_cast<Reactor *>(event.data.ptr);
-		poller->fds[fsm->getFD()] = NULL;
+		Reactor *reactor = reinterpret_cast<Reactor *>(event.data.ptr);
+		poller->fds[reactor->getFD()] = NULL;
 		
-		fsm->process(poller, event.events);
+		try
+		{
+			reactor->process(poller, event.events);
+		}
+		catch (...)
+		{
+			reactor->deactivate();
+		}
 		
-		fsm->unuse();
+		reactor->unuse();
 	}
 }

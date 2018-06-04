@@ -61,7 +61,10 @@ protected:
 	StreamBuffer buf;
 	
 public:
-	StreamReactor(int srcFD, int dstFD);
+	StreamReactor(int srcFD, int dstFD)
+		: srcFD(srcFD), dstFD(dstFD) {}
+	
+	~StreamReactor();
 };
 
 #endif // STREAMREACTOR_HH

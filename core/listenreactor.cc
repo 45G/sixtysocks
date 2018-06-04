@@ -5,18 +5,6 @@
 
 using namespace std;
 
-void ListenReactor::processError()
-{
-	int err;
-	socklen_t errLen;
-	
-	int rc = getsockopt(listenFD, SOL_SOCKET, SO_ERROR, &err, &errLen);
-	if (rc < 0)
-		throw system_error(errno, system_category());
-	
-	processError(err);
-}
-
 void ListenReactor::processError(int err)
 {
 	switch (err)

@@ -1,7 +1,7 @@
 #ifndef PROXIFERUPSTREAMREACTOR_HH
 #define PROXIFERUPSTREAMREACTOR_HH
 
-#include "streamreactor.hh"
+#include "../core/streamreactor.hh"
 
 class ProxiferUpstreamReactor: public StreamReactor
 {
@@ -17,7 +17,8 @@ class ProxiferUpstreamReactor: public StreamReactor
 	State state;
 
 public:
-	ProxiferUpstreamReactor(int srcFD);
+	ProxiferUpstreamReactor(int srcFD)
+		: StreamReactor(srcFD, -1), state(S_READING_INIT_DATA) {}
 	
 	void process(Poller *poller, uint32_t events);
 	
