@@ -23,7 +23,7 @@ using namespace std;
 
 void usage()
 {
-	cerr << "usage: woolsocks [-j <thread count>] [-o <cpu offset>]" << endl;
+	cerr << "usage: greensocks [-j <thread count>] [-o <cpu offset>]" << endl;
 	cerr << "\t" << "[-m <mode>]" << endl;
 	cerr << "\t" << "[-l <port>] [-t <tls port>]" << endl;
 	cerr << "\t" << "[-s <proxy IP>] [-p <proxy port>]" << endl;
@@ -117,6 +117,7 @@ int main(int argc, char **argv)
 		throw std::system_error(errno, std::system_category());
 	
 	// Tolerable error
+	static const int one = 1;
 	setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(int));
 	
 	struct sockaddr_in addr;

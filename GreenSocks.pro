@@ -23,4 +23,4 @@ HEADERS += \
     proxiferupstreamreactor.hh \
     streamreactor.hh
 
-LIBS = -lsocks6msg -lsocks6util
+LIBS = -lsocks6msg -lsocks6util -lpthread
