@@ -9,16 +9,11 @@
 #include <system_error>
 #include "proxifieracceptreactor.hh"
 #include "poller.hh"
+#include "proxiferupstreamreactor.hh"
 
 #include <iostream>
 
 using namespace std;
-
-ProxifierAcceptReactor::ProxifierAcceptReactor(int fd)
-	: Reactor(fd)
-{
-	
-}
 
 void ProxifierAcceptReactor::process(Poller *poller, uint32_t events)
 {
@@ -26,54 +21,42 @@ void ProxifierAcceptReactor::process(Poller *poller, uint32_t events)
 		return;
 	
 	if (events & EPOLLERR)
-	{
-		int err;
-		socklen_t errLen;
-		
-		int rc = getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &errLen);
-		if (rc < 0)
-			throw system_error(errno, system_category());
-		
-		switch (err)
-		{
-		case ECONNABORTED:
-		case EINTR:
-		case EMFILE:
-		case ENFILE:
-		case ENOBUFS:
-		case ENOMEM:
-		case EPROTO:
-			break;
-			
-		default:
-			throw system_error(err, system_category());
-		}
-	}
+		processError();
 	
-	while (true)
+	if (events & EPOLLIN)
 	{
-		int newFD = accept(fd, NULL, NULL);
-		if (newFD < 0)
+		while (true)
 		{
-			if (errno == EWOULDBLOCK || errno == EAGAIN)
-				poller->add(this, EPOLLIN);
-			return;
+			int newFD = accept(listenFD, NULL, NULL);
+			if (newFD < 0)
+			{
+				if (errno == EWOULDBLOCK || errno == EAGAIN || errno == EINTR)
+					break;
+				else
+					processError(errno);
+				continue;
+			}
+			int rc = fcntl(newFD, F_SETFD, O_NONBLOCK);
+			if (rc < 0)
+				goto error;
+			
+			// Tolerable error
+			const static int one = 1;
+			setsockopt(newFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int));
+			
+			poller->add(new ProxiferUpstreamReactor(newFD), newFD, EPOLLIN);
+			
+			continue;
+			
+error:
+			close(newFD);
 		}
-		int rc = fcntl(newFD, F_SETFD, O_NONBLOCK);
-		if (rc < 0)
-			throw system_error(errno, system_category());
 		
-		int one = 1;
-		rc = setsockopt(newFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int));
-		if (rc < 0)
-			throw system_error(errno, system_category());
-		
-		//TODO
-		cout << "new connection" << endl;
+		poller->add(this, listenFD, EPOLLIN);
 	}
 }
 
 ProxifierAcceptReactor::~ProxifierAcceptReactor()
 {
-	
+	close(listenFD);
 }

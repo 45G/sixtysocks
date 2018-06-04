@@ -18,20 +18,20 @@ Poller::Poller(int numThreads, int cpuOffset)
 		throw system_error(errno, std::system_category());
 }
 
-void Poller::add(Reactor *fsm, uint32_t events)
+void Poller::add(Reactor *reactor, int fd, uint32_t events)
 {
 	epoll_event event;
 	event.events = events | EPOLLONESHOT;
-	event.data.ptr = fsm;
+	event.data.ptr = reactor;
 	
-	fsm->use();
+	reactor->use();
 	
-	int rc = epoll_ctl(epollFD, EPOLL_CTL_ADD, fsm->getFD(), &event);
+	int rc = epoll_ctl(epollFD, EPOLL_CTL_ADD, fd, &event);
 	if (rc < 0)
 		throw system_error(errno, std::system_category());
 	
-	fds.reserve(fsm->getFD());
-	fds[fsm->getFD()] = true;
+	fds.reserve(fd);
+	fds[fd] = reactor;
 }
 
 void Poller::start()
@@ -59,15 +59,12 @@ void Poller::stop()
 		if (!fds[i])
 			continue;
 		
-		epoll_event event;
-		
-		int rc = epoll_ctl(epollFD, EPOLL_CTL_DEL, i, &event);
+		int rc = epoll_ctl(epollFD, EPOLL_CTL_DEL, i, NULL);
 		if (rc < 0)
 			throw std::system_error(errno, std::system_category());
 		
-		Reactor *fsm = reinterpret_cast<Reactor *>(event.data.ptr);
-		fsm->kill();
-		fsm->unuse();
+		fds[i]->kill();
+		fds[i]->unuse();
 	}
 	
 	for (int i = 0; i < (int)threads.size(); i++)
@@ -92,7 +89,7 @@ void Poller::threadFun(Poller *poller)
 			continue;
 		
 		Reactor *fsm = reinterpret_cast<Reactor *>(event.data.ptr);
-		poller->fds[fsm->getFD()] = false;
+		poller->fds[fsm->getFD()] = NULL;
 		
 		fsm->process(poller, event.events);
 		

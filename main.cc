@@ -14,6 +14,7 @@
 #include <exception>
 #include <system_error>
 #include <sys/epoll.h>
+#include <socks6util/socks6util.hh>
 
 #include "poller.hh"
 #include "proxifieracceptreactor.hh"
@@ -115,6 +116,9 @@ int main(int argc, char **argv)
 	if (listenFD < 0)
 		throw std::system_error(errno, std::system_category());
 	
+	// Tolerable error
+	setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(int));
+	
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 	
@@ -134,7 +138,10 @@ int main(int argc, char **argv)
 	if (rc < 0)
 		throw system_error(errno, std::system_category());
 	
-	poller.add(new ProxifierAcceptReactor(listenFD), EPOLLIN);
+	// Tolerable error
+	S6U::Socket::saveSYN(listenFD);
+	
+	poller.add(new ProxifierAcceptReactor(listenFD), listenFD, EPOLLIN);
 	
 	sleep(1000);
 	

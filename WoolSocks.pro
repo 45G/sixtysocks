@@ -9,12 +9,18 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += \
     main.cc \
     poller.cc \
-    streamreadreactor.cc \
     reactor.cc \
-    proxifieracceptreactor.cc
+    proxifieracceptreactor.cc \
+    listenreactor.cc \
+    streamreactor.cc \
+    proxiferupstreamreactor.cc
 
 HEADERS += \
     poller.hh \
     reactor.hh \
     proxifieracceptreactor.hh \
-    streamreadreactor.hh
+    listenreactor.hh \
+    proxiferupstreamreactor.hh \
+    streamreactor.hh
+
+LIBS = -lsocks6msg -lsocks6util

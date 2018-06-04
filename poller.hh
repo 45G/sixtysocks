@@ -16,14 +16,14 @@ class Poller
 	
 	std::vector<std::thread> threads;
 	
-	std::vector<bool> fds;
+	std::vector<Reactor *> fds;
 	
 	volatile bool alive;
 	
 public:
 	Poller(int numThreads, int cpuOffset);
 	
-	void add(Reactor *fsm, uint32_t events);
+	void add(Reactor *reactor, int fd, uint32_t events);
 	
 	void start();
 	

@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 #include <atomic>
+#include <sys/epoll.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <errno.h>
 
 class Poller;
 
@@ -11,11 +15,10 @@ class Reactor
 protected:
 	bool alive;
 	std::atomic<int> refCnt;
-	int fd;
 	
 public:
-	Reactor(int fd)
-		: alive(true), refCnt(0), fd(fd) {}
+	Reactor()
+		: alive(true), refCnt(0) {}
 	
 	virtual void process(Poller *poller, uint32_t events) = 0;
 	
@@ -36,10 +39,7 @@ public:
 		alive = false;
 	}
 	
-	int getFD() const
-	{
-		return fd;
-	}
+	virtual int getFD() const = 0;
 	
 	virtual ~Reactor();
 };

@@ -1,15 +1,15 @@
 #ifndef PROXIFIERACCEPTREACTOR_HH
 #define PROXIFIERACCEPTREACTOR_HH
 
-#include "reactor.hh"
+#include "listenreactor.hh"
 
-class ProxifierAcceptReactor: public Reactor
+class ProxifierAcceptReactor: public ListenReactor
 {
 public:
-	ProxifierAcceptReactor(int fd);
+	ProxifierAcceptReactor(int listenFD)
+		: ProxifierAcceptReactor(listenFD) {}
 	
 	void process(Poller *poller, uint32_t events);
-	uint32_t desiredEvents();
 	
 	~ProxifierAcceptReactor();
 };
