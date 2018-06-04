@@ -64,6 +64,16 @@ public:
 	StreamReactor(int srcFD, int dstFD)
 		: srcFD(srcFD), dstFD(dstFD) {}
 	
+	int getSrcFD() const
+	{
+		return srcFD;
+	}
+	
+	int getDstFD() const
+	{
+		return dstFD;
+	}
+	
 	~StreamReactor();
 };
 

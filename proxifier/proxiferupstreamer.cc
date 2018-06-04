@@ -12,13 +12,13 @@ void ProxiferUpstreamer::process(Poller *poller, uint32_t events)
 	{
 	case S_READING_INIT_DATA:
 	{
-		sockaddr_storage dest;
-		S6U::Socket::getOriginalDestination(srcFD, &dest);
+		S6U::SocketAddress dest;
+		S6U::Socket::getOriginalDestination(srcFD, &dest.storage);
 		
 		S6M::OptionSet opts(S6M::OptionSet::M_REQ);
 		if (S6U::Socket::tfoAttempted(srcFD))
 			opts.setTFO();
-		S6M::Request req(SOCKS6_REQUEST_CONNECT, S6U::Socket::getAddress(&dest), S6U::Socket::getPort(&dest), opts, 0);
+		S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), opts, 0);
 		S6M::ByteBuffer bb(buf.getTail(), buf.freeSize());
 		req.pack(&bb);
 		buf.use(bb.getUsed());
@@ -32,7 +32,11 @@ void ProxiferUpstreamer::process(Poller *poller, uint32_t events)
 		}
 		buf.use(bytes);
 		
-		dstFD = socket(owner->get)
+		dstFD = socket(owner->getProxy()->storage.ss_family, SOCK_STREAM, IPPROTO_TCP);
+		if (dstFD < 0)
+		{
+			//TODO
+		}
 		
 		break;
 	}
