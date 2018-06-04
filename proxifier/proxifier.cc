@@ -7,15 +7,15 @@
 #include <sys/socket.h>
 #include <netinet/tcp.h>
 #include <system_error>
-#include "proxifieracceptreactor.hh"
+#include "proxifier.hh"
 #include "../core/poller.hh"
-#include "proxiferupstreamreactor.hh"
+#include "proxiferupstreamer.hh"
 
 #include <iostream>
 
 using namespace std;
 
-void ProxifierAcceptReactor::process(Poller *poller, uint32_t events)
+void Proxifier::process(Poller *poller, uint32_t events)
 {
 	(void)events;
 	
@@ -38,13 +38,14 @@ void ProxifierAcceptReactor::process(Poller *poller, uint32_t events)
 		const static int one = 1;
 		setsockopt(clientFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int));
 		
-		ProxiferUpstreamReactor *upstreamReactor = NULL;
+		ProxiferUpstreamer *upstreamReactor = NULL;
 		try
 		{
-			upstreamReactor = new ProxiferUpstreamReactor(clientFD);
+			upstreamReactor = new ProxiferUpstreamer(this, clientFD);
 		}
 		catch (bad_alloc)
 		{
+			// tolerable error
 			close(clientFD);
 			continue;
 		}
@@ -53,7 +54,7 @@ void ProxifierAcceptReactor::process(Poller *poller, uint32_t events)
 		{
 			poller->add(upstreamReactor, clientFD, EPOLLIN | EPOLLRDHUP);
 		}
-		catch (...)
+		catch (exception)
 		{
 			delete upstreamReactor;
 		}
@@ -62,7 +63,7 @@ void ProxifierAcceptReactor::process(Poller *poller, uint32_t events)
 	poller->add(this, listenFD, EPOLLIN);
 }
 
-ProxifierAcceptReactor::~ProxifierAcceptReactor()
+Proxifier::~Proxifier()
 {
 	close(listenFD);
 }

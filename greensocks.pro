@@ -7,20 +7,20 @@ LIBS += -lpthread
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
-    proxifier/proxiferupstreamreactor.cc \
-    proxifier/proxifieracceptreactor.cc \
     core/listenreactor.cc \
     core/poller.cc \
     core/reactor.cc \
     core/streamreactor.cc \
-    greensocks.cc
+    greensocks.cc \
+    proxifier/proxiferupstreamer.cc \
+    proxifier/proxifier.cc
 
 HEADERS += \
-    proxifier/proxifieracceptreactor.hh \
-    proxifier/proxiferupstreamreactor.hh \
     core/poller.hh \
     core/listenreactor.hh \
     core/reactor.hh \
-    core/streamreactor.hh
+    core/streamreactor.hh \
+    proxifier/proxifier.hh \
+    proxifier/proxiferupstreamer.hh
 
 LIBS = -lsocks6msg -lsocks6util -lpthread

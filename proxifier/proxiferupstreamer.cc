@@ -1,13 +1,12 @@
 #include <socks6util/socks6util.hh>
 #include <socks6msg/socks6msg.hh>
 #include <system_error>
-#include "proxiferupstreamreactor.hh"
+#include "proxifier.hh"
+#include "proxiferupstreamer.hh"
 
 using namespace std;
 
-
-
-void ProxiferUpstreamReactor::process(Poller *poller, uint32_t events)
+void ProxiferUpstreamer::process(Poller *poller, uint32_t events)
 {
 	switch (state)
 	{
@@ -33,7 +32,7 @@ void ProxiferUpstreamReactor::process(Poller *poller, uint32_t events)
 		}
 		buf.use(bytes);
 		
-		//TODO
+		dstFD = socket(owner->get)
 		
 		break;
 	}
@@ -57,7 +56,7 @@ void ProxiferUpstreamReactor::process(Poller *poller, uint32_t events)
 	
 }
 
-int ProxiferUpstreamReactor::getFD() const
+int ProxiferUpstreamer::getFD() const
 {
 	switch (state)
 	{
@@ -70,4 +69,6 @@ int ProxiferUpstreamReactor::getFD() const
 	case S_WAITING_TO_SEND:
 		return dstFD;
 	}
+	
+	return -1;
 }

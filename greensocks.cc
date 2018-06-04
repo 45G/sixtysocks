@@ -2,7 +2,6 @@
 #include <iostream>
 #include <thread>
 #include <unistd.h>
-
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -17,16 +16,30 @@
 #include <socks6util/socks6util.hh>
 
 #include "core/poller.hh"
-#include "proxifier/proxifieracceptreactor.hh"
+#include "proxifier/proxifier.hh"
 
 using namespace std;
 
 void usage()
 {
-	cerr << "usage: greensocks [-j <thread count>] [-o <cpu offset>]" << endl;
-	cerr << "\t" << "[-m <mode>]" << endl;
-	cerr << "\t" << "[-l <port>] [-t <tls port>]" << endl;
-	cerr << "\t" << "[-s <proxy IP>] [-p <proxy port>]" << endl;
+	static const char *usageLines[] = {
+		"usage: greensocks [-j <thread count>] [-o <cpu offset>]",
+			"[-m <mode>]",
+			"[-l <port>] [-t <tls port>]",
+			"[-i]",
+			"[-U <username>] [-P <password>]",
+			"[-s <proxy IP>] [-p <proxy port>]",
+		//TODO: TLS proxy
+		NULL,
+	};
+	
+	const char *line = usageLines[0];
+	
+	cerr << line << endl;
+	line++;
+	for (; line != NULL; line++)
+		cerr << "\t" << line << endl;
+	
 	exit(EXIT_FAILURE);
 }
 
@@ -35,6 +48,13 @@ enum Mode
 	M_NONE,
 	M_PROXIFIER,
 	M_PROXY,
+};
+
+union SocketAddress
+{
+	sockaddr_storage storage;
+	sockaddr_in ipv4;
+	sockaddr_in6 ipv6;
 };
 
 int main(int argc, char **argv)
@@ -48,9 +68,14 @@ int main(int argc, char **argv)
 	uint16_t tlsPort = 0;
 	in_addr_t proxyIP;
 	uint16_t proxyPort = 1080;
+	SocketAddress proxy;
+	SocketAddress tlsProxy;
+	
+	memset(&proxy.storage,    0, sizeof(sockaddr_storage));
+	memset(&tlsProxy.storage, 0, sizeof(sockaddr_storage));
 	
 	//TODO: fix this shit
-	while ((c = getopt(argc, argv, "j:o:m:l:t:s:p:")) != -1)
+	while ((c = getopt(argc, argv, "j:o:m:l:t:i:U:P:s:p:")) != -1)
 	{
 		switch (c)
 		{
@@ -87,9 +112,22 @@ int main(int argc, char **argv)
 				usage();
 			break;
 			
+		case 'i':
+			//TODO
+			break;
+			
+		case 'U':
+			//TODO
+			break;
+			
+		case 'P':
+			//TODO
+			break;
+			
 		case 's':
-			proxyIP = inet_addr(optarg);
-			if (proxyIP == 0)
+			proxy.ipv4.sin_family = AF_INET;
+			proxy.ipv4.sin_addr.s_addr = inet_addr(optarg);
+			if (proxy.ipv4.sin_addr.s_addr == 0)
 				usage();
 			break;
 			
@@ -116,7 +154,7 @@ int main(int argc, char **argv)
 	if (listenFD < 0)
 		throw std::system_error(errno, std::system_category());
 	
-	// Tolerable error
+	// tolerable error
 	static const int one = 1;
 	setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(int));
 	
@@ -139,10 +177,10 @@ int main(int argc, char **argv)
 	if (rc < 0)
 		throw system_error(errno, std::system_category());
 	
-	// Tolerable error
+	// tolerable error
 	S6U::Socket::saveSYN(listenFD);
 	
-	poller.add(new ProxifierAcceptReactor(listenFD), listenFD, EPOLLIN);
+	poller.add(new Proxifier(proxy.storage, listenFD), listenFD, EPOLLIN);
 	
 	sleep(1000);
 	
