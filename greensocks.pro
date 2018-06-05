@@ -13,7 +13,8 @@ SOURCES += \
     core/streamreactor.cc \
     greensocks.cc \
     proxifier/proxiferupstreamer.cc \
-    proxifier/proxifier.cc
+    proxifier/proxifier.cc \
+    proxifier/proxifierdownstreamer.cc
 
 HEADERS += \
     core/poller.hh \
@@ -21,6 +22,7 @@ HEADERS += \
     core/reactor.hh \
     core/streamreactor.hh \
     proxifier/proxifier.hh \
-    proxifier/proxiferupstreamer.hh
+    proxifier/proxiferupstreamer.hh \
+    proxifier/proxifierdownstreamer.hh
 
 LIBS = -lsocks6msg -lsocks6util -lpthread

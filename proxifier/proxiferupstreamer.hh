@@ -4,6 +4,7 @@
 #include "../core/streamreactor.hh"
 
 class Proxifier;
+class ProxifierDownstreamer;
 
 class ProxiferUpstreamer: public StreamReactor
 {
@@ -17,12 +18,13 @@ class ProxiferUpstreamer: public StreamReactor
 	};
 	
 	Proxifier *owner;
+	ProxifierDownstreamer *peer;
 	
 	State state;
 
 public:
 	ProxiferUpstreamer(Proxifier *owner, int srcFD)
-		: StreamReactor(srcFD, -1), owner(owner), state(S_READING_INIT_DATA) {}
+		: StreamReactor(srcFD, -1), owner(owner), peer(NULL), state(S_READING_INIT_DATA) {}
 	
 	void process(Poller *poller, uint32_t events);
 	

@@ -1,6 +1,7 @@
 #include <socks6util/socks6util.hh>
 #include <socks6msg/socks6msg.hh>
 #include <system_error>
+#include <fcntl.h>
 #include "proxifier.hh"
 #include "proxiferupstreamer.hh"
 
@@ -34,9 +35,22 @@ void ProxiferUpstreamer::process(Poller *poller, uint32_t events)
 		
 		dstFD = socket(owner->getProxy()->storage.ss_family, SOCK_STREAM, IPPROTO_TCP);
 		if (dstFD < 0)
+			throw system_error(errno, system_category());
+		
+		int rc = fcntl(dstFD, F_SETFD, O_NONBLOCK);
+		if (rc < 0)
+			throw system_error(errno, std::system_category());
+		
+		//TODO: check if TFO is wanted
+		bytes = sendto(dstFD, buf.getHead(), buf.usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.storage, dest.size());
+		bytes = S6U::Socket::fastOpenConnect(dstFD, &dest.storage, buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
+		if (bytes < 0)
 		{
-			//TODO
+			if (errno != EINPROGRESS)
+				throw system_error(errno, system_category());
+			bytes = 0;
 		}
+		buf.free(bytes);
 		
 		break;
 	}
@@ -69,6 +83,8 @@ int ProxiferUpstreamer::getFD() const
 		return srcFD;
 	
 	case S_CONNECTING:
+		return -1;
+		
 	case S_SENDING_REQ:
 	case S_WAITING_TO_SEND:
 		return dstFD;
