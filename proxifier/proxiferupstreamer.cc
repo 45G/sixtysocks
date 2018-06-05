@@ -43,7 +43,6 @@ void ProxiferUpstreamer::process(Poller *poller, uint32_t events)
 		
 		//TODO: check if TFO is wanted
 		bytes = sendto(dstFD, buf.getHead(), buf.usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.storage, dest.size());
-		bytes = S6U::Socket::fastOpenConnect(dstFD, &dest.storage, buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
 		if (bytes < 0)
 		{
 			if (errno != EINPROGRESS)
