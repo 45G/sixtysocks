@@ -5,7 +5,7 @@
 
 class StreamBuffer
 {
-	static const size_t BUF_SIZE = 4096;
+	static const size_t BUF_SIZE = 1024 * 1024; //1MB
 	
 	uint8_t buf[BUF_SIZE];
 	

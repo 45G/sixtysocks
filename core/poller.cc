@@ -21,6 +21,9 @@ Poller::Poller(int numThreads, int cpuOffset)
 
 void Poller::add(Reactor *reactor, int fd, uint32_t events)
 {
+	if (fd < 0)
+		return;
+	
 	epoll_event event;
 	event.events = events | EPOLLONESHOT;
 	event.data.ptr = reactor;

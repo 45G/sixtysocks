@@ -9,7 +9,7 @@
 #include <system_error>
 #include "proxifier.hh"
 #include "../core/poller.hh"
-#include "proxiferupstreamer.hh"
+#include "proxifierupstreamer.hh"
 
 #include <iostream>
 
@@ -38,10 +38,10 @@ void Proxifier::process(Poller *poller, uint32_t events)
 		const static int one = 1;
 		setsockopt(clientFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int));
 		
-		ProxiferUpstreamer *upstreamReactor = NULL;
+		ProxifierUpstreamer *upstreamReactor = NULL;
 		try
 		{
-			upstreamReactor = new ProxiferUpstreamer(this, clientFD);
+			upstreamReactor = new ProxifierUpstreamer(this, clientFD);
 		}
 		catch (bad_alloc)
 		{

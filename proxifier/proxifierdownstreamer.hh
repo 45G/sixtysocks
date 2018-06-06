@@ -18,10 +18,9 @@ class ProxifierDownstreamer : public StreamReactor
 	};
 	
 	Proxifier *owner;
-	ProxifierUpstreamer *peer;
+	ProxifierUpstreamer *upstreamer;
 public:
-	ProxifierDownstreamer(Proxifier *owner, ProxifierUpstreamer *peer, int srcFD)
-		: StreamReactor(srcFD, -1), owner(owner), peer(peer) {}
+	ProxifierDownstreamer(ProxifierUpstreamer *upstreamer);
 	
 	void process(Poller *poller, uint32_t events);
 	
