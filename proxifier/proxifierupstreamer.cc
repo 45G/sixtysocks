@@ -62,13 +62,14 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		{
 			ProxifierDownstreamer *downstreamer = new ProxifierDownstreamer(this);
 			poller->add(downstreamer, downstreamer->getSrcFD(), EPOLLIN | EPOLLRDHUP);
-			state = buf.usedSize() > 0 ? S_WAITING_TO_SEND : S_WAITING_TO_RECV;
+			state = S_STREAM;
+			streamState = buf.usedSize() > 0 ? SS_WAITING_TO_SEND : SS_WAITING_TO_RECV;
 		}
 			
-		if (state == S_SENDING_REQ || state == S_WAITING_TO_SEND)
+		if (state == S_SENDING_REQ || (state == S_STREAM && streamState == SS_WAITING_TO_SEND))
 			poller->add(this, dstFD, EPOLLOUT);
 		else
-			poller->add(this, srcFD, EPOLLIN);
+			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
 		
 		break;
 	}
@@ -88,73 +89,20 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		{
 			ProxifierDownstreamer *downstreamer = new ProxifierDownstreamer(this);
 			poller->add(downstreamer, downstreamer->getSrcFD(), EPOLLIN | EPOLLRDHUP);
-			state = buf.usedSize() > 0 ? S_WAITING_TO_SEND : S_WAITING_TO_RECV;
+			state = S_STREAM;
+			streamState = buf.usedSize() > 0 ? SS_WAITING_TO_SEND : SS_WAITING_TO_RECV;
 		}
 			
-		if (state == S_SENDING_REQ || state == S_WAITING_TO_SEND)
+		if (state == S_SENDING_REQ || (state == S_STREAM && streamState == SS_WAITING_TO_SEND))
 			poller->add(this, dstFD, EPOLLOUT);
 		else
 			poller->add(this, srcFD, EPOLLIN);
 		
 		break;
 	}
-	case S_WAITING_TO_RECV:
-	{
-		ssize_t bytes = buf.fill(srcFD, MSG_NOSIGNAL);
-		if (bytes == 0)
-		{
-			close(srcFD); // tolerable error
-			srcFD = -1;
-		}
-		if (bytes < 0)
-		{
-			if (errno != EWOULDBLOCK && errno != EAGAIN)
-			{
-				close(srcFD); // tolerable error
-				srcFD = -1;
-			}
-		}
-		
-		bytes = buf.spill(dstFD, MSG_NOSIGNAL);
-		if (bytes < 0)
-		{
-			if (errno != EWOULDBLOCK && errno != EAGAIN)
-				throw system_error(errno, system_category());
-		}
-		
-		if (buf.usedSize() > 0)
-		{
-			state = S_WAITING_TO_SEND;
-			poller->add(this, dstFD, EPOLLOUT);
-		}
-		else
-		{
-			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
-		}
-		
+	case S_STREAM:
+		StreamReactor::process(poller, events);
 		break;
-	}
-	case S_WAITING_TO_SEND:
-	{
-		ssize_t bytes = buf.spill(dstFD, MSG_NOSIGNAL);
-		if (bytes < 0)
-		{
-			if (errno != EWOULDBLOCK && errno != EAGAIN)
-				throw system_error(errno, system_category());
-		}
-		
-		if (buf.usedSize() == 0)
-		{
-			state = S_WAITING_TO_RECV;
-			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
-		}
-		else
-		{
-			poller->add(this, dstFD, EPOLLOUT);
-		}
-		
-		break;
-	}
 	}
 	
 }
@@ -164,12 +112,13 @@ int ProxifierUpstreamer::getFD() const
 	switch (state)
 	{
 	case S_READING_INIT_DATA:
-	case S_WAITING_TO_RECV:
 		return srcFD;
 		
 	case S_SENDING_REQ:
-	case S_WAITING_TO_SEND:
 		return dstFD;
+
+	case S_STREAM:
+		return StreamReactor::getFD();
 	}
 	
 	return -1;

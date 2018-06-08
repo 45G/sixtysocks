@@ -85,6 +85,14 @@ protected:
 	
 	StreamBuffer buf;
 	
+	enum StreamState
+	{
+		SS_WAITING_TO_RECV,
+		SS_WAITING_TO_SEND,
+	};
+
+	StreamState streamState;
+
 public:
 	StreamReactor(int srcFD, int dstFD)
 		: srcFD(srcFD), dstFD(dstFD) {}
@@ -99,6 +107,10 @@ public:
 		return dstFD;
 	}
 	
+	void process(Poller *poller, uint32_t events);
+
+	int getFD() const;
+
 	~StreamReactor();
 };
 

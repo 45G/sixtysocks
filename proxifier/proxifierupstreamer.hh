@@ -11,9 +11,8 @@ class ProxifierUpstreamer: public StreamReactor
 	enum State
 	{
 		S_READING_INIT_DATA,
-		S_WAITING_TO_RECV,
 		S_SENDING_REQ,
-		S_WAITING_TO_SEND,
+		S_STREAM,
 	};
 	
 	ssize_t reqBytesLeft;
