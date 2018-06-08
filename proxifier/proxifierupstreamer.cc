@@ -11,6 +11,8 @@ using namespace std;
 
 void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 {
+	(void)events;
+
 	if (!active)
 		return;
 	
@@ -25,19 +27,17 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		if (S6U::Socket::tfoAttempted(srcFD))
 			opts.setTFO();
 		S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), opts, 0);
-		S6M::ByteBuffer bb(buf.getTail(), buf.freeSize());
+		S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
 		req.pack(&bb);
 		buf.use(bb.getUsed());
 		reqBytesLeft = bb.getUsed();
 		
-		ssize_t bytes = recv(srcFD, buf.getTail(), buf.freeSize(), MSG_NOSIGNAL);
+		ssize_t bytes = buf.fill(srcFD, MSG_NOSIGNAL);
 		if (bytes < 0)
 		{
 			if (errno != EWOULDBLOCK && errno != EAGAIN)
 				throw system_error(errno, system_category());
-			bytes = 0;
 		}
-		buf.use(bytes);
 		
 		dstFD = socket(owner->getProxy()->storage.ss_family, SOCK_STREAM, IPPROTO_TCP);
 		if (dstFD < 0)
@@ -50,20 +50,17 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		state = S_SENDING_REQ;
 		
 		//TODO: check if TFO is wanted
-		bytes = sendto(dstFD, buf.getHead(), buf.usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.sockAddress, dest.size());
+		bytes = buf.spillTFO(dstFD, dest, MSG_NOSIGNAL);
 		if (bytes < 0)
 		{
 			if (errno != EINPROGRESS)
 				throw system_error(errno, system_category());
-			bytes = 0;
 		}
-		buf.free(bytes);
 		reqBytesLeft -= bytes;
 		
 		if (reqBytesLeft < 0)
 		{
-			downstreamer = new ProxifierDownstreamer(this);
-			downstreamer->use();
+			ProxifierDownstreamer *downstreamer = new ProxifierDownstreamer(this);
 			poller->add(downstreamer, downstreamer->getSrcFD(), EPOLLIN | EPOLLRDHUP);
 			state = buf.usedSize() > 0 ? S_WAITING_TO_SEND : S_WAITING_TO_RECV;
 		}
@@ -77,22 +74,19 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 	}
 	case S_SENDING_REQ:
 	{
-		ssize_t bytes = send(dstFD, buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
+		ssize_t bytes = buf.spill(dstFD, MSG_NOSIGNAL);
 		if (bytes == 0)
 			return;
 		if (bytes < 0)
 		{
 			if (errno != EINPROGRESS)
 				throw system_error(errno, system_category());
-			bytes = 0;
 		}
-		buf.free(bytes);
 		reqBytesLeft -= bytes;
 		
 		if (reqBytesLeft < 0)
 		{
-			downstreamer = new ProxifierDownstreamer(this);
-			downstreamer->use();
+			ProxifierDownstreamer *downstreamer = new ProxifierDownstreamer(this);
 			poller->add(downstreamer, downstreamer->getSrcFD(), EPOLLIN | EPOLLRDHUP);
 			state = buf.usedSize() > 0 ? S_WAITING_TO_SEND : S_WAITING_TO_RECV;
 		}
@@ -106,7 +100,7 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 	}
 	case S_WAITING_TO_RECV:
 	{
-		ssize_t bytes = recv(srcFD, buf.getTail(), buf.freeSize(), MSG_NOSIGNAL);
+		ssize_t bytes = buf.fill(srcFD, MSG_NOSIGNAL);
 		if (bytes == 0)
 		{
 			close(srcFD); // tolerable error
@@ -119,18 +113,14 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 				close(srcFD); // tolerable error
 				srcFD = -1;
 			}
-			bytes = 0;
 		}
-		buf.use(bytes);
 		
-		bytes = send(dstFD, buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
+		bytes = buf.spill(dstFD, MSG_NOSIGNAL);
 		if (bytes < 0)
 		{
 			if (errno != EWOULDBLOCK && errno != EAGAIN)
 				throw system_error(errno, system_category());
-			bytes = 0;
 		}
-		buf.free(bytes);
 		
 		if (buf.usedSize() > 0)
 		{
@@ -146,6 +136,22 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 	}
 	case S_WAITING_TO_SEND:
 	{
+		ssize_t bytes = buf.spill(dstFD, MSG_NOSIGNAL);
+		if (bytes < 0)
+		{
+			if (errno != EWOULDBLOCK && errno != EAGAIN)
+				throw system_error(errno, system_category());
+		}
+		
+		if (buf.usedSize() == 0)
+		{
+			state = S_WAITING_TO_RECV;
+			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
+		}
+		else
+		{
+			poller->add(this, dstFD, EPOLLOUT);
+		}
 		
 		break;
 	}

@@ -6,21 +6,25 @@
 
 class ProxifierUpstreamer;
 
-class ProxifierDownstreamer : public StreamReactor
+class ProxifierDownstreamer: public StreamReactor
 {
 	enum State
 	{
-		S_WAITING_FOR_CONNECT,
-		S_WAITING_FOR_DATA,
-		S_CONNECTING,
-		S_SENDING_REQ,
+		S_WAITING_FOR_AUTH_REP,
+		S_WAITING_FOR_OP_REP,
+		S_WAITING_TO_RECV,
 		S_WAITING_TO_SEND,
 	};
 	
 	Proxifier *owner;
 	ProxifierUpstreamer *upstreamer;
+
+	State state;
+
 public:
 	ProxifierDownstreamer(ProxifierUpstreamer *upstreamer);
+
+	~ProxifierDownstreamer();
 	
 	void process(Poller *poller, uint32_t events);
 	

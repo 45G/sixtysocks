@@ -32,7 +32,10 @@ void Poller::add(Reactor *reactor, int fd, uint32_t events)
 	
 	int rc = epoll_ctl(epollFD, EPOLL_CTL_ADD, fd, &event);
 	if (rc < 0)
+	{
+		reactor->unuse();
 		throw system_error(errno, system_category());
+	}
 	
 	fds.reserve(fd);
 	fds[fd] = reactor;

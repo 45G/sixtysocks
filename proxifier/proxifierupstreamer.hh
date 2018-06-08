@@ -19,14 +19,13 @@ class ProxifierUpstreamer: public StreamReactor
 	ssize_t reqBytesLeft;
 	
 	Proxifier *owner;
-	ProxifierDownstreamer *downstreamer;
 	
 	State state;
 	
 public:
 	ProxifierUpstreamer(Proxifier *owner, int srcFD)
-		: StreamReactor(srcFD, -1), owner(owner), downstreamer(NULL), state(S_READING_INIT_DATA) {}
-	
+		: StreamReactor(srcFD, -1), owner(owner), state(S_READING_INIT_DATA) {}
+
 	void process(Poller *poller, uint32_t events);
 	
 	int getFD() const;

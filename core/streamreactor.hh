@@ -1,6 +1,7 @@
 #ifndef STREAMREACTOR_HH
 #define STREAMREACTOR_HH
 
+#include <socks6util/socks6util_socketaddress.hh>
 #include "reactor.hh"
 
 class StreamBuffer
@@ -26,7 +27,7 @@ public:
 		return tail - head;
 	}
 	
-	void free(size_t count)
+	void unuse(size_t count)
 	{
 		head += count;
 		if (head == tail)
@@ -41,7 +42,7 @@ public:
 		return &buf[tail];
 	}
 	
-	size_t freeSize() const
+	size_t availSize() const
 	{
 		return BUF_SIZE - tail;
 	}
@@ -49,6 +50,30 @@ public:
 	void use(size_t count)
 	{
 		tail += count;
+	}
+
+	int fill(int fd, int flags)
+	{
+		ssize_t bytes = recv(fd, getTail(), availSize(), flags);
+		if (bytes > 0)
+			use(bytes);
+		return bytes;
+	}
+
+	int spill(int fd, int flags)
+	{
+		ssize_t bytes = send(fd, getHead(), usedSize(), flags);
+		if (bytes >0)
+			unuse(bytes);
+		return bytes;
+	}
+
+	int spillTFO(int fd, S6U::SocketAddress dest, int flags)
+	{
+		ssize_t bytes = sendto(fd, getHead(), usedSize(), MSG_FASTOPEN | flags, &dest.sockAddress, dest.size());
+		if (bytes > 0)
+			unuse(bytes);
+		return bytes;
 	}
 };
 

@@ -5,7 +5,7 @@
 using namespace std;
 
 ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
-	: StreamReactor(-1, -1), owner(upstreamer->getOwner()), upstreamer(upstreamer)
+	: StreamReactor(-1, -1), owner(upstreamer->getOwner()), upstreamer(upstreamer), state(S_WAITING_FOR_AUTH_REP)
 {
 	srcFD = dup(upstreamer->getDstFD());
 	if (srcFD < 0)
@@ -18,11 +18,38 @@ ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
 		close(srcFD);
 		throw system_error(errno, system_category());
 	}
+	upstreamer->use();
+}
+
+ProxifierDownstreamer::~ProxifierDownstreamer()
+{
+	if (upstreamer != NULL)
+		upstreamer->unuse();
 }
 
 void ProxifierDownstreamer::process(Poller *poller, uint32_t events)
 {
-	//TODO
+	(void)events;
+
+	switch (state)
+	{
+	case S_WAITING_FOR_AUTH_REP:
+	{
+		break;
+	}
+	case S_WAITING_FOR_OP_REP:
+	{
+		break;
+	}
+	case S_WAITING_TO_RECV:
+	{
+		break;
+	}
+	case S_WAITING_TO_SEND:
+	{
+		break;
+	}
+	}
 }
 
 int ProxifierDownstreamer::getFD() const
