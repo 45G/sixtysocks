@@ -43,7 +43,7 @@ void ProxifierDownstreamer::process(Poller *poller, uint32_t events)
 	}
 	case S_STREAM:
 		StreamReactor::process(poller, events);
-	}
+		break;
 	}
 }
 
