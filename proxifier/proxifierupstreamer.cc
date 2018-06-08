@@ -104,7 +104,6 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		StreamReactor::process(poller, events);
 		break;
 	}
-	
 }
 
 int ProxifierUpstreamer::getFD() const

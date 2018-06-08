@@ -41,13 +41,8 @@ void ProxifierDownstreamer::process(Poller *poller, uint32_t events)
 	{
 		break;
 	}
-	case S_WAITING_TO_RECV:
-	{
-		break;
-	}
-	case S_WAITING_TO_SEND:
-	{
-		break;
+	case S_STREAM:
+		StreamReactor::process(poller, events);
 	}
 	}
 }

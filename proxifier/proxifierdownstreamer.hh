@@ -12,8 +12,7 @@ class ProxifierDownstreamer: public StreamReactor
 	{
 		S_WAITING_FOR_AUTH_REP,
 		S_WAITING_FOR_OP_REP,
-		S_WAITING_TO_RECV,
-		S_WAITING_TO_SEND,
+		S_STREAM,
 	};
 	
 	Proxifier *owner;
