@@ -51,30 +51,6 @@ public:
 	{
 		tail += count;
 	}
-
-	int fill(int fd, int flags)
-	{
-		ssize_t bytes = recv(fd, getTail(), availSize(), flags);
-		if (bytes > 0)
-			use(bytes);
-		return bytes;
-	}
-
-	int spill(int fd, int flags)
-	{
-		ssize_t bytes = send(fd, getHead(), usedSize(), flags);
-		if (bytes >0)
-			unuse(bytes);
-		return bytes;
-	}
-
-	int spillTFO(int fd, S6U::SocketAddress dest, int flags)
-	{
-		ssize_t bytes = sendto(fd, getHead(), usedSize(), MSG_FASTOPEN | flags, &dest.sockAddress, dest.size());
-		if (bytes > 0)
-			unuse(bytes);
-		return bytes;
-	}
 };
 
 class StreamReactor: public Reactor
@@ -92,6 +68,30 @@ protected:
 	};
 
 	StreamState streamState;
+	
+	int fill(int fd, int flags)
+	{
+		ssize_t bytes = recv(fd, buf.getTail(), buf.availSize(), flags);
+		if (bytes > 0)
+			buf.use(bytes);
+		return bytes;
+	}
+
+	int spill(int fd, int flags)
+	{
+		ssize_t bytes = send(fd, buf.getHead(), buf.usedSize(), flags);
+		if (bytes >0)
+			buf.unuse(bytes);
+		return bytes;
+	}
+
+	int spillTFO(int fd, S6U::SocketAddress dest, int flags)
+	{
+		ssize_t bytes = sendto(fd, buf.getHead(), buf.usedSize(), MSG_FASTOPEN | flags, &dest.sockAddress, dest.size());
+		if (bytes > 0)
+			buf.unuse(bytes);
+		return bytes;
+	}
 
 public:
 	StreamReactor(int srcFD, int dstFD)

@@ -32,7 +32,7 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		buf.use(bb.getUsed());
 		reqBytesLeft = bb.getUsed();
 		
-		ssize_t bytes = buf.fill(srcFD, MSG_NOSIGNAL);
+		ssize_t bytes = fill(srcFD, MSG_NOSIGNAL);
 		if (bytes < 0)
 		{
 			if (errno != EWOULDBLOCK && errno != EAGAIN)
@@ -50,7 +50,7 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		state = S_SENDING_REQ;
 		
 		//TODO: check if TFO is wanted
-		bytes = buf.spillTFO(dstFD, dest, MSG_NOSIGNAL);
+		bytes = spillTFO(dstFD, dest, MSG_NOSIGNAL);
 		if (bytes < 0)
 		{
 			if (errno != EINPROGRESS)
@@ -75,7 +75,7 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 	}
 	case S_SENDING_REQ:
 	{
-		ssize_t bytes = buf.spill(dstFD, MSG_NOSIGNAL);
+		ssize_t bytes = spill(dstFD, MSG_NOSIGNAL);
 		if (bytes == 0)
 			return;
 		if (bytes < 0)

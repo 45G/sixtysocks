@@ -13,7 +13,7 @@ void StreamReactor::process(Poller *poller, uint32_t events)
 	{
 	case SS_WAITING_TO_RECV:
 	{
-		ssize_t bytes = buf.fill(srcFD, MSG_NOSIGNAL);
+		ssize_t bytes = fill(srcFD, MSG_NOSIGNAL);
 		if (bytes == 0)
 		{
 			close(srcFD); // tolerable error
@@ -28,7 +28,7 @@ void StreamReactor::process(Poller *poller, uint32_t events)
 			}
 		}
 
-		bytes = buf.spill(dstFD, MSG_NOSIGNAL);
+		bytes = spill(dstFD, MSG_NOSIGNAL);
 		if (bytes < 0)
 		{
 			if (errno != EWOULDBLOCK && errno != EAGAIN)
@@ -49,7 +49,7 @@ void StreamReactor::process(Poller *poller, uint32_t events)
 	}
 	case SS_WAITING_TO_SEND:
 	{
-		ssize_t bytes = buf.spill(dstFD, MSG_NOSIGNAL);
+		ssize_t bytes = spill(dstFD, MSG_NOSIGNAL);
 		if (bytes < 0)
 		{
 			if (errno != EWOULDBLOCK && errno != EAGAIN)
