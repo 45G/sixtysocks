@@ -47,6 +47,9 @@ void Poller::start()
 	{
 		threads[i] = thread(threadFun, this);
 		
+		if (cpuOffset < 0)
+			continue;
+		
 		cpu_set_t cpuset;
 		CPU_ZERO(&cpuset);
 		CPU_SET(i + cpuOffset, &cpuset);
@@ -54,7 +57,6 @@ void Poller::start()
 		if (rc > 0)
 			throw system_error(rc, system_category());
 	}
-		
 }
 
 void Poller::stop()

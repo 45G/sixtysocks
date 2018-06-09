@@ -96,7 +96,7 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		if (state == S_SENDING_REQ || (state == S_STREAM && streamState == SS_WAITING_TO_SEND))
 			poller->add(this, dstFD, EPOLLOUT);
 		else
-			poller->add(this, srcFD, EPOLLIN);
+			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
 		
 		break;
 	}

@@ -50,32 +50,27 @@ enum Mode
 	M_PROXY,
 };
 
-union SocketAddress
-{
-	sockaddr_storage storage;
-	sockaddr_in ipv4;
-	sockaddr_in6 ipv6;
-};
-
 int main(int argc, char **argv)
 {
 	char c;
 	opterr = 0;
-	int numThreads = thread::hardware_concurrency();
-	int cpuOffset = 0;
+	int numThreads = 1;
+	int cpuOffset = -1;
 	Mode mode = M_NONE;
 	uint16_t port = 0;
 	uint16_t tlsPort = 0;
-	in_addr_t proxyIP;
 	uint16_t proxyPort = 1080;
-	SocketAddress proxy;
-	SocketAddress tlsProxy;
+	S6U::SocketAddress proxy;
+	S6U::SocketAddress tlsProxy;
+	bool idempotence = false;
+	string username;
+	string password;
 	
 	memset(&proxy.storage,    0, sizeof(sockaddr_storage));
 	memset(&tlsProxy.storage, 0, sizeof(sockaddr_storage));
 	
 	//TODO: fix this shit
-	while ((c = getopt(argc, argv, "j:o:m:l:t:i:U:P:s:p:")) != -1)
+	while ((c = getopt(argc, argv, "j:o:m:l:t:iU:P:s:p:")) != -1)
 	{
 		switch (c)
 		{
@@ -87,12 +82,10 @@ int main(int argc, char **argv)
 			
 		case 'o':
 			cpuOffset = atoi(optarg);
-			if (cpuOffset < 0)
-				usage();
 			break;
 			
 		case 'm':
-			if (string(optarg) == "proxfy")
+			if (string(optarg) == "proxify")
 				mode = M_PROXIFIER;
 			else if (string(optarg) == "proxy")
 				mode = M_PROXY;
@@ -113,15 +106,15 @@ int main(int argc, char **argv)
 			break;
 			
 		case 'i':
-			//TODO
+			idempotence = true;
 			break;
 			
 		case 'U':
-			//TODO
+			username = string(optarg);
 			break;
 			
 		case 'P':
-			//TODO
+			password = string(optarg);
 			break;
 			
 		case 's':
@@ -144,8 +137,8 @@ int main(int argc, char **argv)
 	if (mode == M_NONE)
 		usage();
 	
-	if (cpuOffset + numThreads > (int)thread::hardware_concurrency())
-		usage();
+//	if (cpuOffset + numThreads > (int)thread::hardware_concurrency())
+//		usage();
 	
 	Poller poller(numThreads, cpuOffset);
 	poller.start();
@@ -163,7 +156,7 @@ int main(int argc, char **argv)
 	
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	addr.sin_port = htons(1234); 
+	addr.sin_port = htons(port); 
 	
 	int rc = bind(listenFD, (struct sockaddr *)&addr, sizeof(addr));
 	if (rc < 0)
