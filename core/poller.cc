@@ -8,8 +8,6 @@
 
 using namespace std;
 
-
-
 Poller::Poller(int numThreads, int cpuOffset)
 	: numThreads(numThreads), cpuOffset(cpuOffset), alive(true)
 {
@@ -78,11 +76,6 @@ void Poller::stop()
 	
 	for (int i = 0; i < (int)threads.size(); i++)
 		threads[i].join();
-}
-
-Poller::~Poller()
-{
-	
 }
 
 void Poller::threadFun(Poller *poller)

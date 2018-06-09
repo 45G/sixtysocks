@@ -31,7 +31,7 @@ public:
 	
 	static void threadFun(Poller *poller);
 	
-	~Poller();
+	~Poller() {}
 };
 
 #endif // POLLER_HH
