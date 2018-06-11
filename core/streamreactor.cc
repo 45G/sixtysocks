@@ -5,15 +5,13 @@
 
 using namespace std;
 
-void StreamReactor::process(Poller *poller, uint32_t events)
+void StreamReactor::process(Poller *poller)
 {
-	(void)events;
-
 	switch (streamState)
 	{
 	case SS_WAITING_TO_RECV:
 	{
-		ssize_t bytes = fill(srcFD, MSG_NOSIGNAL);
+		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
 		{
 			close(srcFD); // tolerable error
@@ -28,7 +26,7 @@ void StreamReactor::process(Poller *poller, uint32_t events)
 			}
 		}
 
-		bytes = spill(dstFD, MSG_NOSIGNAL);
+		bytes = spill(dstFD);
 		if (bytes < 0)
 		{
 			if (errno != EWOULDBLOCK && errno != EAGAIN)
@@ -38,18 +36,18 @@ void StreamReactor::process(Poller *poller, uint32_t events)
 		if (buf.usedSize() > 0)
 		{
 			streamState = SS_WAITING_TO_SEND;
-			poller->add(this, dstFD, EPOLLOUT);
+			poller->add(this, dstFD, Poller::OUT_EVENTS);
 		}
 		else
 		{
-			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
+			poller->add(this, srcFD, Poller::IN_EVENTS);
 		}
 
 		break;
 	}
 	case SS_WAITING_TO_SEND:
 	{
-		ssize_t bytes = spill(dstFD, MSG_NOSIGNAL);
+		ssize_t bytes = spill(dstFD);
 		if (bytes < 0)
 		{
 			if (errno != EWOULDBLOCK && errno != EAGAIN)
@@ -59,11 +57,11 @@ void StreamReactor::process(Poller *poller, uint32_t events)
 		if (buf.usedSize() == 0)
 		{
 			streamState = SS_WAITING_TO_RECV;
-			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
+			poller->add(this, srcFD, Poller::IN_EVENTS);
 		}
 		else
 		{
-			poller->add(this, dstFD, EPOLLOUT);
+			poller->add(this, dstFD, Poller::OUT_EVENTS);
 		}
 
 		break;

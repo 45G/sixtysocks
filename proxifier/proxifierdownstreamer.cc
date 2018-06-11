@@ -29,15 +29,13 @@ ProxifierDownstreamer::~ProxifierDownstreamer()
 		upstreamer->unuse();
 }
 
-void ProxifierDownstreamer::process(Poller *poller, uint32_t events)
+void ProxifierDownstreamer::process(Poller *poller)
 {
-	(void)events;
-
 	switch (state)
 	{
 	case S_WAITING_FOR_AUTH_REP:
 	{
-		ssize_t bytes = fill(srcFD, MSG_NOSIGNAL);
+		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
 			return;
 		if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
@@ -54,13 +52,13 @@ void ProxifierDownstreamer::process(Poller *poller, uint32_t events)
 		}
 		catch (S6M::EndOfBufferException) {}
 		
-		poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
+		poller->add(this, srcFD, Poller::IN_EVENTS);
 		
 		break;
 	}
 	case S_WAITING_FOR_OP_REP:
 	{
-		ssize_t bytes = fill(srcFD, MSG_NOSIGNAL);
+		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
 			return;
 		if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
@@ -77,7 +75,7 @@ void ProxifierDownstreamer::process(Poller *poller, uint32_t events)
 		}
 		catch (S6M::EndOfBufferException)
 		{
-			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
+			poller->add(this, srcFD, Poller::IN_EVENTS);
 			return;
 		}
 		
@@ -87,26 +85,26 @@ void ProxifierDownstreamer::process(Poller *poller, uint32_t events)
 		state = S_STREAM;
 		if (buf.usedSize() > 0)
 		{
-			ssize_t bytes = spill(dstFD, MSG_NOSIGNAL);
+			ssize_t bytes = spill(dstFD);
 			if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
 				return;
 		}
 		if (buf.usedSize() == 0)
 		{
 			streamState = SS_WAITING_TO_RECV;
-			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
+			poller->add(this, srcFD, Poller::IN_EVENTS);
 		}
 		else
 		{
 			streamState = SS_WAITING_TO_SEND;
-			poller->add(this, srcFD, EPOLLOUT);
+			poller->add(this, srcFD, Poller::OUT_EVENTS);
 		}
 		
 		
 		break;
 	}
 	case S_STREAM:
-		StreamReactor::process(poller, events);
+		StreamReactor::process(poller);
 		break;
 	}
 }

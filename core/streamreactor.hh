@@ -69,25 +69,25 @@ protected:
 
 	StreamState streamState;
 	
-	int fill(int fd, int flags)
+	int fill(int fd)
 	{
-		ssize_t bytes = recv(fd, buf.getTail(), buf.availSize(), flags);
+		ssize_t bytes = recv(fd, buf.getTail(), buf.availSize(), MSG_NOSIGNAL);
 		if (bytes > 0)
 			buf.use(bytes);
 		return bytes;
 	}
 
-	int spill(int fd, int flags)
+	int spill(int fd)
 	{
-		ssize_t bytes = send(fd, buf.getHead(), buf.usedSize(), flags);
+		ssize_t bytes = send(fd, buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
 		if (bytes >0)
 			buf.unuse(bytes);
 		return bytes;
 	}
 
-	int spillTFO(int fd, S6U::SocketAddress dest, int flags)
+	int spillTFO(int fd, S6U::SocketAddress dest)
 	{
-		ssize_t bytes = sendto(fd, buf.getHead(), buf.usedSize(), MSG_FASTOPEN | flags, &dest.sockAddress, dest.size());
+		ssize_t bytes = sendto(fd, buf.getHead(), buf.usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.sockAddress, dest.size());
 		if (bytes > 0)
 			buf.unuse(bytes);
 		return bytes;
@@ -107,7 +107,7 @@ public:
 		return dstFD;
 	}
 	
-	void process(Poller *poller, uint32_t events);
+	void process(Poller *poller);
 
 	int getFD() const;
 

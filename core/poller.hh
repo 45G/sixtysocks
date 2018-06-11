@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <thread>
 #include <vector>
+#include <sys/epoll.h>
 
 class Reactor;
 
@@ -20,6 +21,9 @@ class Poller
 	volatile bool alive;
 	
 public:
+	static const uint32_t IN_EVENTS  = EPOLLIN | EPOLLRDHUP;
+	static const uint32_t OUT_EVENTS = EPOLLOUT;
+	
 	Poller(int numThreads, int cpuOffset);
 	
 	void add(Reactor *reactor, int fd, uint32_t events);

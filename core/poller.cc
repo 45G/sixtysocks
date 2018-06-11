@@ -95,7 +95,7 @@ void Poller::threadFun(Poller *poller)
 		
 		try
 		{
-			reactor->process(poller, event.events);
+			reactor->process(poller);
 		}
 		catch (...)
 		{

@@ -25,7 +25,7 @@ public:
 
 	~ProxifierDownstreamer();
 	
-	void process(Poller *poller, uint32_t events);
+	void process(Poller *poller);
 	
 	int getFD() const;
 };

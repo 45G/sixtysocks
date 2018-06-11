@@ -17,7 +17,7 @@ public:
 		return &proxy;
 	}
 	
-	void process(Poller *poller, uint32_t events);
+	void process(Poller *poller);
 	
 	~Proxifier();
 };

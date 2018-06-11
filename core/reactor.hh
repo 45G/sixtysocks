@@ -20,7 +20,7 @@ public:
 	Reactor()
 		: active(true), refCnt(0) {}
 	
-	virtual void process(Poller *poller, uint32_t events) = 0;
+	virtual void process(Poller *poller) = 0;
 	
 	void use()
 	{

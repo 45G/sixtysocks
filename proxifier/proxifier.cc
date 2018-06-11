@@ -15,10 +15,8 @@
 
 using namespace std;
 
-void Proxifier::process(Poller *poller, uint32_t events)
+void Proxifier::process(Poller *poller)
 {
-	(void)events;
-	
 	while (active)
 	{
 		int clientFD = accept(listenFD, NULL, NULL);

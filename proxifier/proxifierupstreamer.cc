@@ -9,10 +9,8 @@
 
 using namespace std;
 
-void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
+void ProxifierUpstreamer::process(Poller *poller)
 {
-	(void)events;
-
 	if (!active)
 		return;
 	
@@ -32,7 +30,7 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		buf.use(bb.getUsed());
 		reqBytesLeft = bb.getUsed();
 		
-		ssize_t bytes = fill(srcFD, MSG_NOSIGNAL);
+		ssize_t bytes = fill(srcFD);
 		if (bytes < 0)
 		{
 			if (errno != EWOULDBLOCK && errno != EAGAIN)
@@ -50,7 +48,7 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		state = S_SENDING_REQ;
 		
 		//TODO: check if TFO is wanted
-		bytes = spillTFO(dstFD, dest, MSG_NOSIGNAL);
+		bytes = spillTFO(dstFD, dest);
 		if (bytes < 0)
 		{
 			if (errno != EINPROGRESS)
@@ -61,21 +59,21 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		if (reqBytesLeft < 0)
 		{
 			ProxifierDownstreamer *downstreamer = new ProxifierDownstreamer(this);
-			poller->add(downstreamer, downstreamer->getSrcFD(), EPOLLIN | EPOLLRDHUP);
+			poller->add(downstreamer, downstreamer->getSrcFD(), Poller::IN_EVENTS);
 			state = S_STREAM;
 			streamState = buf.usedSize() > 0 ? SS_WAITING_TO_SEND : SS_WAITING_TO_RECV;
 		}
 			
 		if (state == S_SENDING_REQ || (state == S_STREAM && streamState == SS_WAITING_TO_SEND))
-			poller->add(this, dstFD, EPOLLOUT);
+			poller->add(this, dstFD, Poller::OUT_EVENTS);
 		else
-			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
+			poller->add(this, srcFD, Poller::IN_EVENTS);
 		
 		break;
 	}
 	case S_SENDING_REQ:
 	{
-		ssize_t bytes = spill(dstFD, MSG_NOSIGNAL);
+		ssize_t bytes = spill(dstFD);
 		if (bytes == 0)
 			return;
 		if (bytes < 0)
@@ -88,20 +86,20 @@ void ProxifierUpstreamer::process(Poller *poller, uint32_t events)
 		if (reqBytesLeft < 0)
 		{
 			ProxifierDownstreamer *downstreamer = new ProxifierDownstreamer(this);
-			poller->add(downstreamer, downstreamer->getSrcFD(), EPOLLIN | EPOLLRDHUP);
+			poller->add(downstreamer, downstreamer->getSrcFD(), Poller::IN_EVENTS);
 			state = S_STREAM;
 			streamState = buf.usedSize() > 0 ? SS_WAITING_TO_SEND : SS_WAITING_TO_RECV;
 		}
 			
 		if (state == S_SENDING_REQ || (state == S_STREAM && streamState == SS_WAITING_TO_SEND))
-			poller->add(this, dstFD, EPOLLOUT);
+			poller->add(this, dstFD, Poller::OUT_EVENTS);
 		else
-			poller->add(this, srcFD, EPOLLIN | EPOLLRDHUP);
+			poller->add(this, srcFD, Poller::IN_EVENTS);
 		
 		break;
 	}
 	case S_STREAM:
-		StreamReactor::process(poller, events);
+		StreamReactor::process(poller);
 		break;
 	}
 }

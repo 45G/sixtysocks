@@ -25,7 +25,7 @@ public:
 	ProxifierUpstreamer(Proxifier *owner, int srcFD)
 		: StreamReactor(srcFD, -1), owner(owner), state(S_READING_INIT_DATA) {}
 
-	void process(Poller *poller, uint32_t events);
+	void process(Poller *poller);
 	
 	int getFD() const;
 	
