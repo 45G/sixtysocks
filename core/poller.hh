@@ -29,6 +29,8 @@ public:
 	
 	void stop();
 	
+	void join();
+	
 	static void threadFun(Poller *poller);
 	
 	~Poller() {}

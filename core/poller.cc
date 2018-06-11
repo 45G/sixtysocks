@@ -73,7 +73,10 @@ void Poller::stop()
 		fds[i]->deactivate();
 		fds[i]->unuse();
 	}
-	
+}
+
+void Poller::join()
+{
 	for (int i = 0; i < (int)threads.size(); i++)
 		threads[i].join();
 }
