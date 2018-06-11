@@ -142,6 +142,7 @@ int main(int argc, char **argv)
 	
 	Poller poller(numThreads, cpuOffset);
 	//poller.start();
+	poller.threadFun(&poller);
 	
 	int listenFD = socket(AF_INET, SOCK_STREAM, 0);
 	if (listenFD < 0)

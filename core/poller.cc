@@ -9,12 +9,27 @@
 using namespace std;
 
 Poller::Poller(int numThreads, int cpuOffset)
-	: numThreads(numThreads), cpuOffset(cpuOffset), alive(true)
+	: numThreads(numThreads), alive(true)
 {
 	threads.reserve(numThreads);
 	epollFD = epoll_create(1337);
 	if (epollFD < 0)
 		throw system_error(errno, system_category());
+	
+	for (int i = 0; i < numThreads; i++)
+	{
+		threads[i] = thread(threadFun, this);
+		
+		if (cpuOffset < 0)
+			continue;
+		
+		cpu_set_t cpuset;
+		CPU_ZERO(&cpuset);
+		CPU_SET(i + cpuOffset, &cpuset);
+		int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
+		if (rc > 0)
+			throw system_error(rc, system_category());
+	}
 }
 
 void Poller::add(Reactor *reactor, int fd, uint32_t events)
@@ -37,24 +52,6 @@ void Poller::add(Reactor *reactor, int fd, uint32_t events)
 	
 	fds.reserve(fd);
 	fds[fd] = reactor;
-}
-
-void Poller::start()
-{
-	for (int i = 0; i < numThreads; i++)
-	{
-		threads[i] = thread(threadFun, this);
-		
-		if (cpuOffset < 0)
-			continue;
-		
-		cpu_set_t cpuset;
-		CPU_ZERO(&cpuset);
-		CPU_SET(i + cpuOffset, &cpuset);
-		int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
-		if (rc > 0)
-			throw system_error(rc, system_category());
-	}
 }
 
 void Poller::stop()

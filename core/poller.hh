@@ -10,7 +10,6 @@ class Reactor;
 class Poller
 {
 	int numThreads;
-	int cpuOffset;
 	
 	int epollFD;
 	
@@ -24,8 +23,6 @@ public:
 	Poller(int numThreads, int cpuOffset);
 	
 	void add(Reactor *reactor, int fd, uint32_t events);
-	
-	void start();
 	
 	void stop();
 	
