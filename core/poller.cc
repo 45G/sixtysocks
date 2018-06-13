@@ -16,20 +16,20 @@ Poller::Poller(int numThreads, int cpuOffset)
 	if (epollFD < 0)
 		throw system_error(errno, system_category());
 	
-	for (int i = 0; i < numThreads; i++)
-	{
-		threads[i] = thread(threadFun, this);
+//	for (int i = 0; i < numThreads; i++)
+//	{
+//		threads[i] = thread(threadFun, this);
 		
-		if (cpuOffset < 0)
-			continue;
+//		if (cpuOffset < 0)
+//			continue;
 		
-		cpu_set_t cpuset;
-		CPU_ZERO(&cpuset);
-		CPU_SET(i + cpuOffset, &cpuset);
-		int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
-		if (rc > 0)
-			throw system_error(rc, system_category());
-	}
+//		cpu_set_t cpuset;
+//		CPU_ZERO(&cpuset);
+//		CPU_SET(i + cpuOffset, &cpuset);
+//		int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
+//		if (rc > 0)
+//			throw system_error(rc, system_category());
+//	}
 }
 
 void Poller::add(Reactor *reactor, int fd, uint32_t events)
@@ -84,7 +84,7 @@ void Poller::threadFun(Poller *poller)
 	{
 		epoll_event event;
 		
-		int rc = epoll_wait(poller->epollFD, &event, 1, 2000);
+		int rc = epoll_wait(poller->epollFD, &event, 1, -1);
 		if (rc < 0)
 			throw std::system_error(errno, std::system_category());
 		if (rc == 0)

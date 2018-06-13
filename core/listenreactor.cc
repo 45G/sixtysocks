@@ -15,7 +15,6 @@ void ListenReactor::processError(int err)
 	case ENFILE:
 	case ENOBUFS:
 	case ENOMEM:
-	case EPROTO:
 		break;
 		
 	default:

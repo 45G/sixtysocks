@@ -19,22 +19,35 @@ void Proxifier::process(Poller *poller)
 {
 	while (active)
 	{
-		int clientFD = accept(listenFD, NULL, NULL);
+		int clientFD = accept4(listenFD, NULL, NULL, SOCK_NONBLOCK);
 		if (clientFD < 0)
 		{
-			if (errno == EWOULDBLOCK || errno == EAGAIN || errno == EINTR)
+			switch (errno)
+			{
+			case EWOULDBLOCK:
+#if EWOULDBLOCK != EAGAIN
+			case EAGAIN:
+#endif
+				goto resched;
+
+			case EINTR:
+			case ENETDOWN:
+			case EPROTO:
+			case ENOPROTOOPT:
+			case EHOSTDOWN:
+			case ENONET:
+			case EHOSTUNREACH:
+			case EOPNOTSUPP:
+			case ENETUNREACH:
 				break;
-			else
+			default:
 				processError(errno);
+			}
 			continue;
 		}
-		int rc = fcntl(clientFD, F_SETFD, O_NONBLOCK);
-		if (rc < 0)
-			deactivate();
 		
-		// Tolerable error
 		const static int one = 1;
-		setsockopt(clientFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int));
+		setsockopt(clientFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int)); // tolerable error
 		
 		ProxifierUpstreamer *upstreamReactor = NULL;
 		try
@@ -57,7 +70,8 @@ void Proxifier::process(Poller *poller)
 			delete upstreamReactor;
 		}
 	}
-	
+
+resched:
 	poller->add(this, listenFD, EPOLLIN);
 }
 

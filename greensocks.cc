@@ -142,9 +142,9 @@ int main(int argc, char **argv)
 	
 	Poller poller(numThreads, cpuOffset);
 	//poller.start();
-	poller.threadFun(&poller);
+
 	
-	int listenFD = socket(AF_INET, SOCK_STREAM, 0);
+	int listenFD = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	if (listenFD < 0)
 		throw std::system_error(errno, std::system_category());
 	
@@ -167,16 +167,13 @@ int main(int argc, char **argv)
 	if (rc < 0)
 		throw system_error(errno, std::system_category());
 	
-	rc = fcntl(listenFD, F_SETFD, O_NONBLOCK);
-	if (rc < 0)
-		throw system_error(errno, std::system_category());
-	
 	// tolerable error
 	S6U::Socket::saveSYN(listenFD);
 	
 	poller.add(new Proxifier(proxy.storage, listenFD), listenFD, EPOLLIN);
 	
-	sleep(1000);
+//	sleep(1000);
+	poller.threadFun(&poller);
 	
 	poller.stop();
 	poller.join();
