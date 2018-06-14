@@ -74,13 +74,13 @@ StreamReactor::~StreamReactor()
 	if (srcFD != -1)
 	{
 		poller->remove(srcFD);
-		shutdown(srcFD, SHUT_RD);
-		close(srcFD);
+		shutdown(srcFD, SHUT_RD);  // tolerable error
+		close(srcFD); // tolerable error
 	}
 	if (dstFD != -1)
 	{
 		poller->remove(dstFD);
-		shutdown(dstFD, SHUT_WR);
-		close(dstFD);
+		shutdown(dstFD, SHUT_WR); // tolerable error
+		close(dstFD); // tolerable error
 	}
 }

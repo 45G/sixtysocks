@@ -16,8 +16,7 @@ ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
 	dstFD = dup(upstreamer->getSrcFD());
 	if (dstFD < 0)
 	{
-		// tolerable error
-		close(srcFD);
+		close(srcFD); // tolerable error
 		throw system_error(errno, system_category());
 	}
 	upstreamer->use();
