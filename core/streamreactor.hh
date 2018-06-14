@@ -94,8 +94,8 @@ protected:
 	}
 
 public:
-	StreamReactor(int srcFD, int dstFD)
-		: srcFD(srcFD), dstFD(dstFD) {}
+	StreamReactor(Poller *poller, int srcFD, int dstFD)
+		: Reactor(poller), srcFD(srcFD), dstFD(dstFD) {}
 	
 	int getSrcFD() const
 	{
@@ -108,8 +108,6 @@ public:
 	}
 	
 	void process(Poller *poller);
-
-	int getFD() const;
 
 	~StreamReactor();
 };

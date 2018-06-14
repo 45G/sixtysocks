@@ -11,10 +11,10 @@ protected:
 	void processError(int err);
 	
 public:
-	ListenReactor(int listenFD)
-		: listenFD(listenFD) {}
-	
-	int getFD() const;
+	ListenReactor(Poller *poller, int listenFD)
+		: Reactor(poller), listenFD(listenFD) {}
+
+	~ListenReactor();
 };
 
 #endif // LISTENREACTOR_HH

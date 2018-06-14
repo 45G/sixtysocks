@@ -170,7 +170,7 @@ int main(int argc, char **argv)
 	// tolerable error
 	S6U::Socket::saveSYN(listenFD);
 	
-	poller.add(new Proxifier(proxy.storage, listenFD), listenFD, EPOLLIN);
+	poller.add(new Proxifier(&poller, proxy.storage, listenFD), listenFD, EPOLLIN);
 	
 //	sleep(1000);
 	poller.threadFun(&poller);

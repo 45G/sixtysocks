@@ -15,6 +15,7 @@ Poller::Poller(int numThreads, int cpuOffset)
 	epollFD = epoll_create(1337);
 	if (epollFD < 0)
 		throw system_error(errno, system_category());
+	reactors.reserve(1024);
 	
 //	for (int i = 0; i < numThreads; i++)
 //	{
@@ -36,6 +37,9 @@ void Poller::add(Reactor *reactor, int fd, uint32_t events)
 {
 	if (fd < 0)
 		return;
+
+	if (reactors.size() > fd && reactors[fd] != NULL)
+		rearm(fd, events);
 	
 	epoll_event event;
 	event.events = events | EPOLLONESHOT;
@@ -50,25 +54,59 @@ void Poller::add(Reactor *reactor, int fd, uint32_t events)
 		throw system_error(errno, system_category());
 	}
 	
-	fds.reserve(fd);
-	fds[fd] = reactor;
+	size_t reqSize = reactors.size();
+	while ((int)reqSize < fd + 1)
+		reqSize *= 2;
+	if (reactors.size() < reqSize)
+	{
+		//TODO: lock!
+		reactors.reserve(reqSize);
+	}
+	reactors.reserve(fd + 1);
+
+	reactors[fd] = reactor;
+}
+
+void Poller::rearm(int fd, uint32_t events)
+{
+	Reactor *reactor = reactors[fd];
+	epoll_event event;
+	event.events = events | EPOLLONESHOT;
+	event.data.ptr = reactor;
+
+	reactor->use();
+
+	int rc = epoll_ctl(epollFD, EPOLL_CTL_MOD, fd, &event);
+	if (rc < 0)
+	{
+		reactor->unuse();
+		throw system_error(errno, system_category());
+	}
+}
+
+void Poller::remove(int fd)
+{
+	Reactor *reactor = reactors[fd];
+	if (reactor == NULL)
+		return;
+
+	int rc = epoll_ctl(epollFD, EPOLL_CTL_DEL, fd, NULL);
+	if (rc < 0)
+	{
+		throw system_error(errno, system_category());
+	}
 }
 
 void Poller::stop()
 {
 	alive = false;
 	
-	for (int i = 0; i < (int)fds.size(); i++)
+	for (int i = 0; i < (int)reactors.size(); i++)
 	{
-		if (!fds[i])
+		if (!reactors[i])
 			continue;
 		
-		int rc = epoll_ctl(epollFD, EPOLL_CTL_DEL, i, NULL);
-		if (rc < 0)
-			throw std::system_error(errno, std::system_category());
-		
-		fds[i]->deactivate();
-		fds[i]->unuse();
+		reactors[i]->deactivate();
 	}
 }
 
@@ -91,11 +129,10 @@ void Poller::threadFun(Poller *poller)
 			continue;
 		
 		Reactor *reactor = reinterpret_cast<Reactor *>(event.data.ptr);
-		poller->fds[reactor->getFD()] = NULL;
 		
 		try
 		{
-			reactor->process(poller);
+			reactor->process();
 		}
 		catch (...)
 		{

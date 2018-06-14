@@ -16,7 +16,7 @@ class Poller
 	
 	std::vector<std::thread> threads;
 	
-	std::vector<Reactor *> fds;
+	std::vector<Reactor *> reactors;
 	
 	volatile bool alive;
 	
@@ -27,6 +27,10 @@ public:
 	Poller(int numThreads, int cpuOffset);
 	
 	void add(Reactor *reactor, int fd, uint32_t events);
+
+	void rearm(int fd, uint32_t events);
+
+	void remove(int fd);
 	
 	void stop();
 	

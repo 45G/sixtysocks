@@ -69,29 +69,17 @@ void StreamReactor::process(Poller *poller)
 	}
 }
 
-int StreamReactor::getFD() const
-{
-	switch (streamState)
-	{
-	case StreamReactor::SS_WAITING_TO_RECV:
-		return srcFD;
-
-	case StreamReactor::SS_WAITING_TO_SEND:
-		return dstFD;
-	}
-
-	return -1;
-}
-
 StreamReactor::~StreamReactor()
 {
 	if (srcFD != -1)
 	{
+		poller->remove(srcFD);
 		shutdown(srcFD, SHUT_RD);
 		close(srcFD);
 	}
 	if (dstFD != -1)
 	{
+		poller->remove(dstFD);
 		shutdown(dstFD, SHUT_WR);
 		close(dstFD);
 	}

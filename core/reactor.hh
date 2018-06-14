@@ -13,14 +13,15 @@ class Poller;
 class Reactor
 {
 protected:
+	Poller *poller;
 	bool active;
 	std::atomic<int> refCnt;
 	
 public:
-	Reactor()
-		: active(true), refCnt(0) {}
+	Reactor(Poller *poller)
+		: poller(poller), active(true), refCnt(0) {}
 	
-	virtual void process(Poller *poller) = 0;
+	virtual void process() = 0;
 	
 	void use()
 	{
@@ -38,8 +39,11 @@ public:
 	{
 		active = false;
 	}
-	
-	virtual int getFD() const = 0;
+
+	Poller *getPoller() const
+	{
+		return poller;
+	}
 	
 	virtual ~Reactor();
 };

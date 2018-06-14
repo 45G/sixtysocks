@@ -15,7 +15,7 @@
 
 using namespace std;
 
-void Proxifier::process(Poller *poller)
+void Proxifier::process()
 {
 	while (active)
 	{

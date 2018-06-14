@@ -9,7 +9,10 @@
 
 using namespace std;
 
-void ProxifierUpstreamer::process(Poller *poller)
+ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *owner, int srcFD)
+	: StreamReactor(owner->getPoller(), srcFD, -1), owner(owner), state(S_READING_INIT_DATA) {}
+
+void ProxifierUpstreamer::process()
 {
 	if (!active)
 		return;
@@ -102,21 +105,4 @@ void ProxifierUpstreamer::process(Poller *poller)
 		StreamReactor::process(poller);
 		break;
 	}
-}
-
-int ProxifierUpstreamer::getFD() const
-{
-	switch (state)
-	{
-	case S_READING_INIT_DATA:
-		return srcFD;
-		
-	case S_SENDING_REQ:
-		return dstFD;
-
-	case S_STREAM:
-		return StreamReactor::getFD();
-	}
-	
-	return -1;
 }

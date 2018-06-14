@@ -9,15 +9,15 @@ class Proxifier: public ListenReactor
 	S6U::SocketAddress proxy;
 	
 public:
-	Proxifier(const S6U::SocketAddress &proxy, int listenFD)
-		: ListenReactor(listenFD), proxy(proxy) {}
+	Proxifier(Poller *poller, const S6U::SocketAddress &proxy, int listenFD)
+		: ListenReactor(poller, listenFD), proxy(proxy) {}
 	
 	const S6U::SocketAddress *getProxy() const
 	{
 		return &proxy;
 	}
 	
-	void process(Poller *poller);
+	void process();
 	
 	~Proxifier();
 };

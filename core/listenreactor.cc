@@ -1,6 +1,8 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <system_error>
+#include <unistd.h>
+#include "poller.hh"
 #include "listenreactor.hh"
 
 using namespace std;
@@ -22,7 +24,8 @@ void ListenReactor::processError(int err)
 	}
 }
 
-int ListenReactor::getFD() const
+ListenReactor::~ListenReactor()
 {
-	return listenFD;
+	poller->remove(listenFD);
+	close(listenFD);
 }
