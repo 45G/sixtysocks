@@ -26,5 +26,6 @@ void ListenReactor::processError(int err)
 
 ListenReactor::~ListenReactor()
 {
-	poller->remove(listenFD.fd);
+	poller->remove(listenFD);
+	close(listenFD);
 }

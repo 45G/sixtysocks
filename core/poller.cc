@@ -86,9 +86,6 @@ void Poller::rearm(int fd, uint32_t events)
 
 void Poller::remove(int fd)
 {
-	if (fd < 0)
-		return;
-
 	Reactor *reactor = reactors[fd];
 	if (reactor == NULL)
 		return;
