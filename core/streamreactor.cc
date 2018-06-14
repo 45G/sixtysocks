@@ -14,20 +14,16 @@ void StreamReactor::process(Poller *poller)
 		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
 		{
-			poller->remove(dstFD);
-			shutdown(dstFD, SHUT_WR);
-			close(dstFD);
-			srcFD = -1;
+			return;
 		}
 		if (bytes < 0)
 		{
-			if (errno != EWOULDBLOCK && errno != EAGAIN)
+			if (errno == EWOULDBLOCK || errno == EAGAIN)
 			{
-				poller->remove(srcFD);
-				shutdown(srcFD, SHUT_RD);
-				close(srcFD);
-				srcFD = -1;
+				poller->add(this, srcFD, Poller::IN_EVENTS);
+				return;
 			}
+			throw system_error(errno, system_category());
 		}
 
 		bytes = spill(dstFD);
