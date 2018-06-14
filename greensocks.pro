@@ -27,4 +27,4 @@ HEADERS += \
     proxifier/proxifierupstreamer.hh \
     proxifier/proxifiertfopolicy.hh
 
-LIBS = -lsocks6msg -lsocks6util -lpthread
+LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system
