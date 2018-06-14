@@ -19,7 +19,7 @@ void Proxifier::process()
 {
 	while (active)
 	{
-		int clientFD = accept4(listenFD, NULL, NULL, SOCK_NONBLOCK);
+		int clientFD = accept4(listenFD.fd, NULL, NULL, SOCK_NONBLOCK);
 		if (clientFD < 0)
 		{
 			switch (errno)
@@ -72,10 +72,7 @@ void Proxifier::process()
 	}
 
 resched:
-	poller->add(this, listenFD, EPOLLIN);
+	poller->add(this, listenFD.fd, EPOLLIN);
 }
 
-Proxifier::~Proxifier()
-{
-	close(listenFD);
-}
+Proxifier::~Proxifier() {}
