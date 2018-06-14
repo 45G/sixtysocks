@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include "../core/poller.hh"
 #include "proxifier.hh"
-#include "proxifiertfopolicy.hh"
 #include "proxifierdownstreamer.hh"
 #include "proxifierupstreamer.hh"
 
@@ -50,10 +49,10 @@ void ProxifierUpstreamer::process()
 		/* check if TFO is wanted */
 		uint32_t polFlags = 0;
 		if (bytes == 0)
-			polFlags |= ProxifierTFOPolicy::F_NO_DATA;
+			polFlags |= S6U::TFOSafety::TFOS_NO_DATA;
 		if (opts.getTFO())
-			polFlags |= ProxifierTFOPolicy::F_TFO_SYN;
-		if (ProxifierTFOPolicy::tfoPermitted(polFlags))
+			polFlags |= S6U::TFOSafety::TFOS_TFO_SYN;
+		if (S6U::TFOSafety::tfoSafe(polFlags))
 		{
 			bytes = spillTFO(dstFD, *owner->getProxy());
 			if (bytes < 0)
