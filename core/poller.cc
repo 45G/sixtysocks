@@ -39,7 +39,10 @@ void Poller::add(Reactor *reactor, int fd, uint32_t events)
 		return;
 
 	if ((int)reactors.size() > fd && reactors[fd] != NULL)
+	{
 		rearm(fd, events);
+		return;
+	}
 	
 	epoll_event event;
 	event.events = events | EPOLLONESHOT;
@@ -62,7 +65,6 @@ void Poller::add(Reactor *reactor, int fd, uint32_t events)
 		//TODO: lock!
 		reactors.resize(reqSize);
 	}
-	reactors.resize(fd + 1);
 
 	reactors[fd] = reactor;
 }
@@ -95,6 +97,8 @@ void Poller::remove(int fd)
 	{
 		throw system_error(errno, system_category());
 	}
+
+	reactors[fd] = NULL;
 }
 
 void Poller::stop()

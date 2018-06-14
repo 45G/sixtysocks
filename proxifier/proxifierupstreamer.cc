@@ -55,7 +55,7 @@ void ProxifierUpstreamer::process()
 			polFlags |= ProxifierTFOPolicy::F_TFO_SYN;
 		if (ProxifierTFOPolicy::tfoPermitted(polFlags))
 		{
-			bytes = spillTFO(dstFD, dest);
+			bytes = spillTFO(dstFD, *owner->getProxy());
 			if (bytes < 0)
 			{
 				if (errno != EINPROGRESS)
@@ -66,7 +66,7 @@ void ProxifierUpstreamer::process()
 		}
 		else
 		{
-			int rc = connect(dstFD, &dest.sockAddress, dest.size());
+			int rc = connect(dstFD, &owner->getProxy()->sockAddress, dest.size());
 			if (rc < 0)
 			{
 				if (errno != EINPROGRESS)

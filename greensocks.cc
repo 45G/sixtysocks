@@ -136,6 +136,7 @@ int main(int argc, char **argv)
 	}
 	if (mode == M_NONE)
 		usage();
+	proxy.setPort(proxyPort);
 	
 //	if (cpuOffset + numThreads > (int)thread::hardware_concurrency())
 //		usage();

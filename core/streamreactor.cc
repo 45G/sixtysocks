@@ -14,14 +14,18 @@ void StreamReactor::process(Poller *poller)
 		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
 		{
-			close(srcFD); // tolerable error
+			poller->remove(dstFD);
+			shutdown(dstFD, SHUT_WR);
+			close(dstFD);
 			srcFD = -1;
 		}
 		if (bytes < 0)
 		{
 			if (errno != EWOULDBLOCK && errno != EAGAIN)
 			{
-				close(srcFD); // tolerable error
+				poller->remove(srcFD);
+				shutdown(srcFD, SHUT_RD);
+				close(srcFD);
 				srcFD = -1;
 			}
 		}
