@@ -5,6 +5,7 @@
 #include <thread>
 #include <vector>
 #include <sys/epoll.h>
+#include <boost/thread/mutex.hpp>
 
 class Reactor;
 
@@ -17,6 +18,7 @@ class Poller
 	std::vector<std::thread> threads;
 	
 	std::vector<Reactor *> reactors;
+	boost::mutex reactorsMutex;
 	
 	volatile bool alive;
 	

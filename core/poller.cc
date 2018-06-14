@@ -56,14 +56,20 @@ void Poller::add(Reactor *reactor, int fd, uint32_t events)
 		reactor->unuse();
 		throw system_error(errno, system_category());
 	}
-	
-	size_t reqSize = reactors.size();
-	while ((int)reqSize < fd + 1)
-		reqSize *= 2;
-	if (reactors.size() < reqSize)
+
+	if ((int)reactors.size() < fd + 1)
 	{
-		//TODO: lock!
-		reactors.resize(reqSize);
+		size_t reqSize = reactors.size();
+		do
+		{
+			reqSize *= 2;
+		}
+		while ((int)reqSize < fd + 1);
+
+		reactorsMutex.lock();
+		if (reactors.size() < reqSize)
+			reactors.resize(reqSize);
+		reactorsMutex.unlock();
 	}
 
 	reactors[fd] = reactor;
