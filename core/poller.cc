@@ -38,7 +38,7 @@ void Poller::add(Reactor *reactor, int fd, uint32_t events)
 	if (fd < 0)
 		return;
 
-	if (reactors.size() > fd && reactors[fd] != NULL)
+	if ((int)reactors.size() > fd && reactors[fd] != NULL)
 		rearm(fd, events);
 	
 	epoll_event event;

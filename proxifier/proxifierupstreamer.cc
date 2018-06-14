@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include "../core/poller.hh"
 #include "proxifier.hh"
+#include "proxifiertfopolicy.hh"
 #include "proxifierdownstreamer.hh"
 #include "proxifierupstreamer.hh"
 
@@ -40,24 +41,39 @@ void ProxifierUpstreamer::process()
 				throw system_error(errno, system_category());
 		}
 		
-		dstFD = socket(owner->getProxy()->storage.ss_family, SOCK_STREAM, IPPROTO_TCP);
+		dstFD = socket(owner->getProxy()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
 		if (dstFD < 0)
 			throw system_error(errno, system_category());
 		
-		int rc = fcntl(dstFD, F_SETFD, O_NONBLOCK);
-		if (rc < 0)
-			throw system_error(errno, std::system_category());
-		
 		state = S_SENDING_REQ;
 		
-		//TODO: check if TFO is wanted
-		bytes = spillTFO(dstFD, dest);
-		if (bytes < 0)
+		/* check if TFO is wanted */
+		uint32_t polFlags = 0;
+		if (bytes > 0)
+			polFlags |= ProxifierTFOPolicy::F_GOT_DATA;
+		if (opts.getTFO())
+			polFlags |= ProxifierTFOPolicy::F_TFO_SYN;
+		if (ProxifierTFOPolicy::tfoPermitted(polFlags))
 		{
-			if (errno != EINPROGRESS)
-				throw system_error(errno, system_category());
+			bytes = spillTFO(dstFD, dest);
+			if (bytes < 0)
+			{
+				if (errno != EINPROGRESS)
+					throw system_error(errno, system_category());
+				bytes = 0;
+			}
+			reqBytesLeft -= bytes;
 		}
-		reqBytesLeft -= bytes;
+		else
+		{
+			int rc = connect(dstFD, &dest.sockAddress, dest.size());
+			if (rc < 0)
+			{
+				if (errno != EINPROGRESS)
+					throw system_error(errno, system_category());
+			}
+			bytes = 0;
+		}
 		
 		if (reqBytesLeft < 0)
 		{
