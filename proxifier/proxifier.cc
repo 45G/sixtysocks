@@ -56,8 +56,7 @@ void Proxifier::process()
 		}
 		catch (bad_alloc)
 		{
-			// tolerable error
-			close(clientFD);
+			close(clientFD); // tolerable error
 			continue;
 		}
 		
