@@ -15,7 +15,7 @@ Poller::Poller(int numThreads, int cpuOffset)
 	epollFD = epoll_create(1337);
 	if (epollFD < 0)
 		throw system_error(errno, system_category());
-	reactors.reserve(1024);
+	reactors.resize(1024);
 	
 //	for (int i = 0; i < numThreads; i++)
 //	{
@@ -60,9 +60,9 @@ void Poller::add(Reactor *reactor, int fd, uint32_t events)
 	if (reactors.size() < reqSize)
 	{
 		//TODO: lock!
-		reactors.reserve(reqSize);
+		reactors.resize(reqSize);
 	}
-	reactors.reserve(fd + 1);
+	reactors.resize(fd + 1);
 
 	reactors[fd] = reactor;
 }
