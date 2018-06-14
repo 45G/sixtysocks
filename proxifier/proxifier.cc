@@ -62,7 +62,7 @@ void Proxifier::process()
 		
 		try
 		{
-			poller->add(upstreamReactor, clientFD, EPOLLIN | EPOLLRDHUP);
+			poller->add(upstreamReactor, clientFD, Poller::IN_EVENTS);
 		}
 		catch (exception)
 		{
