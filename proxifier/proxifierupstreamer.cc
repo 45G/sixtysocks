@@ -49,8 +49,8 @@ void ProxifierUpstreamer::process()
 		
 		/* check if TFO is wanted */
 		uint32_t polFlags = 0;
-		if (bytes > 0)
-			polFlags |= ProxifierTFOPolicy::F_GOT_DATA;
+		if (bytes == 0)
+			polFlags |= ProxifierTFOPolicy::F_NO_DATA;
 		if (opts.getTFO())
 			polFlags |= ProxifierTFOPolicy::F_TFO_SYN;
 		if (ProxifierTFOPolicy::tfoPermitted(polFlags))

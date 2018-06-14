@@ -11,11 +11,11 @@ bool ProxifierTFOPolicy::tfoPermitted(uint32_t flags)
 		return true;
 
 	/* no application data */
-	if (!(flags & F_GOT_DATA))
+	if (flags & F_NO_DATA)
 		return true;
 
 	/* TLS w/o 0-RTT data */
-	if ((flags & F_TLS) && !(flags & F_TLS_0RTT))
+	if ((flags & F_TLS) && (flags & F_TLS_NO_0RTT))
 		return true;
 
 	return false;
