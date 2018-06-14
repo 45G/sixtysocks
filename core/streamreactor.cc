@@ -13,9 +13,7 @@ void StreamReactor::process(Poller *poller)
 	{
 		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
-		{
 			return;
-		}
 		if (bytes < 0)
 		{
 			if (errno == EWOULDBLOCK || errno == EAGAIN)
