@@ -42,7 +42,7 @@ public:
 	
 	void remove(int fd, bool force = false);
 	
-	void pleaseStop();
+	void stop();
 	
 	void join();
 	

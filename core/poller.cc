@@ -94,7 +94,7 @@ void Poller::remove(int fd, bool force)
 	fdEntries[fd].registered = true;
 }
 
-void Poller::pleaseStop()
+void Poller::stop()
 {
 	alive = false;
 	

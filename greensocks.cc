@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 //	sleep(1000);
 	poller.threadFun(&poller);
 	
-	poller.pleaseStop();
+	poller.stop();
 	poller.join();
 	
 	return 0;
