@@ -19,14 +19,9 @@ ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
 		close(srcFD); // tolerable error
 		throw system_error(errno, system_category());
 	}
-	upstreamer->use();
 }
 
-ProxifierDownstreamer::~ProxifierDownstreamer()
-{
-	if (upstreamer != NULL)
-		upstreamer->unuse();
-}
+ProxifierDownstreamer::~ProxifierDownstreamer() {}
 
 void ProxifierDownstreamer::process()
 {
@@ -78,7 +73,6 @@ void ProxifierDownstreamer::process()
 			return;
 		}
 		
-		upstreamer->unuse();
 		upstreamer = NULL;
 		
 		state = S_STREAM;
@@ -98,7 +92,6 @@ void ProxifierDownstreamer::process()
 			streamState = SS_WAITING_TO_SEND;
 			poller->add(this, srcFD, Poller::OUT_EVENTS);
 		}
-		
 		
 		break;
 	}

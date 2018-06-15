@@ -15,8 +15,8 @@ class ProxifierDownstreamer: public StreamReactor
 		S_STREAM,
 	};
 	
-	Proxifier *owner;
-	ProxifierUpstreamer *upstreamer;
+	boost::intrusive_ptr<Proxifier> owner;
+	boost::intrusive_ptr<ProxifierUpstreamer> upstreamer;
 
 	State state;
 

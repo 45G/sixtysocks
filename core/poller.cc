@@ -7,15 +7,16 @@
 #include "reactor.hh"
 
 using namespace std;
+using namespace boost;
 
-Poller::Poller(int numThreads, int cpuOffset)
+Poller::Poller(int numThreads, int cpuOffset, size_t expectedFDs)
 	: numThreads(numThreads), alive(true)
 {
 	threads.reserve(numThreads);
-	epollFD = epoll_create(1337);
+	epollFD = epoll_create(1); // number doesn't matter
 	if (epollFD < 0)
 		throw system_error(errno, system_category());
-	reactors.resize(1024);
+	fdEntries.resize(expectedFDs);
 	
 //	for (int i = 0; i < numThreads; i++)
 //	{
@@ -30,93 +31,88 @@ Poller::Poller(int numThreads, int cpuOffset)
 //		int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
 //		if (rc > 0)
 //			throw system_error(rc, system_category());
-//	}
+	//	}
 }
 
-void Poller::add(Reactor *reactor, int fd, uint32_t events)
+bool Poller::isRegistered(int fd)
 {
-	if (fd < 0)
-		return;
-
-	if ((int)reactors.size() > fd && reactors[fd] != NULL)
+	if ((int)fdEntries.size() < fd + 1)
 	{
-		rearm(fd, events);
-		return;
-	}
-	
-	epoll_event event;
-	event.events = events | EPOLLONESHOT;
-	event.data.ptr = reactor;
-	
-	reactor->use();
-	
-	int rc = epoll_ctl(epollFD, EPOLL_CTL_ADD, fd, &event);
-	if (rc < 0)
-	{
-		reactor->unuse();
-		throw system_error(errno, system_category());
-	}
-
-	if ((int)reactors.size() < fd + 1)
-	{
-		size_t reqSize = reactors.size();
+		size_t reqSize = fdEntries.size();
 		do
 		{
 			reqSize *= 2;
 		}
 		while ((int)reqSize < fd + 1);
 
-		reactorsMutex.lock();
-		if (reactors.size() < reqSize)
-			reactors.resize(reqSize);
-		reactorsMutex.unlock();
+		entriesMutex.lock();
+		if (fdEntries.size() < reqSize)
+			fdEntries.resize(reqSize);
+		entriesMutex.unlock();
 	}
-
-	reactors[fd] = reactor;
+	
+	return fdEntries[fd].registered;
 }
 
-void Poller::rearm(int fd, uint32_t events)
+void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 {
-	Reactor *reactor = reactors[fd];
+	if (fd < 0)
+		return;
+
+	if (isRegistered(fd))
+	{
+		rearm(reactor, fd, events);
+		return;
+	}
+	
 	epoll_event event;
 	event.events = events | EPOLLONESHOT;
-	event.data.ptr = reactor;
+	event.data.fd = fd;
+	
+	int rc = epoll_ctl(epollFD, EPOLL_CTL_ADD, fd, &event);
+	if (rc < 0)
+		throw system_error(errno, system_category());
+	
+	fdEntries[fd].reactor = reactor;
+	fdEntries[fd].registered = true;
+}
 
-	reactor->use();
+void Poller::rearm(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
+{
+	epoll_event event;
+	event.events = events | EPOLLONESHOT;
+	event.data.fd = fd;
 
 	int rc = epoll_ctl(epollFD, EPOLL_CTL_MOD, fd, &event);
 	if (rc < 0)
-	{
-		reactor->unuse();
 		throw system_error(errno, system_category());
-	}
+	
+	fdEntries[fd].reactor = reactor;
 }
 
 void Poller::remove(int fd)
 {
-	Reactor *reactor = reactors[fd];
-	if (reactor == NULL)
+	if (!fdEntries[fd].registered)
 		return;
 
 	int rc = epoll_ctl(epollFD, EPOLL_CTL_DEL, fd, NULL);
 	if (rc < 0)
-	{
 		throw system_error(errno, system_category());
-	}
 
-	reactors[fd] = NULL;
+	fdEntries[fd].reactor = NULL;
+	fdEntries[fd].registered = true;
 }
 
-void Poller::stop()
+void Poller::pleaseStop()
 {
 	alive = false;
 	
-	for (int i = 0; i < (int)reactors.size(); i++)
+	for (int i = 0; i < (int)fdEntries.size(); i++)
 	{
-		if (!reactors[i])
+		if (fdEntries[i].reactor == NULL)
 			continue;
 		
-		reactors[i]->deactivate();
+		fdEntries[i].reactor->pleaseStop();
 	}
 }
 
@@ -133,12 +129,13 @@ void Poller::threadFun(Poller *poller)
 		epoll_event event;
 		
 		int rc = epoll_wait(poller->epollFD, &event, 1, -1);
-		if (rc < 0)
-			throw std::system_error(errno, std::system_category());
 		if (rc == 0)
 			continue;
+		if (rc < 0)
+			throw std::system_error(errno, std::system_category());
 		
-		Reactor *reactor = reinterpret_cast<Reactor *>(event.data.ptr);
+		intrusive_ptr<Reactor> reactor = poller->fdEntries[event.data.fd].reactor;
+		poller->fdEntries[event.data.fd].reactor = NULL;
 		
 		try
 		{
@@ -146,9 +143,7 @@ void Poller::threadFun(Poller *poller)
 		}
 		catch (...)
 		{
-			reactor->deactivate();
+			reactor->pleaseStop();
 		}
-		
-		reactor->unuse();
 	}
 }

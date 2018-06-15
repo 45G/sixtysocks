@@ -7,35 +7,24 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <errno.h>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 class Poller;
 
-class Reactor
+class Reactor: public boost::intrusive_ref_counter<Reactor>
 {
 protected:
 	Poller *poller;
-	bool active;
-	std::atomic<int> refCnt;
+	volatile bool active;
 	
 public:
 	Reactor(Poller *poller)
-		: poller(poller), active(true), refCnt(0) {}
+		: poller(poller), active(true) {}
 	
 	virtual void process() = 0;
 	
-	void use()
-	{
-		refCnt++;
-	}
-
-	void unuse()
-	{
-		refCnt--;
-		if (refCnt == 0)
-			delete this;
-	}
-	
-	void deactivate()
+	void pleaseStop()
 	{
 		active = false;
 	}

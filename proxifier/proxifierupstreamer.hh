@@ -17,7 +17,7 @@ class ProxifierUpstreamer: public StreamReactor
 	
 	ssize_t reqBytesLeft;
 	
-	Proxifier *owner;
+	boost::intrusive_ptr<Proxifier> owner;
 	
 	State state;
 	
@@ -26,9 +26,9 @@ public:
 
 	void process();
 	
-	Proxifier *getOwner() const
+	Proxifier *getOwner()
 	{
-		return owner;
+		return owner.get();
 	}
 };
 
