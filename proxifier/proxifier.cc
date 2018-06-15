@@ -54,20 +54,13 @@ void Proxifier::process()
 		{
 			upstreamReactor = new ProxifierUpstreamer(this, clientFD);
 		}
-		catch (bad_alloc)
+		catch (...)
 		{
 			close(clientFD); // tolerable error
 			continue;
 		}
 		
-		try
-		{
-			poller->add(upstreamReactor, clientFD, Poller::IN_EVENTS);
-		}
-		catch (exception)
-		{
-			delete upstreamReactor;
-		}
+		poller->add(upstreamReactor, clientFD, Poller::IN_EVENTS);
 	}
 
 resched:

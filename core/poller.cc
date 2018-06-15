@@ -91,7 +91,7 @@ void Poller::remove(int fd, bool force)
 		throw system_error(errno, system_category());
 
 	fdEntries[fd].reactor = NULL;
-	fdEntries[fd].registered = true;
+	fdEntries[fd].registered = false;
 }
 
 void Poller::stop()

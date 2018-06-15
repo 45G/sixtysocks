@@ -23,6 +23,8 @@ class ProxifierUpstreamer: public StreamReactor
 	
 public:
 	ProxifierUpstreamer(Proxifier *owner, int srcFD);
+	
+	~ProxifierUpstreamer();
 
 	void process();
 	
