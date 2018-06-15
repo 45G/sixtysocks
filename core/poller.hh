@@ -36,7 +36,7 @@ public:
 	
 	Poller(int numThreads, int cpuOffset, size_t expectedFDs = 1024);
 	
-	bool isRegistered(int fd);
+	void ensureFit(int fd);
 	
 	void add(boost::intrusive_ptr<Reactor> reactor, int fd, uint32_t events);
 

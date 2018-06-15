@@ -28,6 +28,11 @@ public:
 	{
 		active = false;
 	}
+	
+	bool isActive() const
+	{
+		return active;
+	}
 
 	Poller *getPoller() const
 	{

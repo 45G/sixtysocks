@@ -34,7 +34,7 @@ Poller::Poller(int numThreads, int cpuOffset, size_t expectedFDs)
 	//	}
 }
 
-bool Poller::isRegistered(int fd)
+void Poller::ensureFit(int fd)
 {
 	if ((int)fdEntries.size() < fd + 1)
 	{
@@ -50,16 +50,16 @@ bool Poller::isRegistered(int fd)
 			fdEntries.resize(reqSize);
 		entriesMutex.unlock();
 	}
-	
-	return fdEntries[fd].registered;
 }
 
 void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 {
-	if (fd < 0)
+	if (fd < 0 || !reactor->isActive())
 		return;
 
-	if (isRegistered(fd))
+	ensureFit(fd);
+	
+	if (fdEntries[fd].registered)
 	{
 		rearm(reactor, fd, events);
 		return;
@@ -79,6 +79,9 @@ void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 
 void Poller::rearm(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 {
+	if (fd < 0 || !reactor->isActive())
+		return;
+	
 	epoll_event event;
 	event.events = events | EPOLLONESHOT;
 	event.data.fd = fd;
@@ -136,6 +139,9 @@ void Poller::threadFun(Poller *poller)
 		
 		intrusive_ptr<Reactor> reactor = poller->fdEntries[event.data.fd].reactor;
 		poller->fdEntries[event.data.fd].reactor = NULL;
+		
+		if (!reactor->isActive())
+			return;
 		
 		try
 		{

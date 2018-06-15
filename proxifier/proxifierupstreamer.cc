@@ -14,9 +14,6 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *owner, int srcFD)
 
 void ProxifierUpstreamer::process()
 {
-	if (!active)
-		return;
-	
 	switch (state)
 	{
 	case S_READING_INIT_DATA:
