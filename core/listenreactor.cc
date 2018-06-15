@@ -24,6 +24,13 @@ void ListenReactor::processError(int err)
 	}
 }
 
+void ListenReactor::deactivate()
+{
+	Reactor::deactivate();
+	
+	poller->remove(listenFD);
+}
+
 ListenReactor::~ListenReactor()
 {
 	poller->remove(listenFD);

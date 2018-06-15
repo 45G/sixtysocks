@@ -67,6 +67,14 @@ void StreamReactor::process(Poller *poller)
 	}
 }
 
+void StreamReactor::deactivate()
+{
+	Reactor::deactivate();
+	
+	poller->remove(srcFD);
+	poller->remove(dstFD);
+}
+
 StreamReactor::~StreamReactor()
 {
 	if (srcFD != -1)

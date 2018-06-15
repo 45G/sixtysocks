@@ -39,10 +39,8 @@ public:
 	void ensureFit(int fd);
 	
 	void add(boost::intrusive_ptr<Reactor> reactor, int fd, uint32_t events);
-
-	void rearm(boost::intrusive_ptr<Reactor> reactor, int fd, uint32_t events);
-
-	void remove(int fd);
+	
+	void remove(int fd, bool force = false);
 	
 	void pleaseStop();
 	

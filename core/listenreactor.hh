@@ -13,6 +13,8 @@ protected:
 public:
 	ListenReactor(Poller *poller, int listenFD)
 		: Reactor(poller), listenFD(listenFD) {}
+	
+	void deactivate();
 
 	~ListenReactor();
 };

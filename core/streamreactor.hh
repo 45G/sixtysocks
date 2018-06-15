@@ -108,6 +108,8 @@ public:
 	}
 	
 	void process(Poller *poller);
+	
+	void deactivate();
 
 	~StreamReactor();
 };

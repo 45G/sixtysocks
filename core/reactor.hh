@@ -24,10 +24,7 @@ public:
 	
 	virtual void process() = 0;
 	
-	void pleaseStop()
-	{
-		active = false;
-	}
+	virtual void deactivate();
 	
 	bool isActive() const
 	{

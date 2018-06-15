@@ -25,6 +25,7 @@ HEADERS += \
     proxifier/proxifier.hh \
     proxifier/proxifierdownstreamer.hh \
     proxifier/proxifierupstreamer.hh \
-    proxy/proxy.hh
+    proxy/proxy.hh \
+    core/exfd.h
 
 LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system

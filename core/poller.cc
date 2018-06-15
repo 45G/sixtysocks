@@ -59,47 +59,35 @@ void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 
 	ensureFit(fd);
 	
+	int epollOp;
 	if (fdEntries[fd].registered)
-	{
-		rearm(reactor, fd, events);
-		return;
-	}
+		epollOp = EPOLL_CTL_MOD;
+	else
+		epollOp = EPOLL_CTL_ADD;
 	
 	epoll_event event;
 	event.events = events | EPOLLONESHOT;
 	event.data.fd = fd;
 	
-	int rc = epoll_ctl(epollFD, EPOLL_CTL_ADD, fd, &event);
+	int rc = epoll_ctl(epollFD, epollOp, fd, &event);
 	if (rc < 0)
 		throw system_error(errno, system_category());
 	
 	fdEntries[fd].reactor = reactor;
 	fdEntries[fd].registered = true;
+	
+	/* work around race condition with Reactor::pleaseStop() */
+	if (!reactor->isActive())
+		remove(fd, true);
 }
 
-void Poller::rearm(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
+void Poller::remove(int fd, bool force)
 {
-	if (fd < 0 || !reactor->isActive())
-		return;
-	
-	epoll_event event;
-	event.events = events | EPOLLONESHOT;
-	event.data.fd = fd;
-
-	int rc = epoll_ctl(epollFD, EPOLL_CTL_MOD, fd, &event);
-	if (rc < 0)
-		throw system_error(errno, system_category());
-	
-	fdEntries[fd].reactor = reactor;
-}
-
-void Poller::remove(int fd)
-{
-	if (!fdEntries[fd].registered)
+	if (!fdEntries[fd].registered || fd < 0 || !force)
 		return;
 
 	int rc = epoll_ctl(epollFD, EPOLL_CTL_DEL, fd, NULL);
-	if (rc < 0)
+	if (rc < 0 && errno != ENOENT)
 		throw system_error(errno, system_category());
 
 	fdEntries[fd].reactor = NULL;
@@ -115,7 +103,7 @@ void Poller::pleaseStop()
 		if (fdEntries[i].reactor == NULL)
 			continue;
 		
-		fdEntries[i].reactor->pleaseStop();
+		fdEntries[i].reactor->deactivate();
 	}
 }
 
@@ -149,7 +137,7 @@ void Poller::threadFun(Poller *poller)
 		}
 		catch (...)
 		{
-			reactor->pleaseStop();
+			reactor->deactivate();
 		}
 	}
 }
