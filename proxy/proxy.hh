@@ -9,6 +9,8 @@ class Proxy: public ListenReactor
 public:
 	Proxy(Poller *poller, int listenFD)
 		: ListenReactor(poller, listenFD) {}
+	
+	void setupReactor(int fd);
 };
 
 #endif // PROXY_HH

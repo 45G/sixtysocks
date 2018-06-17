@@ -17,6 +17,7 @@
 
 #include "core/poller.hh"
 #include "proxifier/proxifier.hh"
+#include "proxy/proxy.hh"
 
 using namespace std;
 
@@ -171,7 +172,10 @@ int main(int argc, char **argv)
 	// tolerable error
 	S6U::Socket::saveSYN(listenFD);
 	
-	poller.add(new Proxifier(&poller, proxy.storage, listenFD), listenFD, EPOLLIN);
+	if (mode == M_PROXIFIER)
+		poller.add(new Proxifier(&poller, proxy.storage, listenFD), listenFD, EPOLLIN);
+	else
+		poller.add(new Proxy(&poller, listenFD), listenFD, EPOLLIN);
 	
 //	sleep(1000);
 	poller.threadFun(&poller);
