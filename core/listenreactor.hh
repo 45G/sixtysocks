@@ -8,11 +8,13 @@ class ListenReactor: public Reactor
 protected:
 	int listenFD;
 	
-	void processError(int err);
-	
 public:
 	ListenReactor(Poller *poller, int listenFD)
 		: Reactor(poller), listenFD(listenFD) {}
+	
+	void process();
+	
+	virtual void setupReactor(int fd) = 0;
 	
 	void deactivate();
 

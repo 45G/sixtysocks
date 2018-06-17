@@ -2,25 +2,56 @@
 #include <errno.h>
 #include <system_error>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/tcp.h>
 #include "poller.hh"
 #include "listenreactor.hh"
 
 using namespace std;
 
-void ListenReactor::processError(int err)
+void ListenReactor::process()
 {
-	switch (err)
+	while (active)
 	{
-	case ECONNABORTED:
-	case EINTR:
-	case EMFILE:
-	case ENFILE:
-	case ENOBUFS:
-	case ENOMEM:
-		break;
+		int clientFD = accept4(listenFD, NULL, NULL, SOCK_NONBLOCK);
+		if (clientFD < 0)
+		{
+			switch (errno)
+			{
+			case EWOULDBLOCK:
+#if EWOULDBLOCK != EAGAIN
+			case EAGAIN:
+#endif
+				goto resched;
+
+			case EINTR:
+			case ENETDOWN:
+			case EPROTO:
+			case ENOPROTOOPT:
+			case EHOSTDOWN:
+			case ENONET:
+			case EHOSTUNREACH:
+			case EOPNOTSUPP:
+			case ENETUNREACH:
+			case ECONNABORTED:
+			case EMFILE:
+			case ENFILE:
+			case ENOBUFS:
+			case ENOMEM:
+				break;
+				
+			default:
+				throw system_error(errno, system_category());
+			}
+			continue;
+		}
 		
-	default:
-		throw system_error(err, system_category());
+		const static int one = 1;
+		setsockopt(clientFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int)); // tolerable error
+
+		setupReactor(clientFD);		
+resched:
+		poller->add(this, listenFD, EPOLLIN);
 	}
 }
 

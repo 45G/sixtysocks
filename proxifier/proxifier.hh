@@ -17,7 +17,7 @@ public:
 		return &proxy;
 	}
 	
-	void process();
+	void setupReactor(int fd);
 	
 	~Proxifier();
 };

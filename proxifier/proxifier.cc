@@ -15,56 +15,17 @@
 
 using namespace std;
 
-void Proxifier::process()
+void Proxifier::setupReactor(int fd)
 {
-	while (active)
+	ProxifierUpstreamer *upstreamReactor = NULL;
+	try
 	{
-		int clientFD = accept4(listenFD, NULL, NULL, SOCK_NONBLOCK);
-		if (clientFD < 0)
-		{
-			switch (errno)
-			{
-			case EWOULDBLOCK:
-#if EWOULDBLOCK != EAGAIN
-			case EAGAIN:
-#endif
-				goto resched;
-
-			case EINTR:
-			case ENETDOWN:
-			case EPROTO:
-			case ENOPROTOOPT:
-			case EHOSTDOWN:
-			case ENONET:
-			case EHOSTUNREACH:
-			case EOPNOTSUPP:
-			case ENETUNREACH:
-				break;
-			default:
-				processError(errno);
-			}
-			continue;
-		}
-		
-		const static int one = 1;
-		setsockopt(clientFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int)); // tolerable error
-		
-		ProxifierUpstreamer *upstreamReactor = NULL;
-		try
-		{
-			upstreamReactor = new ProxifierUpstreamer(this, clientFD);
-		}
-		catch (...)
-		{
-			close(clientFD); // tolerable error
-			continue;
-		}
-		
-		poller->add(upstreamReactor, clientFD, Poller::IN_EVENTS);
+		upstreamReactor = new ProxifierUpstreamer(this, fd);
 	}
-
-resched:
-	poller->add(this, listenFD, EPOLLIN);
+	catch (...)
+	{
+		close(fd); // tolerable error
+	}
 }
 
 Proxifier::~Proxifier()
