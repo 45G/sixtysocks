@@ -12,9 +12,9 @@ public:
 	ListenReactor(Poller *poller, int listenFD)
 		: Reactor(poller), listenFD(listenFD) {}
 	
-	void process();
+	void process(int fd, uint32_t events);
 	
-	virtual void setupReactor(int fd) = 0;
+	virtual void handleNewConnection(int fd) = 0;
 	
 	void deactivate();
 

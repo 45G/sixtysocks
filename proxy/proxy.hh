@@ -10,7 +10,7 @@ public:
 	Proxy(Poller *poller, int listenFD)
 		: ListenReactor(poller, listenFD) {}
 	
-	void setupReactor(int fd);
+	void handleNewConnection(int fd);
 };
 
 #endif // PROXY_HH

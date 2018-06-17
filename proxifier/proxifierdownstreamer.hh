@@ -23,7 +23,7 @@ class ProxifierDownstreamer: public StreamReactor
 public:
 	ProxifierDownstreamer(ProxifierUpstreamer *upstreamer);
 	
-	void process();
+	void process(int fd, uint32_t events);
 };
 
 #endif // PROXIFIERDOWNSTREAMER_HH

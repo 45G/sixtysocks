@@ -22,7 +22,7 @@ public:
 	Reactor(Poller *poller)
 		: poller(poller), active(true) {}
 	
-	virtual void process() = 0;
+	virtual void process(int fd, uint32_t events) = 0;
 	
 	virtual void deactivate();
 	

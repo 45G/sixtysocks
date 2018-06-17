@@ -21,7 +21,7 @@ ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
 	}
 }
 
-void ProxifierDownstreamer::process()
+void ProxifierDownstreamer::process(int fd, uint32_t events)
 {
 	switch (state)
 	{
@@ -94,7 +94,7 @@ void ProxifierDownstreamer::process()
 		break;
 	}
 	case S_STREAM:
-		StreamReactor::process(poller);
+		StreamReactor::process(fd, events);
 		break;
 	}
 }

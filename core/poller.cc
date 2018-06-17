@@ -133,7 +133,7 @@ void Poller::threadFun(Poller *poller)
 		
 		try
 		{
-			reactor->process();
+			reactor->process(event.data.fd, event.events);
 		}
 		catch (...)
 		{

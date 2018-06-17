@@ -1,17 +1,22 @@
 #ifndef PROXYUPSTREAMER_HH
 #define PROXYUPSTREAMER_HH
 
+#include <boost/intrusive_ptr.hpp>
 #include "core/streamreactor.hh"
+
+class Proxy;
+class ProxyDownstreamer;
 
 class ProxyUpstreamer: public StreamReactor
 {
-	enum State
-	{
-		S_READING_REQ,
-		S_STREAM,
-	};
+	bool reqRead;
+	
+	boost::intrusive_ptr<ProxyDownstreamer> downstreamer;
+	
 public:
-	ProxyUpstreamer(Proxifier *owner, int srcFD);
+	ProxyUpstreamer(Proxy *owner, int srcFD);
+	
+	void process(int fd, uint32_t events);
 };
 
 #endif // PROXYUPSTREAMER_HH

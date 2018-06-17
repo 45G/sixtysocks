@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void Proxifier::setupReactor(int fd)
+void Proxifier::handleNewConnection(int fd)
 {
 	ProxifierUpstreamer *upstreamReactor = NULL;
 	try

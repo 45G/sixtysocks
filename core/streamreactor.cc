@@ -5,8 +5,10 @@
 
 using namespace std;
 
-void StreamReactor::process(Poller *poller)
+void StreamReactor::process(int fd, uint32_t events)
 {
+	(void)fd; (void)events;
+	
 	switch (streamState)
 	{
 	case SS_WAITING_TO_RECV:

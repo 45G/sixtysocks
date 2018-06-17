@@ -22,10 +22,9 @@ class ProxifierUpstreamer: public StreamReactor
 	State state;
 	
 public:
-	ProxifierUpstreamer(Proxifier *owner, int srcFD)
-		: StreamReactor(owner->getPoller(), srcFD, -1), owner(owner), state(S_READING_INIT_DATA) {}
+	ProxifierUpstreamer(Proxifier *owner, int srcFD);
 
-	void process();
+	void process(int fd, uint32_t events);
 	
 	Proxifier *getOwner()
 	{

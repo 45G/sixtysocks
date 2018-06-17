@@ -9,7 +9,10 @@
 
 using namespace std;
 
-void ProxifierUpstreamer::process()
+ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *owner, int srcFD)
+	: StreamReactor(owner->getPoller(), srcFD, -1), owner(owner), state(S_READING_INIT_DATA) {}
+
+void ProxifierUpstreamer::process(int fd, uint32_t events)
 {
 	switch (state)
 	{
@@ -111,7 +114,7 @@ void ProxifierUpstreamer::process()
 		break;
 	}
 	case S_STREAM:
-		StreamReactor::process(poller);
+		StreamReactor::process(fd, events);
 		break;
 	}
 }

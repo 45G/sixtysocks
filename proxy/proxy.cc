@@ -1,12 +1,13 @@
 #include "../core/poller.hh"
+#include "proxyupstreamer.hh"
 #include "proxy.hh"
 
-void Proxy::setupReactor(int fd)
+void Proxy::handleNewConnection(int fd)
 {
-	ProxifierUpstreamer *upstreamReactor = NULL;
+	ProxyUpstreamer *upstreamReactor = NULL;
 	try
 	{
-		upstreamReactor = new ProxifierUpstreamer(this, fd);
+		upstreamReactor = new ProxyUpstreamer(this, fd);
 	}
 	catch (...)
 	{

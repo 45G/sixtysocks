@@ -9,8 +9,10 @@
 
 using namespace std;
 
-void ListenReactor::process()
+void ListenReactor::process(int fd, uint32_t events)
 {
+	(void)fd; (void)events;
+	
 	while (active)
 	{
 		int clientFD = accept4(listenFD, NULL, NULL, SOCK_NONBLOCK);
@@ -49,7 +51,7 @@ void ListenReactor::process()
 		const static int one = 1;
 		setsockopt(clientFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int)); // tolerable error
 
-		setupReactor(clientFD);		
+		handleNewConnection(clientFD);		
 resched:
 		poller->add(this, listenFD, EPOLLIN);
 	}

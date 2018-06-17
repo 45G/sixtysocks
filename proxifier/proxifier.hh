@@ -17,7 +17,7 @@ public:
 		return &proxy;
 	}
 	
-	void setupReactor(int fd);
+	void handleNewConnection(int fd);
 };
 
 #endif // PROXIFIER_HH

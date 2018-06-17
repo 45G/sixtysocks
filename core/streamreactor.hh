@@ -107,7 +107,7 @@ public:
 		return dstFD;
 	}
 	
-	void process(Poller *poller);
+	void process(int fd, uint32_t events);
 	
 	void deactivate();
 
