@@ -28,8 +28,3 @@ void Proxifier::setupReactor(int fd)
 	
 	poller->add(upstreamReactor, fd, Poller::IN_EVENTS);
 }
-
-Proxifier::~Proxifier()
-{
-	close(listenFD);
-}

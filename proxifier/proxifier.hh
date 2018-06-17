@@ -18,8 +18,6 @@ public:
 	}
 	
 	void setupReactor(int fd);
-	
-	~Proxifier();
 };
 
 #endif // PROXIFIER_HH

@@ -47,8 +47,6 @@ public:
 	void join();
 	
 	static void threadFun(Poller *poller);
-	
-	~Poller() {}
 };
 
 #endif // POLLER_HH

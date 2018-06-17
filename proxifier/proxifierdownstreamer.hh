@@ -22,8 +22,6 @@ class ProxifierDownstreamer: public StreamReactor
 
 public:
 	ProxifierDownstreamer(ProxifierUpstreamer *upstreamer);
-
-	~ProxifierDownstreamer();
 	
 	void process();
 };

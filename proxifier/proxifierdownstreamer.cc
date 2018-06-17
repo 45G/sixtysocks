@@ -21,8 +21,6 @@ ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
 	}
 }
 
-ProxifierDownstreamer::~ProxifierDownstreamer() {}
-
 void ProxifierDownstreamer::process()
 {
 	switch (state)
