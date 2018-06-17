@@ -25,7 +25,10 @@ void Proxifier::setupReactor(int fd)
 	catch (...)
 	{
 		close(fd); // tolerable error
+		return;
 	}
+	
+	poller->add(upstreamReactor, fd, Poller::IN_EVENTS);
 }
 
 Proxifier::~Proxifier()
