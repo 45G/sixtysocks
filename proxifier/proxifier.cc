@@ -11,8 +11,6 @@
 #include "../core/poller.hh"
 #include "proxifierupstreamer.hh"
 
-#include <iostream>
-
 using namespace std;
 
 void Proxifier::setupReactor(int fd)
