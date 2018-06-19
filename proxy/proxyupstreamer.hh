@@ -2,6 +2,8 @@
 #define PROXYUPSTREAMER_HH
 
 #include <boost/intrusive_ptr.hpp>
+#include <socks6msg/socks6msg.hh>
+#include <boost/shared_ptr.hpp>
 #include "core/streamreactor.hh"
 
 class Proxy;
@@ -9,9 +11,19 @@ class ProxyDownstreamer;
 
 class ProxyUpstreamer: public StreamReactor
 {
-	bool reqRead;
-	
-	boost::intrusive_ptr<ProxyDownstreamer> downstreamer;
+	enum State
+	{
+		S_READING_REQ,
+		S_HONORING_REQ,
+		S_STREAM,
+	};
+
+	State state;
+	boost::shared_ptr<S6M::Request> req;
+
+	//boost::intrusive_ptr<ProxyDownstreamer> downstreamer;
+
+	bool checkAuth(SOCKS6Method *method);
 	
 public:
 	ProxyUpstreamer(Proxy *owner, int srcFD);
