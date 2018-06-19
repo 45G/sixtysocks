@@ -24,7 +24,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		try
 		{
 			req = new S6M::Request(&bb);
-
+			switch ()
 
 		}
 		catch (S6M::EndOfBufferException)
