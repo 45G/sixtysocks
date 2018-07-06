@@ -53,6 +53,8 @@ public:
 	}
 };
 
+class Authenticator;
+
 class StreamReactor: public Reactor
 {
 protected:
@@ -114,6 +116,8 @@ public:
 	void resume();
 
 	~StreamReactor();
+
+	friend class Authenticator;
 };
 
 #endif // STREAMREACTOR_HH

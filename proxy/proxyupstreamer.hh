@@ -23,9 +23,7 @@ class ProxyUpstreamer: public StreamReactor
 
 	boost::intrusive_ptr<ProxyDownstreamer> downstreamer;
 
-	//boost::intrusive_ptr<ProxyDownstreamer> downstreamer;
-
-	bool checkAuth(SOCKS6Method *method);
+	void authenticate();
 	
 public:
 	ProxyUpstreamer(Proxy *owner, int srcFD);

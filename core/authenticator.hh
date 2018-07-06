@@ -1,15 +1,27 @@
 #ifndef AUTHENTICATOR_HH
 #define AUTHENTICATOR_HH
 
-#include "reactor.hh"
+#include <boost/intrusive_ptr.hpp>
+#include "streamreactor.hh"
 
 class Authenticator: public Reactor
 {
-	int fd;
+protected:
+	boost::intrusive_ptr<StreamReactor> owner;
+
+	bool success;
 
 public:
-	Authenticator(Poller *poller, int fd)
-		: Reactor(poller), fd(fd) {}
+	Authenticator(StreamReactor *owner, bool success = false)
+		: Reactor(owner->getPoller()), owner(owner), success(success) {}
+
+public:
+	bool isSuccessful()
+	{
+		return success;
+	}
+
+	void deactivate();
 };
 
 #endif // AUTHENTICATOR_HH

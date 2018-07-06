@@ -20,15 +20,3 @@ ProxyDownstreamer::ProxyDownstreamer(ProxyUpstreamer *upstreamer)
 		throw system_error(errno, system_category());
 	}
 }
-
-void ProxyDownstreamer::enqueue(const S6M::AuthenticationReply *authRep)
-{
-	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
-	authRep->pack(&bb);
-	buf.use(bb.getUsed());
-}
-
-void ProxyDownstreamer::enqueue(S6M::OperationReply *opRep)
-{
-
-}

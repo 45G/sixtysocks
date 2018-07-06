@@ -1,10 +1,16 @@
 #include <system_error>
 #include "../core/poller.hh"
 #include "proxy.hh"
+#include "../authentication/noauthserver.hh"
 #include "proxydownstreamer.hh"
 #include "proxyupstreamer.hh"
 
 using namespace std;
+
+void ProxyUpstreamer::authenticate()
+{
+	(new NoAuthServer(this))->resume();
+}
 
 ProxyUpstreamer::ProxyUpstreamer(Proxy *owner, int srcFD)
 	: StreamReactor(owner->getPoller(), srcFD, -1), state(S_READING_REQ) {}
@@ -25,12 +31,13 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		try
 		{
 			req = boost::shared_ptr<S6M::Request>(new S6M::Request(&bb));
-			downstreamer = new ProxyDownstreamer(this);
+			authenticate();
 			switch (req->getCommandCode())
 			{
+//			case SOCKS6_REQUEST_NOOP:
+//				//TODO
 			default:
-				S6M::AuthenticationReply authRep(SOCKS6_AUTH_REPLY_SUCCESS, SOCKS6_METHOD_NOAUTH);
-				downstreamer->enqueue(&authRep);
+				downstreamer = new ProxyDownstreamer(this);
 			}
 
 		}

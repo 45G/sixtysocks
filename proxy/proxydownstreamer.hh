@@ -19,10 +19,6 @@ class ProxyDownstreamer: public StreamReactor
 
 public:
 	ProxyDownstreamer(ProxyUpstreamer *upstreamer);
-
-	void enqueue(const S6M::AuthenticationReply *authRep);
-
-	void enqueue(S6M::OperationReply *opRep);
 };
 
 #endif // PROXYDOWNSTREAMER_HH
