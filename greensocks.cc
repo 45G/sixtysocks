@@ -173,9 +173,9 @@ int main(int argc, char **argv)
 	S6U::Socket::saveSYN(listenFD);
 	
 	if (mode == M_PROXIFIER)
-		poller.add(new Proxifier(&poller, proxy.storage, listenFD), listenFD, EPOLLIN);
+		(new Proxifier(&poller, proxy.storage, listenFD))->resume();
 	else
-		poller.add(new Proxy(&poller, listenFD), listenFD, EPOLLIN);
+		(new Proxy(&poller, listenFD))->resume();
 	
 //	sleep(1000);
 	poller.threadFun(&poller);

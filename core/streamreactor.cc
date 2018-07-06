@@ -77,6 +77,11 @@ void StreamReactor::deactivate()
 	poller->remove(dstFD);
 }
 
+void StreamReactor::resume()
+{
+	poller->add(this, srcFD, Poller::IN_EVENTS);
+}
+
 StreamReactor::~StreamReactor()
 {
 	if (srcFD != -1)

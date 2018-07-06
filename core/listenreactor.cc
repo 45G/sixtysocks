@@ -64,6 +64,11 @@ void ListenReactor::deactivate()
 	poller->remove(listenFD);
 }
 
+void ListenReactor::resume()
+{
+	poller->add(this, listenFD, EPOLLIN);
+}
+
 ListenReactor::~ListenReactor()
 {
 	poller->remove(listenFD);

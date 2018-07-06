@@ -1,6 +1,7 @@
 #include <system_error>
 #include "../core/poller.hh"
 #include "proxy.hh"
+#include "proxydownstreamer.hh"
 #include "proxyupstreamer.hh"
 
 using namespace std;
@@ -20,11 +21,17 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		if (bytes < 0 && errno != EAGAIN && errno != EWOULDBLOCK)
 			throw system_error(errno, system_category());
 
-		S6M bb(buf.getHead(), buf.usedSize());
+		S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
 		try
 		{
-			req = new S6M::Request(&bb);
-			switch ()
+			req = boost::shared_ptr<S6M::Request>(new S6M::Request(&bb));
+			downstreamer = new ProxyDownstreamer(this);
+			switch (req->getCommandCode())
+			{
+			default:
+				S6M::AuthenticationReply authRep(SOCKS6_AUTH_REPLY_SUCCESS, SOCKS6_METHOD_NOAUTH);
+				downstreamer->enqueue(&authRep);
+			}
 
 		}
 		catch (S6M::EndOfBufferException)

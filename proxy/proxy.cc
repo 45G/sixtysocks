@@ -15,5 +15,5 @@ void Proxy::handleNewConnection(int fd)
 		return;
 	}
 	
-	poller->add(upstreamReactor, fd, Poller::IN_EVENTS);
+	upstreamReactor->resume();
 }

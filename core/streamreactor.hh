@@ -94,8 +94,8 @@ protected:
 	}
 
 public:
-	StreamReactor(Poller *poller, int srcFD, int dstFD)
-		: Reactor(poller), srcFD(srcFD), dstFD(dstFD) {}
+	StreamReactor(Poller *poller, int srcFD, int dstFD, StreamState streamState = SS_WAITING_TO_RECV)
+		: Reactor(poller), srcFD(srcFD), dstFD(dstFD), streamState(streamState) {}
 	
 	int getSrcFD() const
 	{
@@ -110,6 +110,8 @@ public:
 	void process(int fd, uint32_t events);
 	
 	void deactivate();
+
+	void resume();
 
 	~StreamReactor();
 };

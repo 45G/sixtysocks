@@ -18,6 +18,8 @@ public:
 	
 	void deactivate();
 
+	void resume();
+
 	~ListenReactor();
 };
 

@@ -21,6 +21,8 @@ class ProxyUpstreamer: public StreamReactor
 	State state;
 	boost::shared_ptr<S6M::Request> req;
 
+	boost::intrusive_ptr<ProxyDownstreamer> downstreamer;
+
 	//boost::intrusive_ptr<ProxyDownstreamer> downstreamer;
 
 	bool checkAuth(SOCKS6Method *method);

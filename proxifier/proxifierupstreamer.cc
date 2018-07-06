@@ -74,7 +74,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 		if (reqBytesLeft < 0)
 		{
 			ProxifierDownstreamer *downstreamer = new ProxifierDownstreamer(this);
-			poller->add(downstreamer, downstreamer->getSrcFD(), Poller::IN_EVENTS);
+			downstreamer->resume();
 			state = S_STREAM;
 			streamState = buf.usedSize() > 0 ? SS_WAITING_TO_SEND : SS_WAITING_TO_RECV;
 		}
@@ -101,7 +101,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 		if (reqBytesLeft < 0)
 		{
 			ProxifierDownstreamer *downstreamer = new ProxifierDownstreamer(this);
-			poller->add(downstreamer, downstreamer->getSrcFD(), Poller::IN_EVENTS);
+			downstreamer->resume();
 			state = S_STREAM;
 			streamState = buf.usedSize() > 0 ? SS_WAITING_TO_SEND : SS_WAITING_TO_RECV;
 		}
