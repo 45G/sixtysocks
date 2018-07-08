@@ -6,10 +6,14 @@
 #include "proxyupstreamer.hh"
 
 using namespace std;
+using namespace boost;
 
 void ProxyUpstreamer::authenticate()
 {
-	(new NoAuthServer(this))->resume();
+	//TODO: authentication policy
+	//TODO: fast path (use return value; return bool)
+	intrusive_ptr<NoAuthServer> noAuth = new NoAuthServer(this);
+	noAuth->resume();
 }
 
 ProxyUpstreamer::ProxyUpstreamer(Proxy *owner, int srcFD)
@@ -32,14 +36,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		{
 			req = boost::shared_ptr<S6M::Request>(new S6M::Request(&bb));
 			authenticate();
-			switch (req->getCommandCode())
-			{
-//			case SOCKS6_REQUEST_NOOP:
-//				//TODO
-			default:
-				downstreamer = new ProxyDownstreamer(this);
-			}
-
+			state = S_HONORING_REQ;
 		}
 		catch (S6M::EndOfBufferException)
 		{
@@ -51,7 +48,11 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_HONORING_REQ:
 	{
-		//TODO
+		switch (req->getCommandCode()) {
+		default:
+			S6M::OperationReply rep(SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED, S6M::Address({ .saddr = 0 }), 0,  S6M::OptionSet(S6M::OptionSet::M_OP_REP));
+			break;
+		}
 		break;
 	}
 	case S_STREAM:
