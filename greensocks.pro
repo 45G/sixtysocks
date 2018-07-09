@@ -17,9 +17,10 @@ SOURCES += \
     proxifier/proxifierupstreamer.cc \
     proxy/proxy.cc \
     proxy/proxyupstreamer.cc \
-    proxy/proxydownstreamer.cc \
-    core/authenticator.cc \
-    authentication/noauthserver.cc
+    authentication/noauthserver.cc \
+    proxy/simpleproxydownstreamer.cc \
+    proxy/connectproxydownstreamer.cc \
+    core/authenticationreactor.cc
 
 HEADERS += \
     core/poller.hh \
@@ -32,8 +33,10 @@ HEADERS += \
     proxy/proxy.hh \
     core/exfd.h \
     proxy/proxyupstreamer.hh \
-    proxy/proxydownstreamer.hh \
-    core/authenticator.hh \
-    authentication/noauthserver.hh
+    proxy/simpleproxydownstreamer.hh \
+    proxy/connectproxydownstreamer.hh \
+    core/spinlock.hh \
+    authentication/authserver.hh \
+    core/authenticationreactor.hh
 
 LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system

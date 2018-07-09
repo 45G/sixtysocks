@@ -7,7 +7,7 @@
 #include "core/streamreactor.hh"
 
 class Proxy;
-class ProxyDownstreamer;
+class ConnectProxyDownstreamer;
 
 class ProxyUpstreamer: public StreamReactor
 {
@@ -15,13 +15,14 @@ class ProxyUpstreamer: public StreamReactor
 	{
 		S_READING_REQ,
 		S_HONORING_REQ,
+		S_SENDING_OP_REP,
 		S_STREAM,
 	};
 
 	State state;
 	boost::shared_ptr<S6M::Request> req;
 
-	boost::intrusive_ptr<ProxyDownstreamer> downstreamer;
+	boost::intrusive_ptr<ConnectProxyDownstreamer> downstreamer;
 
 	void authenticate();
 	

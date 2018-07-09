@@ -27,9 +27,19 @@ public:
 		return tail - head;
 	}
 	
-	void unuse(size_t count)
+	void unuseHead(size_t count)
 	{
 		head += count;
+		if (head == tail)
+		{
+			head = 0;
+			tail = 0;
+		}
+	}
+
+	void unuseTail(size_t count)
+	{
+		tail -= count;
 		if (head == tail)
 		{
 			head = 0;
@@ -53,7 +63,7 @@ public:
 	}
 };
 
-class Authenticator;
+class AuthenticationReactor;
 
 class StreamReactor: public Reactor
 {
@@ -83,7 +93,7 @@ protected:
 	{
 		ssize_t bytes = send(fd, buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
 		if (bytes >0)
-			buf.unuse(bytes);
+			buf.unuseHead(bytes);
 		return bytes;
 	}
 
@@ -91,7 +101,7 @@ protected:
 	{
 		ssize_t bytes = sendto(fd, buf.getHead(), buf.usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.sockAddress, dest.size());
 		if (bytes > 0)
-			buf.unuse(bytes);
+			buf.unuseHead(bytes);
 		return bytes;
 	}
 
@@ -117,7 +127,7 @@ public:
 
 	~StreamReactor();
 
-	friend class Authenticator;
+	friend class AuthenticationReactor;
 };
 
 #endif // STREAMREACTOR_HH

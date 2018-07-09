@@ -56,6 +56,9 @@ void StreamReactor::process(int fd, uint32_t events)
 
 		if (buf.usedSize() == 0)
 		{
+			if (srcFD == -1)
+				return;
+
 			streamState = SS_WAITING_TO_RECV;
 			poller->add(this, srcFD, Poller::IN_EVENTS);
 		}

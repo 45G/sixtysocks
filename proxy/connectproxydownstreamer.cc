@@ -1,11 +1,11 @@
 #include <system_error>
 #include "proxyupstreamer.hh"
-#include "proxydownstreamer.hh"
+#include "connectproxydownstreamer.hh"
 
 using namespace std;
 using namespace boost;
 
-ProxyDownstreamer::ProxyDownstreamer(ProxyUpstreamer *upstreamer)
+ConnectProxyDownstreamer::ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer)
 	: StreamReactor(upstreamer->getPoller(), -1, -1), state(S_INIT)
 {
 	//TODO: defer

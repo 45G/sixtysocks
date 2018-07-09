@@ -39,7 +39,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			S6M::AuthenticationReply authRep(&bb);
 			if (authRep.getReplyCode() != SOCKS6_AUTH_REPLY_SUCCESS)
 				return;
-			buf.unuse(bb.getUsed());
+			buf.unuseHead(bb.getUsed());
 			state = S_WAITING_FOR_OP_REP;
 		}
 		catch (S6M::EndOfBufferException) {}
@@ -62,7 +62,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			S6M::OperationReply opRep(&bb);
 			if (opRep.getCode() != SOCKS6_OPERATION_REPLY_SUCCESS)
 				return;
-			buf.unuse(bb.getUsed());
+			buf.unuseHead(bb.getUsed());
 			state = S_WAITING_FOR_OP_REP;
 		}
 		catch (S6M::EndOfBufferException)

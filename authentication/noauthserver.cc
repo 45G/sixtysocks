@@ -3,12 +3,12 @@
 #include "../core/poller.hh"
 #include "../core/streamreactor.hh"
 #include "../proxy/proxyupstreamer.hh"
-#include "noauthserver.hh"
+#include "authserver.hh"
 
 using namespace std;
 
-NoAuthServer::NoAuthServer(ProxyUpstreamer *owner)
-	: Authenticator(owner, true), state(S_WRITING)
+AuthServer::AuthServer(ProxyUpstreamer *owner)
+	: AuthenticationReactor(owner), state(S_WRITING)
 {
 	S6M::AuthenticationReply rep(SOCKS6_AUTH_REPLY_SUCCESS, SOCKS6_METHOD_NOAUTH);
 	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
@@ -16,7 +16,7 @@ NoAuthServer::NoAuthServer(ProxyUpstreamer *owner)
 	rep.pack(&bb);
 }
 
-void NoAuthServer::process(int fd, uint32_t events)
+void AuthServer::process(int fd, uint32_t events)
 {
 	(void)fd; (void)events;
 
@@ -29,7 +29,7 @@ void NoAuthServer::process(int fd, uint32_t events)
 			throw system_error(errno, system_category());
 		bytes = 0;
 	}
-	buf.unuse(bytes);
+	buf.unuseHead(bytes);
 
 	if (buf.usedSize() > 0)
 		poller->add(this, owner->getSrcFD(), Poller::OUT_EVENTS);
@@ -37,7 +37,7 @@ void NoAuthServer::process(int fd, uint32_t events)
 		owner->resume();
 }
 
-void NoAuthServer::resume()
+void AuthServer::resume()
 {
 	poller->add(this, owner->getSrcFD(), Poller::OUT_EVENTS);
 }
