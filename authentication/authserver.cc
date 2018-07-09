@@ -34,10 +34,10 @@ void AuthServer::process(int fd, uint32_t events)
 	if (buf.usedSize() > 0)
 		poller->add(this, owner->getSrcFD(), Poller::OUT_EVENTS);
 	else
-		owner->resume();
+		owner->start();
 }
 
-void AuthServer::resume()
+void AuthServer::start(bool defer)
 {
 	poller->add(this, owner->getSrcFD(), Poller::OUT_EVENTS);
 }

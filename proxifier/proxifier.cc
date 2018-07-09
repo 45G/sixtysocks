@@ -26,5 +26,5 @@ void Proxifier::handleNewConnection(int fd)
 		return;
 	}
 	
-	upstreamReactor->resume();
+	upstreamReactor->start(true);
 }

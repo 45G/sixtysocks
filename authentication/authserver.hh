@@ -22,7 +22,7 @@ public:
 
 	void process(int fd, uint32_t events);
 
-	void resume();
+	void start(bool defer = false);
 };
 
 #endif // NOAUTHSERVER_HH

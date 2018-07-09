@@ -36,7 +36,7 @@ public:
 		return poller;
 	}
 
-	virtual void resume() = 0;
+	virtual void start(bool defer = false) = 0;
 	
 	virtual ~Reactor();
 };

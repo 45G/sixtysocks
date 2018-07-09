@@ -123,7 +123,7 @@ public:
 	
 	void deactivate();
 
-	void resume();
+	void start(bool defer = false);
 
 	~StreamReactor();
 

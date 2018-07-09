@@ -17,10 +17,10 @@ SOURCES += \
     proxifier/proxifierupstreamer.cc \
     proxy/proxy.cc \
     proxy/proxyupstreamer.cc \
-    authentication/noauthserver.cc \
     proxy/simpleproxydownstreamer.cc \
     proxy/connectproxydownstreamer.cc \
-    core/authenticationreactor.cc
+    core/authenticationreactor.cc \
+    authentication/authserver.cc
 
 HEADERS += \
     core/poller.hh \

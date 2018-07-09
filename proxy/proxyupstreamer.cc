@@ -13,8 +13,8 @@ void ProxyUpstreamer::authenticate()
 {
 	//TODO: authentication policy
 	//TODO: fast path (use return value; return bool)
-	intrusive_ptr<AuthServer> noAuth = new AuthServer(this);
-	noAuth->resume();
+	intrusive_ptr<AuthServer> authServer = new AuthServer(this);
+	authServer->start();
 }
 
 ProxyUpstreamer::ProxyUpstreamer(Proxy *owner, int srcFD)
@@ -79,13 +79,13 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		case SOCKS6_REQUEST_NOOP:
 		{
 			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, S6M::Address({ .saddr = 0 }), 0, 0, S6M::OptionSet(S6M::OptionSet::M_OP_REP));
-			(new SimpleProxyDownstreamer(this, &reply))->resume();
+			(new SimpleProxyDownstreamer(this, &reply))->start();
 			break;
 		}
 		default:
 		{
 			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED, S6M::Address({ .saddr = 0 }), 0, 0, S6M::OptionSet(S6M::OptionSet::M_OP_REP));
-			(new SimpleProxyDownstreamer(this, &reply))->resume();
+			(new SimpleProxyDownstreamer(this, &reply))->start();
 			break;
 		}
 		}

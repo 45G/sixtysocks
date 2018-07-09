@@ -15,5 +15,5 @@ void Proxy::handleNewConnection(int fd)
 		return;
 	}
 	
-	upstreamReactor->resume();
+	upstreamReactor->start(true);
 }

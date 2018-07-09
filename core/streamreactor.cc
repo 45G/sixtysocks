@@ -80,9 +80,18 @@ void StreamReactor::deactivate()
 	poller->remove(dstFD);
 }
 
-void StreamReactor::resume()
+void StreamReactor::start(bool defer)
 {
-	poller->add(this, srcFD, Poller::IN_EVENTS);
+	switch (streamState)
+	{
+	case SS_WAITING_TO_RECV:
+		poller->add(this, srcFD, Poller::IN_EVENTS);
+		break;
+
+	case SS_WAITING_TO_SEND:
+		poller->add(this, dstFD, Poller::OUT_EVENTS);
+		break;
+	}
 }
 
 StreamReactor::~StreamReactor()
