@@ -18,7 +18,7 @@ class ConnectProxyDownstreamer: public StreamReactor
 	State state;
 
 public:
-	ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer);
+	ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer, S6M::OperationReply *reply);
 };
 
 #endif // CONNECTPROXYDOWNSTREAMER_HH

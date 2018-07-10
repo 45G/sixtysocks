@@ -7,6 +7,7 @@ class Spinlock
 {
 	boost::atomic<bool> held;
 
+public:
 	Spinlock()
 		:held(false) {}
 
@@ -23,6 +24,23 @@ class Spinlock
 	void release()
 	{
 		held = 0;
+	}
+};
+
+class ScopedSpinlock
+{
+	Spinlock *spinlock;
+	
+public:
+	ScopedSpinlock(Spinlock *spinlock)
+		: spinlock(spinlock)
+	{
+		spinlock->acquire();
+	}
+	
+	~ScopedSpinlock()
+	{
+		spinlock->release();
 	}
 };
 

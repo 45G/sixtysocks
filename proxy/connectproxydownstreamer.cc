@@ -5,10 +5,11 @@
 using namespace std;
 using namespace boost;
 
-ConnectProxyDownstreamer::ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer)
-	: StreamReactor(upstreamer->getPoller(), -1, -1), state(S_INIT)
+ConnectProxyDownstreamer::ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer, S6M::OperationReply *reply)
+	: StreamReactor(upstreamer->getPoller(), -1, -1, SS_WAITING_TO_SEND), state(S_INIT)
 {
-	//TODO: defer
+	buf.use(reply->pack(buf.getTail(), buf.availSize()));
+	
 	srcFD = dup(upstreamer->getDstFD());
 	if (srcFD < 0)
 		throw system_error(errno, system_category());

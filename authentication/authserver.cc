@@ -34,10 +34,15 @@ void AuthServer::process(int fd, uint32_t events)
 	if (buf.usedSize() > 0)
 		poller->add(this, owner->getSrcFD(), Poller::OUT_EVENTS);
 	else
-		owner->start();
+		((ProxyUpstreamer *)owner.get())->authDone((SOCKS6TokenExpenditureCode)0);
 }
 
 void AuthServer::start(bool defer)
 {
 	poller->add(this, owner->getSrcFD(), Poller::OUT_EVENTS);
+}
+
+void AuthServer::mayRead()
+{
+	//TODO: fill if long auth is implemented
 }

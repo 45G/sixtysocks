@@ -23,6 +23,8 @@ public:
 	void process(int fd, uint32_t events);
 
 	void start(bool defer = false);
+	
+	void mayRead();
 };
 
 #endif // NOAUTHSERVER_HH
