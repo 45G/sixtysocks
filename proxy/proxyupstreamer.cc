@@ -116,6 +116,11 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		}
 		break;
 	}
+	case S_AWAITING_AUTH:
+	{
+		// this point shouldn't be reached
+		break;
+	}
 	case S_READING_INIT_DATA:
 	{
 		ssize_t bytes = fill(srcFD);
@@ -146,7 +151,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_CONNECTING:
 	{
-		if (events & EPOLLOUT)
+		if ((events & EPOLLOUT) || (events & EPOLLHUP))
 		{
 			S6U::SocketAddress bindAddr;
 			socklen_t addrLen = sizeof(bindAddr.storage);

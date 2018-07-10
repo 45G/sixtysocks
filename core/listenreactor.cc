@@ -54,6 +54,7 @@ void ListenReactor::process(int fd, uint32_t events)
 		handleNewConnection(clientFD);		
 resched:
 		poller->add(this, listenFD, EPOLLIN);
+		break;
 	}
 }
 
