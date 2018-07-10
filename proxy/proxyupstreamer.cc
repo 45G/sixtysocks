@@ -14,7 +14,7 @@ void ProxyUpstreamer::honorRequest()
 {
 	if (replyOptions.getExpenditureReplyCode() != SOCKS6_TOK_EXPEND_SUCCESS)
 	{
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address({ .saddr = 0 }), 0, 0, replyOptions);
+		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
 		(new SimpleProxyDownstreamer(this, &reply))->start();
 		return;
 	}
@@ -26,7 +26,7 @@ void ProxyUpstreamer::honorRequest()
 		//TODO: resolve
 		if (req->getAddress()->getType() == SOCKS6_ADDR_DOMAIN)
 		{
-			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED, S6M::Address({ .saddr = 0 }), 0, 0, replyOptions);
+			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
 			(new SimpleProxyDownstreamer(this, &reply))->start();
 		}
 		
@@ -56,13 +56,13 @@ void ProxyUpstreamer::honorRequest()
 	}
 	case SOCKS6_REQUEST_NOOP:
 	{
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, S6M::Address({ .saddr = 0 }), 0, 0, replyOptions);
+		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
 		(new SimpleProxyDownstreamer(this, &reply))->start();
 		break;
 	}
 	default:
 	{
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED, S6M::Address({ .saddr = 0 }), 0, 0, replyOptions);
+		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
 		(new SimpleProxyDownstreamer(this, &reply))->start();
 		break;
 	}
@@ -191,7 +191,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			else
 				code = S6U::Socket::connectErrnoToReplyCode(err);
 			
-			S6M::OperationReply reply(code, S6M::Address({ .saddr = 0 }), 0, 0, replyOptions);
+			S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
 			(new SimpleProxyDownstreamer(this, &reply))->start();
 		}
 		
