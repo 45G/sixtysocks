@@ -47,13 +47,13 @@ void ProxyUpstreamer::honorRequest()
 		{
 			ssize_t bytes = spillTFO(dstFD, addr);
 			if (bytes < 0 && errno != EINPROGRESS)
-					throw system_error(errno, system_category());
+				throw system_error(errno, system_category());
 		}
 		else
 		{
 			int rc = connect(dstFD, &addr.sockAddress, addr.size());
 			if (rc < 0 && errno != EINPROGRESS)
-					throw system_error(errno, system_category());
+				throw system_error(errno, system_category());
 		}
 		poller->add(this, dstFD, Poller::OUT_EVENTS);
 		state = S_CONNECTING;
