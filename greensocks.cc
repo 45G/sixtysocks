@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <errno.h>
 #include <string.h>
@@ -150,9 +151,10 @@ int main(int argc, char **argv)
 	if (listenFD < 0)
 		throw std::system_error(errno, std::system_category());
 	
-	// tolerable error
+	// tolerable errors
 	static const int one = 1;
 	setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(int));
+	setsockopt(listenFD, SOL_TCP, TCP_FASTOPEN, &one, sizeof(int));
 	
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));

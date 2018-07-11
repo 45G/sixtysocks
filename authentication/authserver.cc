@@ -11,9 +11,7 @@ AuthServer::AuthServer(ProxyUpstreamer *owner)
 	: AuthenticationReactor(owner), state(S_WRITING)
 {
 	S6M::AuthenticationReply rep(SOCKS6_AUTH_REPLY_SUCCESS, SOCKS6_METHOD_NOAUTH);
-	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
-
-	rep.pack(&bb);
+	buf.use(rep.pack(buf.getTail(), buf.availSize()));
 }
 
 void AuthServer::process(int fd, uint32_t events)

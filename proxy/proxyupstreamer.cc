@@ -12,7 +12,7 @@ using namespace boost;
 
 void ProxyUpstreamer::honorRequest()
 {
-	if (replyOptions.getExpenditureReplyCode() != SOCKS6_TOK_EXPEND_SUCCESS)
+	if (req->getOptionSet()->expenditureAttempted() && replyOptions.getExpenditureReplyCode() != SOCKS6_TOK_EXPEND_SUCCESS)
 	{
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
 		(new SimpleProxyDownstreamer(this, &reply))->start();
@@ -31,24 +31,26 @@ void ProxyUpstreamer::honorRequest()
 		}
 		
 		S6U::SocketAddress addr(*req->getAddress(), req->getPort());
+		dstFD = socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
+		if (dstFD < 0)
+			throw system_error(errno, system_category());
+		
+		if (S6U::Socket::setMPTCPSched(srcFD, req->getOptionSet()->getClientProxySched()) == 0)
+			replyOptions.setClientProxySched(req->getOptionSet()->getClientProxySched());
+		if (S6U::Socket::setMPTCPSched(dstFD, req->getOptionSet()->getProxyServerSched()) == 0)
+			replyOptions.setProxyServerSched(req->getOptionSet()->getProxyServerSched());
 		
 		if (req->getOptionSet()->getTFO())
 		{
 			ssize_t bytes = spillTFO(dstFD, addr);
-			if (bytes < 0)
-			{
-				if (errno != EINPROGRESS)
+			if (bytes < 0 && errno != EINPROGRESS)
 					throw system_error(errno, system_category());
-			}
 		}
 		else
 		{
 			int rc = connect(dstFD, &addr.sockAddress, addr.size());
-			if (rc < 0)
-			{
-				if (errno != EINPROGRESS)
+			if (rc < 0 && errno != EINPROGRESS)
 					throw system_error(errno, system_category());
-			}
 		}
 		poller->add(this, dstFD, Poller::OUT_EVENTS);
 		state = S_CONNECTING;
