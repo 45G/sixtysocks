@@ -35,10 +35,13 @@ void ProxyUpstreamer::honorRequest()
 		if (dstFD < 0)
 			throw system_error(errno, system_category());
 		
-		if (S6U::Socket::setMPTCPSched(srcFD, req->getOptionSet()->getClientProxySched()) == 0)
-			replyOptions.setClientProxySched(req->getOptionSet()->getClientProxySched());
-		if (S6U::Socket::setMPTCPSched(dstFD, req->getOptionSet()->getProxyServerSched()) == 0)
-			replyOptions.setProxyServerSched(req->getOptionSet()->getProxyServerSched());
+		SOCKS6MPTCPScheduler clientProxySched = req->getOptionSet()->getClientProxySched();
+		if (S6U::Socket::setMPTCPSched(srcFD, clientProxySched) == 0)
+			replyOptions.setClientProxySched(clientProxySched);
+
+		SOCKS6MPTCPScheduler proxyServerSched = req->getOptionSet()->getProxyServerSched();
+		if (S6U::Socket::setMPTCPSched(dstFD, proxyServerSched) == 0)
+			replyOptions.setProxyServerSched(proxyServerSched);
 		
 		if (req->getOptionSet()->getTFO())
 		{
