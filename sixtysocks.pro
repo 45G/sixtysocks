@@ -11,7 +11,6 @@ SOURCES += \
     core/poller.cc \
     core/reactor.cc \
     core/streamreactor.cc \
-    greensocks.cc \
     proxifier/proxifier.cc \
     proxifier/proxifierdownstreamer.cc \
     proxifier/proxifierupstreamer.cc \
@@ -20,7 +19,8 @@ SOURCES += \
     proxy/simpleproxydownstreamer.cc \
     proxy/connectproxydownstreamer.cc \
     core/authenticationreactor.cc \
-    authentication/authserver.cc
+    authentication/authserver.cc \
+    sixtysocks.cc
 
 HEADERS += \
     core/poller.hh \

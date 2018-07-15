@@ -25,7 +25,7 @@ using namespace std;
 void usage()
 {
 	static const char *usageLines[] = {
-		"usage: greensocks [-j <thread count>] [-o <cpu offset>]",
+		"usage: sixtysocks [-j <thread count>] [-o <cpu offset>]",
 			"[-m <mode>]",
 			"[-l <port>] [-t <tls port>]",
 			"[-i]",
