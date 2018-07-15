@@ -24,7 +24,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 		S6M::OptionSet opts(S6M::OptionSet::M_REQ);
 		if (S6U::Socket::tfoAttempted(srcFD))
 			opts.setTFO();
-		S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), opts, 0);
+		S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), 0, opts);
 		S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
 		req.pack(&bb);
 		buf.use(bb.getUsed());
