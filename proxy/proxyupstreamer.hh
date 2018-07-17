@@ -36,7 +36,7 @@ class ProxyUpstreamer: public StreamReactor
 	void honorRequest();
 	
 public:
-	ProxyUpstreamer(Proxy *owner, int srcFD);
+	ProxyUpstreamer(Proxy *proxy, int srcFD);
 	
 	void process(int fd, uint32_t events);
 	

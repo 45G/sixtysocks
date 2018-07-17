@@ -17,18 +17,18 @@ class ProxifierUpstreamer: public StreamReactor
 	
 	ssize_t reqBytesLeft;
 	
-	boost::intrusive_ptr<Proxifier> owner;
+	boost::intrusive_ptr<Proxifier> proxifier;
 	
 	State state;
 	
 public:
-	ProxifierUpstreamer(Proxifier *owner, int srcFD);
+	ProxifierUpstreamer(Proxifier *proxifier, int srcFD);
 
 	void process(int fd, uint32_t events);
 	
-	Proxifier *getOwner()
+	Proxifier *getProxifier()
 	{
-		return owner.get();
+		return proxifier.get();
 	}
 };
 

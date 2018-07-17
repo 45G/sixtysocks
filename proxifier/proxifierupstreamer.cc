@@ -9,8 +9,8 @@
 
 using namespace std;
 
-ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *owner, int srcFD)
-	: StreamReactor(owner->getPoller(), srcFD, -1), owner(owner), state(S_READING_INIT_DATA) {}
+ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD)
+	: StreamReactor(proxifier->getPoller(), srcFD, -1), proxifier(proxifier), state(S_READING_INIT_DATA) {}
 
 void ProxifierUpstreamer::process(int fd, uint32_t events)
 {
@@ -37,7 +37,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 				throw system_error(errno, system_category());
 		}
 		
-		dstFD = socket(owner->getProxy()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
+		dstFD = socket(proxifier->getProxy()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
 		if (dstFD < 0)
 			throw system_error(errno, system_category());
 		
@@ -51,7 +51,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 			polFlags |= S6U::TFOSafety::TFOS_TFO_SYN;
 		if (S6U::TFOSafety::tfoSafe(polFlags))
 		{
-			bytes = spillTFO(dstFD, *owner->getProxy());
+			bytes = spillTFO(dstFD, *proxifier->getProxy());
 			if (bytes < 0)
 			{
 				if (errno != EINPROGRESS)
@@ -62,7 +62,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 		}
 		else
 		{
-			int rc = connect(dstFD, &owner->getProxy()->sockAddress, dest.size());
+			int rc = connect(dstFD, &proxifier->getProxy()->sockAddress, dest.size());
 			if (rc < 0)
 			{
 				if (errno != EINPROGRESS)

@@ -7,7 +7,7 @@
 using namespace std;
 
 ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
-	: StreamReactor(upstreamer->getPoller(), -1, -1), owner(upstreamer->getOwner()), upstreamer(upstreamer), state(S_WAITING_FOR_AUTH_REP)
+	: StreamReactor(upstreamer->getPoller(), -1, -1), proxifier(upstreamer->getProxifier()), upstreamer(upstreamer), state(S_WAITING_FOR_AUTH_REP)
 {
 	srcFD = dup(upstreamer->getDstFD());
 	if (srcFD < 0)

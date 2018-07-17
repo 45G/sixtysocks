@@ -18,7 +18,7 @@ class AuthServer: public AuthenticationReactor
 	StreamBuffer buf;
 
 public:
-	AuthServer(ProxyUpstreamer *owner);
+	AuthServer(ProxyUpstreamer *upstreamer);
 
 	void process(int fd, uint32_t events);
 

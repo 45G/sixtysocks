@@ -74,8 +74,8 @@ void ProxyUpstreamer::honorRequest()
 	}
 }
 
-ProxyUpstreamer::ProxyUpstreamer(Proxy *owner, int srcFD)
-	: StreamReactor(owner->getPoller(), srcFD, -1), state(S_READING_REQ), authenticated(false), replyOptions(S6M::OptionSet::M_OP_REP), authServer(NULL) {}
+ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int srcFD)
+	: StreamReactor(proxy->getPoller(), srcFD, -1), state(S_READING_REQ), authenticated(false), replyOptions(S6M::OptionSet::M_OP_REP), authServer(NULL) {}
 
 void ProxyUpstreamer::process(int fd, uint32_t events)
 {

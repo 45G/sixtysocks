@@ -7,11 +7,11 @@
 class AuthenticationReactor: public Reactor
 {
 protected:
-	boost::intrusive_ptr<StreamReactor> owner;
+	boost::intrusive_ptr<StreamReactor> upstreamer;
 
 public:
-	AuthenticationReactor(StreamReactor *owner)
-		: Reactor(owner->getPoller()), owner(owner) {}
+	AuthenticationReactor(StreamReactor *upstreamer)
+		: Reactor(upstreamer->getPoller()), upstreamer(upstreamer) {}
 
 public:
 	void deactivate();
