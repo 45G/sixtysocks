@@ -1,17 +1,19 @@
 #ifndef NOAUTHSERVER_HH
 #define NOAUTHSERVER_HH
 
-#include "../core/authenticationreactor.hh"
+#include "../core/streamreactor.hh"
 
 class ProxyUpstreamer;
 
-class AuthServer: public AuthenticationReactor
+class AuthServer: public Reactor
 {
 	enum State
 	{
 		S_WRITING,
 		S_DONE,
 	};
+	
+	boost::intrusive_ptr<ProxyUpstreamer> upstreamer;
 
 	State state;
 
@@ -23,6 +25,8 @@ public:
 	void process(int fd, uint32_t events);
 
 	void start(bool defer = false);
+	
+	void deactivate();
 	
 	void mayRead();
 };

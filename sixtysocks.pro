@@ -18,9 +18,10 @@ SOURCES += \
     proxy/proxyupstreamer.cc \
     proxy/simpleproxydownstreamer.cc \
     proxy/connectproxydownstreamer.cc \
-    core/authenticationreactor.cc \
     authentication/authserver.cc \
-    sixtysocks.cc
+    sixtysocks.cc \
+    authentication/passwordchecker.cc \
+    authentication/simplepasswordchecker.cc
 
 HEADERS += \
     core/poller.hh \
@@ -37,6 +38,7 @@ HEADERS += \
     proxy/connectproxydownstreamer.hh \
     core/spinlock.hh \
     authentication/authserver.hh \
-    core/authenticationreactor.hh
+    authentication/passwordchecker.hh \
+    authentication/simplepasswordchecker.hh
 
 LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system

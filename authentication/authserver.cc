@@ -8,7 +8,7 @@
 using namespace std;
 
 AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
-	: AuthenticationReactor(upstreamer), state(S_WRITING)
+	: Reactor(upstreamer->getPoller()), upstreamer(upstreamer), state(S_WRITING)
 {
 	S6M::AuthenticationReply rep(SOCKS6_AUTH_REPLY_SUCCESS, SOCKS6_METHOD_NOAUTH);
 	buf.use(rep.pack(buf.getTail(), buf.availSize()));
@@ -38,6 +38,12 @@ void AuthServer::process(int fd, uint32_t events)
 void AuthServer::start(bool defer)
 {
 	poller->add(this, upstreamer->getSrcFD(), Poller::OUT_EVENTS);
+}
+
+void AuthServer::deactivate()
+{
+	Reactor::deactivate();
+	upstreamer->deactivate();
 }
 
 void AuthServer::mayRead()
