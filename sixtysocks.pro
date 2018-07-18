@@ -39,6 +39,7 @@ HEADERS += \
     core/spinlock.hh \
     authentication/authserver.hh \
     authentication/passwordchecker.hh \
-    authentication/simplepasswordchecker.hh
+    authentication/simplepasswordchecker.hh \
+    authentication/lockabletokenbank.h
 
 LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system
