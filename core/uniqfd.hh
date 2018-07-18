@@ -1,30 +1,30 @@
-#ifndef EXFD_H
-#define EXFD_H
+#ifndef UNIQFD_H
+#define UNIQFD_H
 
 #include <unistd.h>
 #include <errno.h>
 #include <system_error>
 
-class ExFD
+class UniqFD
 {
 	int fd;
 	
 public:
-	ExFD()
+	UniqFD()
 		: fd(-1) {}
 	
-	ExFD(int fd)
+	UniqFD(int fd)
 		: fd(fd) {}
 	
-	ExFD(ExFD *other)
+	UniqFD(UniqFD *other)
 		: fd(other->fd)
 	{
 		other->fd = -1;
 	}
 	
-	ExFD(const ExFD &) = delete;
+	UniqFD(const UniqFD &) = delete;
 	
-	operator =(const ExFD &) = delete;
+	operator =(const UniqFD &) = delete;
 	
 //	ExFD duplicate()
 //	{
@@ -40,7 +40,7 @@ public:
 		return fd;
 	}
 	
-	~ExFD()
+	~UniqFD()
 	{
 		if (fd != -1)
 			close(fd);
@@ -49,4 +49,4 @@ public:
 
 class ExRecvFD: public
 
-#endif // EXFD_H
+#endif // UNIQFD_H

@@ -32,7 +32,6 @@ HEADERS += \
     proxifier/proxifierdownstreamer.hh \
     proxifier/proxifierupstreamer.hh \
     proxy/proxy.hh \
-    core/exfd.h \
     proxy/proxyupstreamer.hh \
     proxy/simpleproxydownstreamer.hh \
     proxy/connectproxydownstreamer.hh \
@@ -40,6 +39,7 @@ HEADERS += \
     authentication/authserver.hh \
     authentication/passwordchecker.hh \
     authentication/simplepasswordchecker.hh \
-    authentication/lockabletokenbank.h
+    authentication/lockabletokenbank.h \
+    core/uniqfd.hh
 
 LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system

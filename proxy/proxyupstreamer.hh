@@ -25,7 +25,7 @@ class ProxyUpstreamer: public StreamReactor
 	volatile State state;
 	volatile bool authenticated;
 	
-	boost::shared_ptr<S6M::Request> req;
+	boost::shared_ptr<S6M::Request> request;
 	S6M::OptionSet replyOptions;
 
 	boost::intrusive_ptr<ConnectProxyDownstreamer> downstreamer;
@@ -41,6 +41,11 @@ public:
 	void process(int fd, uint32_t events);
 	
 	void authDone(SOCKS6TokenExpenditureCode expenditureCode);
+
+	boost::shared_ptr<S6M::Request> getRequest() const
+	{
+		return request;
+	}
 };
 
 #endif // PROXYUPSTREAMER_HH

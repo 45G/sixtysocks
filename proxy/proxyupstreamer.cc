@@ -12,38 +12,38 @@ using namespace boost;
 
 void ProxyUpstreamer::honorRequest()
 {
-	if (req->getOptionSet()->expenditureAttempted() && replyOptions.getExpenditureReplyCode() != SOCKS6_TOK_EXPEND_SUCCESS)
+    if (request->getOptionSet()->expenditureAttempted() && replyOptions.getExpenditureReplyCode() != SOCKS6_TOK_EXPEND_SUCCESS)
 	{
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
 		(new SimpleProxyDownstreamer(this, &reply))->start();
 		return;
 	}
 	
-	switch (req->getCommandCode())
+	switch (request->getCommandCode())
 	{
 	case SOCKS6_REQUEST_CONNECT:
 	{
 		//TODO: resolve
-		if (req->getAddress()->getType() == SOCKS6_ADDR_DOMAIN)
+		if (request->getAddress()->getType() == SOCKS6_ADDR_DOMAIN)
 		{
 			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
 			(new SimpleProxyDownstreamer(this, &reply))->start();
 		}
 		
-		S6U::SocketAddress addr(*req->getAddress(), req->getPort());
+		S6U::SocketAddress addr(*request->getAddress(), request->getPort());
 		dstFD = socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
 		if (dstFD < 0)
 			throw system_error(errno, system_category());
 		
-		SOCKS6MPTCPScheduler clientProxySched = req->getOptionSet()->getClientProxySched();
+		SOCKS6MPTCPScheduler clientProxySched = request->getOptionSet()->getClientProxySched();
 		if (S6U::Socket::setMPTCPSched(srcFD, clientProxySched) == 0)
 			replyOptions.setClientProxySched(clientProxySched);
 
-		SOCKS6MPTCPScheduler proxyServerSched = req->getOptionSet()->getProxyServerSched();
+		SOCKS6MPTCPScheduler proxyServerSched = request->getOptionSet()->getProxyServerSched();
 		if (S6U::Socket::setMPTCPSched(dstFD, proxyServerSched) == 0)
 			replyOptions.setProxyServerSched(proxyServerSched);
 		
-		if (req->getOptionSet()->getTFO())
+		if (request->getOptionSet()->getTFO())
 		{
 			ssize_t bytes = spillTFO(dstFD, addr);
 			if (bytes < 0 && errno != EINPROGRESS)
@@ -92,7 +92,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
 		try
 		{
-			req = boost::shared_ptr<S6M::Request>(new S6M::Request(&bb));
+			request = boost::shared_ptr<S6M::Request>(new S6M::Request(&bb));
 			buf.unuseHead(bb.getUsed());
 		}
 		catch (S6M::EndOfBufferException)
@@ -104,7 +104,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		authServer = new AuthServer(this);
 		authServer->start();
 		
-		if (buf.usedSize() < req->getInitialDataLen())
+		if (buf.usedSize() < request->getInitialDataLen())
 		{
 			state = S_READING_INIT_DATA;
 			poller->add(this, srcFD, Poller::IN_EVENTS);
@@ -142,7 +142,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 				deactivate();
 			return;
 		}
-		if (buf.usedSize() >= req->getInitialDataLen())
+		if (buf.usedSize() >= request->getInitialDataLen())
 		{
 			honorLock.acquire();
 			state = S_AWAITING_AUTH;
@@ -168,7 +168,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 				replyOptions.setMPTCP();
 				
 					
-			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort(), req->getInitialDataLen(), replyOptions);
+			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort(), request->getInitialDataLen(), replyOptions);
 			(new ConnectProxyDownstreamer(this, &reply))->start();
 			
 			state = S_STREAM;

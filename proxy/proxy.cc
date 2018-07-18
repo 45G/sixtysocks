@@ -4,10 +4,10 @@
 
 void Proxy::handleNewConnection(int fd)
 {
-	ProxyUpstreamer *upstreamReactor = NULL;
-	try
-	{
-		upstreamReactor = new ProxyUpstreamer(this, fd);
+    ProxyUpstreamer *upstreamReactor = NULL;
+    try
+    {
+        upstreamReactor = new ProxyUpstreamer(this, fd);
 	}
 	catch (...)
 	{

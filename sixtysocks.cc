@@ -35,12 +35,15 @@ void usage()
 		NULL,
 	};
 	
-	const char *line = usageLines[0];
+	const char **line = &usageLines[0];
 	
-	cerr << line << endl;
+	cerr << *line << endl;
 	line++;
-	for (; line != NULL; line++)
-		cerr << "\t" << line << endl;
+	while (line != NULL)
+	{
+		cerr << "\t" << *line << endl;
+		line++;
+	}
 	
 	exit(EXIT_FAILURE);
 }
@@ -177,7 +180,7 @@ int main(int argc, char **argv)
 	if (mode == M_PROXIFIER)
 		(new Proxifier(&poller, proxy.storage, listenFD))->start(true);
 	else
-		(new Proxy(&poller, listenFD))->start(true);
+		(new Proxy(&poller, listenFD, NULL))->start(true);
 	
 //	sleep(1000);
 	poller.threadFun(&poller);
