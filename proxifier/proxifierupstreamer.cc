@@ -25,9 +25,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 		if (S6U::Socket::tfoAttempted(srcFD))
 			req.getOptionSet()->setTFO();
 		if (proxifier->getUsername()->length() > 0)
-		{
-			//TODO
-		}
+			req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());
 
 		S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
 		req.pack(&bb);
