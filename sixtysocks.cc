@@ -39,7 +39,7 @@ void usage()
 	
 	cerr << *line << endl;
 	line++;
-	while (line != NULL)
+	while (*line != NULL)
 	{
 		cerr << "\t" << *line << endl;
 		line++;
