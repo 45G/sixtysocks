@@ -12,9 +12,10 @@ using namespace boost;
 
 void ProxyUpstreamer::honorRequest()
 {
-    if (request->getOptionSet()->expenditureAttempted() && replyOptions.getExpenditureReplyCode() != SOCKS6_TOK_EXPEND_SUCCESS)
+    if (request->getOptionSet()->getToken() && replyOptions.getExpenditureReply() != SOCKS6_TOK_EXPEND_SUCCESS)
 	{
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
+		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
+		*reply.getOptionSet() = replyOptions;
 		(new SimpleProxyDownstreamer(this, &reply))->start();
 		return;
 	}
@@ -26,7 +27,8 @@ void ProxyUpstreamer::honorRequest()
 		//TODO: resolve
 		if (request->getAddress()->getType() == SOCKS6_ADDR_DOMAIN)
 		{
-			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
+			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
+			*reply.getOptionSet() = replyOptions;
 			(new SimpleProxyDownstreamer(this, &reply))->start();
 		}
 		
@@ -61,13 +63,15 @@ void ProxyUpstreamer::honorRequest()
 	}
 	case SOCKS6_REQUEST_NOOP:
 	{
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
+		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
+		*reply.getOptionSet() = replyOptions;
 		(new SimpleProxyDownstreamer(this, &reply))->start();
 		break;
 	}
 	default:
 	{
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
+		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
+		*reply.getOptionSet() = replyOptions;
 		(new SimpleProxyDownstreamer(this, &reply))->start();
 		break;
 	}
@@ -168,7 +172,8 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 				replyOptions.setMPTCP();
 				
 					
-			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort(), request->getInitialDataLen(), replyOptions);
+			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort(), request->getInitialDataLen());
+			*reply.getOptionSet() = replyOptions;
 			(new ConnectProxyDownstreamer(this, &reply))->start();
 			
 			state = S_STREAM;
@@ -196,7 +201,8 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			else
 				code = S6U::Socket::connectErrnoToReplyCode(err);
 			
-			S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0, replyOptions);
+			S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
+			*reply.getOptionSet() = replyOptions;
 			(new SimpleProxyDownstreamer(this, &reply))->start();
 		}
 		
@@ -213,7 +219,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 void ProxyUpstreamer::authDone(SOCKS6TokenExpenditureCode expenditureCode)
 {
 	if (expenditureCode != (SOCKS6TokenExpenditureCode)0)
-		replyOptions.replyToExpenditure(expenditureCode);
+		replyOptions.setExpenditureReply(expenditureCode);
 	
 	honorLock.acquire();
 	authenticated = true;

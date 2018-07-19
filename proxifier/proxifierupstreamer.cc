@@ -21,14 +21,14 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 		S6U::SocketAddress dest;
 		S6U::Socket::getOriginalDestination(srcFD, &dest.storage);
 		
-		S6M::OptionSet opts(S6M::OptionSet::M_REQ);
+		S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), 0);
 		if (S6U::Socket::tfoAttempted(srcFD))
-			opts.setTFO();
+			req.getOptionSet()->setTFO();
 		if (proxifier->getUsername()->length() > 0)
 		{
 			//TODO
 		}
-		S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), 0, opts);
+
 		S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
 		req.pack(&bb);
 		buf.use(bb.getUsed());
@@ -51,7 +51,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 		uint32_t polFlags = 0;
 		if (bytes == 0)
 			polFlags |= S6U::TFOSafety::TFOS_NO_DATA;
-		if (opts.getTFO())
+		if (req.getOptionSet()->getTFO())
 			polFlags |= S6U::TFOSafety::TFOS_TFO_SYN;
 		if (S6U::TFOSafety::tfoSafe(polFlags))
 		{
