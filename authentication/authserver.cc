@@ -45,8 +45,3 @@ void AuthServer::deactivate()
 	Reactor::deactivate();
 	upstreamer->deactivate();
 }
-
-void AuthServer::mayRead()
-{
-	//TODO: fill if long auth is implemented
-}

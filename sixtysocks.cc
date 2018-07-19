@@ -15,10 +15,12 @@
 #include <system_error>
 #include <sys/epoll.h>
 #include <socks6util/socks6util.hh>
+#include <algorithm>
 
 #include "core/poller.hh"
 #include "proxifier/proxifier.hh"
 #include "proxy/proxy.hh"
+#include "authentication/simplepasswordchecker.hh"
 
 using namespace std;
 
@@ -65,14 +67,12 @@ int main(int argc, char **argv)
 	uint16_t port = 0;
 	uint16_t tlsPort = 0;
 	uint16_t proxyPort = 1080;
-	S6U::SocketAddress proxy;
-	S6U::SocketAddress tlsProxy;
+	S6U::SocketAddress proxyAddr;
+	S6U::SocketAddress tlsProxyAddr;
 	bool idempotence = false;
 	string username;
 	string password;
-	
-	memset(&proxy.storage,    0, sizeof(sockaddr_storage));
-	memset(&tlsProxy.storage, 0, sizeof(sockaddr_storage));
+	boost::intrusive_ptr<SimplePasswordChecker> passwordChecker;
 	
 	//TODO: fix this shit
 	while ((c = getopt(argc, argv, "j:o:m:l:t:iU:P:s:p:")) != -1)
@@ -123,9 +123,9 @@ int main(int argc, char **argv)
 			break;
 			
 		case 's':
-			proxy.ipv4.sin_family = AF_INET;
-			proxy.ipv4.sin_addr.s_addr = inet_addr(optarg);
-			if (proxy.ipv4.sin_addr.s_addr == 0)
+			proxyAddr.ipv4.sin_family = AF_INET;
+			proxyAddr.ipv4.sin_addr.s_addr = inet_addr(optarg);
+			if (proxyAddr.ipv4.sin_addr.s_addr == 0)
 				usage();
 			break;
 			
@@ -141,7 +141,15 @@ int main(int argc, char **argv)
 	}
 	if (mode == M_NONE)
 		usage();
-	proxy.setPort(proxyPort);
+
+	proxyAddr.setPort(proxyPort);
+
+	if (min(username.length(), password.length()) == 0 && max(username.length(), password.length()) > 0)
+		usage();
+
+	if (mode == M_PROXY && username.length() > 0)
+		passwordChecker = new SimplePasswordChecker(username, password);
+
 	
 //	if (cpuOffset + numThreads > (int)thread::hardware_concurrency())
 //		usage();
@@ -155,16 +163,16 @@ int main(int argc, char **argv)
 		throw std::system_error(errno, std::system_category());
 	
 	// tolerable errors
-	static const int one = 1;
-	setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(int));
-	setsockopt(listenFD, SOL_TCP, TCP_FASTOPEN, &one, sizeof(int));
+	static const int ONE = 1;
+	setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &ONE, sizeof(int));
+	setsockopt(listenFD, SOL_TCP,    TCP_FASTOPEN, &ONE, sizeof(int));
 	
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 	
-	addr.sin_family = AF_INET;
+	addr.sin_family      = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	addr.sin_port = htons(port); 
+	addr.sin_port        = htons(port);
 	
 	int rc = bind(listenFD, (struct sockaddr *)&addr, sizeof(addr));
 	if (rc < 0)
@@ -178,9 +186,9 @@ int main(int argc, char **argv)
 	S6U::Socket::saveSYN(listenFD);
 	
 	if (mode == M_PROXIFIER)
-		(new Proxifier(&poller, proxy.storage, listenFD))->start(true);
+		(new Proxifier(&poller, proxyAddr.storage, listenFD))->start(true);
 	else
-		(new Proxy(&poller, listenFD, NULL))->start(true);
+		(new Proxy(&poller, listenFD, passwordChecker.get()))->start(true);
 	
 //	sleep(1000);
 	poller.threadFun(&poller);

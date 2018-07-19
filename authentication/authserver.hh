@@ -1,5 +1,5 @@
-#ifndef NOAUTHSERVER_HH
-#define NOAUTHSERVER_HH
+#ifndef AUTHSERVER_HH
+#define AUTHSERVER_HH
 
 #include "../core/streamreactor.hh"
 
@@ -28,7 +28,8 @@ public:
 	
 	void deactivate();
 	
-	void mayRead();
+	//TODO: in case long auth is implemented
+	//void mayRead();
 };
 
-#endif // NOAUTHSERVER_HH
+#endif // AUTHSERVER_HH
