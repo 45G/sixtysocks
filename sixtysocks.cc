@@ -30,7 +30,6 @@ void usage()
 		"usage: sixtysocks [-j <thread count>] [-o <cpu offset>]",
 			"[-m <mode>]",
 			"[-l <port>] [-t <tls port>]",
-			"[-i]",
 			"[-U <username>] [-P <password>]",
 			"[-s <proxy IP>] [-p <proxy port>]",
 		//TODO: TLS proxy
@@ -69,13 +68,12 @@ int main(int argc, char **argv)
 	uint16_t proxyPort = 1080;
 	S6U::SocketAddress proxyAddr;
 	S6U::SocketAddress tlsProxyAddr;
-	bool idempotence = false;
 	string username;
 	string password;
 	boost::intrusive_ptr<SimplePasswordChecker> passwordChecker;
 	
 	//TODO: fix this shit
-	while ((c = getopt(argc, argv, "j:o:m:l:t:iU:P:s:p:")) != -1)
+	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:")) != -1)
 	{
 		switch (c)
 		{
@@ -110,10 +108,6 @@ int main(int argc, char **argv)
 				usage();
 			break;
 			
-		case 'i':
-			idempotence = true;
-			break;
-			
 		case 'U':
 			username = string(optarg);
 			break;
@@ -123,7 +117,7 @@ int main(int argc, char **argv)
 			break;
 			
 		case 's':
-			proxyAddr.ipv4.sin_family = AF_INET;
+			proxyAddr.ipv4.sin_family      = AF_INET;
 			proxyAddr.ipv4.sin_addr.s_addr = inet_addr(optarg);
 			if (proxyAddr.ipv4.sin_addr.s_addr == 0)
 				usage();

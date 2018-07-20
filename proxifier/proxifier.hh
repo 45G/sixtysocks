@@ -17,7 +17,7 @@ public:
 	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, int listenFD, const std::string &username = "", const std::string &password = "")
 		: ListenReactor(poller, listenFD), proxyAddr(proxyAddr), username(new std::string(username)), password(new std::string(password)) {}
 	
-	const S6U::SocketAddress *getProxy() const
+	const S6U::SocketAddress *getProxyAddr() const
 	{
 		return &proxyAddr;
 	}

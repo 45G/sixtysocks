@@ -4,9 +4,11 @@
 #include <unistd.h>
 #include <errno.h>
 #include <system_error>
+#include <sys/socket.h>
 
 class UniqFD
 {
+protected:
 	int fd;
 	
 public:
@@ -16,28 +18,22 @@ public:
 	UniqFD(int fd)
 		: fd(fd) {}
 	
-	UniqFD(UniqFD *other)
-		: fd(other->fd)
-	{
-		other->fd = -1;
-	}
+//	UniqFD(const UniqFD &) = delete;
 	
-	UniqFD(const UniqFD &) = delete;
+//	void operator =(const UniqFD &) = delete;
 	
-	operator =(const UniqFD &) = delete;
-	
-//	ExFD duplicate()
-//	{
-//		int fd2 = dup(fd);
-//		if (fd2 < 0)
-//			throw system_error(errno, system_category());
-		
-//		return ExFD(fd);
-//	}
-	
-	int operator int()
+	operator int()
 	{
 		return fd;
+	}
+	
+	void reset()
+	{
+		if (fd != -1)
+		{
+			close(fd);
+			fd = -1;
+		}
 	}
 	
 	~UniqFD()
@@ -47,6 +43,42 @@ public:
 	}
 };
 
-class ExRecvFD: public
+class UniqRecvFD: public UniqFD
+{
+	void reset()
+	{
+		if (fd != -1)
+		{
+			shutdown(fd, SHUT_RD);
+			close(fd);
+			fd = -1;
+		}
+	}
+	
+	~UniqRecvFD()
+	{
+		if (fd != -1)
+			shutdown(fd, SHUT_RD);
+	}
+};
+
+class UniqSendFD: public UniqFD
+{
+	void reset()
+	{
+		if (fd != -1)
+		{
+			shutdown(fd, SHUT_WR);
+			close(fd);
+			fd = -1;
+		}
+	}
+	
+	~UniqSendFD()
+	{
+		if (fd != -1)
+			shutdown(fd, SHUT_WR);
+	}
+};
 
 #endif // UNIQFD_H

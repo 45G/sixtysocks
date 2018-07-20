@@ -39,7 +39,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 				throw system_error(errno, system_category());
 		}
 		
-		dstFD = socket(proxifier->getProxy()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
+		dstFD = socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
 		if (dstFD < 0)
 			throw system_error(errno, system_category());
 		
@@ -53,7 +53,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 			polFlags |= S6U::TFOSafety::TFOS_TFO_SYN;
 		if (S6U::TFOSafety::tfoSafe(polFlags))
 		{
-			bytes = spillTFO(dstFD, *proxifier->getProxy());
+			bytes = spillTFO(dstFD, *proxifier->getProxyAddr());
 			if (bytes < 0)
 			{
 				if (errno != EINPROGRESS)
@@ -64,7 +64,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 		}
 		else
 		{
-			int rc = connect(dstFD, &proxifier->getProxy()->sockAddress, dest.size());
+			int rc = connect(dstFD, &proxifier->getProxyAddr()->sockAddress, dest.size());
 			if (rc < 0)
 			{
 				if (errno != EINPROGRESS)
