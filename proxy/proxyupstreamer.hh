@@ -22,6 +22,8 @@ class ProxyUpstreamer: public StreamReactor
 		S_STREAM,
 	};
 
+	boost::intrusive_ptr<Proxy> proxy;
+	
 	volatile State state;
 	volatile bool authenticated;
 	
@@ -45,6 +47,11 @@ public:
 	boost::shared_ptr<S6M::Request> getRequest() const
 	{
 		return request;
+	}
+	
+	Proxy *getProxy()
+	{
+		return proxy.get();
 	}
 };
 

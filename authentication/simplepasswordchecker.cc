@@ -13,7 +13,7 @@ SimplePasswordChecker::SimplePasswordChecker(const std::string &user, const std:
 	}
 }
 
-bool SimplePasswordChecker::check(const string &user, const string &password)
+bool SimplePasswordChecker::check(boost::shared_ptr<string> user, boost::shared_ptr<string> password)
 {
-	return this->user == user && this->password == password;
+	return this->user == *user && this->password == *password;
 }

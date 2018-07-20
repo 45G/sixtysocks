@@ -3,6 +3,7 @@
 #include "../core/poller.hh"
 #include "../core/streamreactor.hh"
 #include "../proxy/proxyupstreamer.hh"
+#include "../proxy/proxy.hh"
 #include "authserver.hh"
 
 using namespace std;
@@ -10,7 +11,30 @@ using namespace std;
 AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	: Reactor(upstreamer->getPoller()), upstreamer(upstreamer), state(S_WRITING)
 {
-	S6M::AuthenticationReply rep(SOCKS6_AUTH_REPLY_SUCCESS, SOCKS6_METHOD_NOAUTH);
+	SOCKS6AuthReplyCode code;
+	SOCKS6Method method;
+	
+	PasswordChecker *checker = upstreamer->getProxy()->getPasswordChecker();
+	if (checker == NULL)
+	{
+		code = SOCKS6_AUTH_REPLY_SUCCESS;
+		method = SOCKS6_METHOD_NOAUTH;
+		success = true;
+	}
+	else if (checker->check(upstreamer->getRequest()->getOptionSet()->getUsername(), upstreamer->getRequest()->getOptionSet()->getPassword()))
+	{
+		code = SOCKS6_AUTH_REPLY_SUCCESS;
+		method = SOCKS6_METHOD_USRPASSWD;
+		success = true;
+	}
+	else
+	{
+		code = SOCKS6_AUTH_REPLY_MORE;
+		method = SOCKS6_METHOD_UNACCEPTABLE;
+		success = false;
+	}
+	
+	S6M::AuthenticationReply rep(code, method);
 	buf.use(rep.pack(buf.getTail(), buf.availSize()));
 }
 
@@ -31,8 +55,10 @@ void AuthServer::process(int fd, uint32_t events)
 
 	if (buf.usedSize() > 0)
 		poller->add(this, upstreamer->getSrcFD(), Poller::OUT_EVENTS);
-	else
+	else if (success)
 		((ProxyUpstreamer *)upstreamer.get())->authDone((SOCKS6TokenExpenditureCode)0);
+	else
+		upstreamer->deactivate();
 }
 
 void AuthServer::start(bool defer)
