@@ -36,6 +36,8 @@ void WindowSupplicant::process(int fd, uint32_t events)
 	case S_SENDING_REQ:
 	{
 		ssize_t bytes = send(fd, buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
+		if (bytes == 0)
+			return;
 		if (bytes < 0)
 		{
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
@@ -59,6 +61,8 @@ void WindowSupplicant::process(int fd, uint32_t events)
 	case S_RECEIVING_AUTH_REP:
 	{
 		ssize_t bytes = recv(fd, buf.getTail(), buf.availSize(), MSG_NOSIGNAL);
+		if (bytes == 0)
+			return;
 		if (bytes < 0)
 		{
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
