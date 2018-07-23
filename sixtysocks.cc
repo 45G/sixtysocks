@@ -180,7 +180,7 @@ int main(int argc, char **argv)
 	S6U::Socket::saveSYN(listenFD);
 	
 	if (mode == M_PROXIFIER)
-		(new Proxifier(&poller, proxyAddr.storage, listenFD))->start(true);
+		(new Proxifier(&poller, proxyAddr.storage, listenFD, username, password))->start(true);
 	else
 		(new Proxy(&poller, listenFD, passwordChecker.get()))->start(true);
 	

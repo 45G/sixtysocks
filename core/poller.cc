@@ -123,7 +123,11 @@ void Poller::threadFun(Poller *poller)
 		if (rc == 0)
 			continue;
 		if (rc < 0)
+		{
+			if (errno == EINTR)
+				continue;
 			throw std::system_error(errno, std::system_category());
+		}
 		
 		intrusive_ptr<Reactor> reactor = poller->fdEntries[event.data.fd].reactor;
 		poller->fdEntries[event.data.fd].reactor = NULL;

@@ -20,7 +20,7 @@ WindowSupplicant::WindowSupplicant(Proxifier *proxifier)
 	
 	S6M::Request req(SOCKS6_REQUEST_NOOP, S6U::Socket::QUAD_ZERO, 0, 0);
 	req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());
-	//TODO: request window
+	req.getOptionSet()->requestTokenWindow(200); //TODO: make configurable
 
 	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
 	req.pack(&bb);

@@ -15,5 +15,7 @@ SimplePasswordChecker::SimplePasswordChecker(const std::string &user, const std:
 
 bool SimplePasswordChecker::check(boost::shared_ptr<string> user, boost::shared_ptr<string> password)
 {
+	if (user.get() == NULL)
+		return false;
 	return this->user == *user && this->password == *password;
 }
