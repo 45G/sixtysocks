@@ -42,56 +42,61 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	bool idempotenceFail = false;
 	
 	//TODO: untangle mess
+	LockableTokenBank *bank = NULL;
+	if (success && method != SOCKS6_METHOD_NOAUTH)
+		bank = proxy->getBank(*req->getOptionSet()->getUsername());
 	
 	/* spend token? */
 	if (success && req->getOptionSet()->hasToken())
-	{
-		/* no auth used */
-		if (method == SOCKS6_METHOD_NOAUTH)
-		{
-			upstreamer->fail();
-			rep.getOptionSet()->setExpenditureReply(SOCKS6_TOK_EXPEND_NO_WND);
-		}
-		
+	{	
+		SOCKS6TokenExpenditureCode expendCode;
 		/* no bank */
-		LockableTokenBank *bank = proxy->getBank(*req->getOptionSet()->getUsername());
 		if (bank == NULL)
 		{
+			idempotenceFail = false;
 			upstreamer->fail();
-			rep.getOptionSet()->setExpenditureReply(SOCKS6_TOK_EXPEND_NO_WND);
+			expendCode = SOCKS6_TOK_EXPEND_NO_WND;
 		}
-		
-		uint32_t token = req->getOptionSet()->getToken();
-		
-		bank->acquire();
-		SOCKS6TokenExpenditureCode code = bank->withdraw(token);
-		bank->release();
-		
-		if (code == SOCKS6_TOK_EXPEND_OUT_OF_WND || code == SOCKS6_TOK_EXPEND_DUPLICATE)
+		else
 		{
-			idempotenceFail = true;
-			upstreamer->fail();
+			uint32_t token = req->getOptionSet()->getToken();
+			
+			bank->acquire();
+			SOCKS6TokenExpenditureCode code = bank->withdraw(token);
+			bank->release();
+			
+			if (expendCode == SOCKS6_TOK_EXPEND_OUT_OF_WND || expendCode == SOCKS6_TOK_EXPEND_DUPLICATE)
+			{
+				idempotenceFail = true;
+				upstreamer->fail();
+			}
 		}
-		
-		rep.getOptionSet()->setExpenditureReply(code);
+		rep.getOptionSet()->setExpenditureReply(expendCode);
 	}
 	
 	/* request window */
 	uint32_t requestedWindow = req->getOptionSet()->requestedTokenWindow();
 	if (success && method != SOCKS6_METHOD_NOAUTH && !idempotenceFail && requestedWindow > 0)
 	{
-		LockableTokenBank *bank = proxy->getBank(*req->getOptionSet()->getUsername());
 		if (bank == NULL)
+		{
 			bank = proxy->createBank(*req->getOptionSet()->getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
+		}
 		else
+		{
+			bank->acquire();
 			bank->renew();
+			bank->release();
+		}
 	}
 	
 	/* advertise window */
-	LockableTokenBank *bank = upstreamer->getProxy()->getBank(*req->getOptionSet()->getUsername());
-	bank->acquire();
-	rep.getOptionSet()->setTokenWindow(bank->getBase(), bank->getSize());
-	bank->release();
+	if (bank != NULL)
+	{
+		bank->acquire();
+		rep.getOptionSet()->setTokenWindow(bank->getBase(), bank->getSize());
+		bank->release();
+	}
 	
 	buf.use(rep.pack(buf.getTail(), buf.availSize()));
 }
