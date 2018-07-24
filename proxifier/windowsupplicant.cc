@@ -10,7 +10,7 @@ WindowSupplicant::WindowSupplicant(Proxifier *proxifier)
 	: Reactor(proxifier->getPoller()), proxifier(proxifier), state(S_SENDING_REQ), supplicating(true)
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
-	fd = UniqFD(socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
+	fd = socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
 	if (fd < 0)
 		throw system_error(errno, system_category());
 	
@@ -106,7 +106,8 @@ void WindowSupplicant::process(int fd, uint32_t events)
 void WindowSupplicant::deactivate()
 {
 	Reactor::deactivate();
-	fd.reset();
+	poller->remove(fd);
+	close(fd); //tolerable error
 }
 
 void WindowSupplicant::start(bool defer)

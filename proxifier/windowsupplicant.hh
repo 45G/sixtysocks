@@ -17,7 +17,7 @@ class WindowSupplicant: public Reactor
 	
 	boost::intrusive_ptr<Proxifier> proxifier;
 	
-	UniqFD fd;
+	int fd;
 	
 	StreamBuffer buf;
 	
