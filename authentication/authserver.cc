@@ -15,8 +15,9 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	SOCKS6AuthReplyCode code;
 	SOCKS6Method method;
 	boost::shared_ptr<S6M::Request> req = upstreamer->getRequest();
+	Proxy *proxy = upstreamer->getProxy();
 	
-	PasswordChecker *checker = upstreamer->getProxy()->getPasswordChecker();
+	PasswordChecker *checker = proxy->getPasswordChecker();
 	if (checker == NULL)
 	{
 		code = SOCKS6_AUTH_REPLY_SUCCESS;
@@ -53,7 +54,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		}
 		
 		/* no bank */
-		LockableTokenBank *bank = upstreamer->getProxy()->getBank(*req->getOptionSet()->getUsername());
+		LockableTokenBank *bank = proxy->getBank(*req->getOptionSet()->getUsername());
 		if (bank == NULL)
 		{
 			upstreamer->fail();
@@ -79,9 +80,9 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	uint32_t requestedWindow = req->getOptionSet()->requestedTokenWindow();
 	if (success && method != SOCKS6_METHOD_NOAUTH && !idempotenceFail && requestedWindow > 0)
 	{
-		LockableTokenBank *bank = upstreamer->getProxy()->getBank(*req->getOptionSet()->getUsername());
+		LockableTokenBank *bank = proxy->getBank(*req->getOptionSet()->getUsername());
 		if (bank == NULL)
-			bank = upstreamer->getProxy()->createBank(*req->getOptionSet()->getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
+			bank = proxy->createBank(*req->getOptionSet()->getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
 		else
 			bank->renew();
 	}
