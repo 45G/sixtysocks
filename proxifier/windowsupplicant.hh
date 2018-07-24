@@ -23,8 +23,12 @@ class WindowSupplicant: public Reactor
 	
 	State state;
 	
+	bool supplicating;
+	
 public:
 	WindowSupplicant(Proxifier *proxifier);
+	
+	~WindowSupplicant();
 	
 	void process(int fd, uint32_t events);
 	

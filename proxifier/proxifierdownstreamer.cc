@@ -40,6 +40,11 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			if (authRep.getReplyCode() != SOCKS6_AUTH_REPLY_SUCCESS)
 				return;
 			buf.unuseHead(bb.getUsed());
+			
+			SOCKS6TokenExpenditureCode expenditureCode = authRep.getOptionSet()->getExpenditureReply();
+			if (upstreamer->getWallet().get() != NULL && (expenditureCode == (SOCKS6TokenExpenditureCode)0 || expenditureCode == SOCKS6_TOK_EXPEND_NO_WND))
+				proxifier->killWallet(upstreamer->getWallet());
+			
 			state = S_WAITING_FOR_OP_REP;
 		}
 		catch (S6M::EndOfBufferException) {}

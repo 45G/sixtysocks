@@ -23,7 +23,7 @@ public:
 
 	void release()
 	{
-		held = 0;
+		held = false;
 	}
 };
 
@@ -32,15 +32,24 @@ class ScopedSpinlock
 	Spinlock *spinlock;
 	
 public:
+	ScopedSpinlock()
+		: spinlock(NULL) {}
+	
 	ScopedSpinlock(Spinlock *spinlock)
 		: spinlock(spinlock)
 	{
 		spinlock->acquire();
 	}
 	
+	void reset()
+	{
+		*this = ScopedSpinlock();
+	}
+	
 	~ScopedSpinlock()
 	{
-		spinlock->release();
+		if (spinlock != NULL)
+			spinlock->release();
 	}
 };
 

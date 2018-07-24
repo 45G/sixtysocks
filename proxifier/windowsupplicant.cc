@@ -7,7 +7,7 @@
 using namespace std;
 
 WindowSupplicant::WindowSupplicant(Proxifier *proxifier)
-	: Reactor(proxifier->getPoller()), proxifier(proxifier), state(S_SENDING_REQ)
+	: Reactor(proxifier->getPoller()), proxifier(proxifier), state(S_SENDING_REQ), supplicating(true)
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
 	fd = UniqFD(socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
@@ -25,6 +25,12 @@ WindowSupplicant::WindowSupplicant(Proxifier *proxifier)
 	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
 	req.pack(&bb);
 	buf.use(bb.getUsed());
+}
+
+WindowSupplicant::~WindowSupplicant()
+{
+	if (supplicating)
+		proxifier->supplicantDone();
 }
 
 void WindowSupplicant::process(int fd, uint32_t events)
@@ -77,7 +83,16 @@ void WindowSupplicant::process(int fd, uint32_t events)
 			S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
 			S6M::AuthenticationReply authRep(&bb);
 			
-			//TODO: fish stuff
+			uint32_t size = authRep.getOptionSet()->getTokenWindowSize();
+			if (size > 0)
+			{
+				uint32_t base = authRep.getOptionSet()->getTokenWindowBase();
+				proxifier->setWallet(boost::shared_ptr<S6U::TokenWallet>(new S6U::TokenWallet(base, size)));
+			}
+			
+			supplicating = false;
+			proxifier->supplicantDone();
+			
 		}
 		catch (S6M::EndOfBufferException)
 		{
