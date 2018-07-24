@@ -34,6 +34,8 @@ class ProxyUpstreamer: public StreamReactor
 	
 	AuthServer *authServer;
 	Spinlock honorLock;
+	
+	bool mustFail;
 
 	void honorRequest();
 	
@@ -52,6 +54,11 @@ public:
 	Proxy *getProxy()
 	{
 		return proxy.get();
+	}
+	
+	void fail()
+	{
+		mustFail = true;
 	}
 };
 

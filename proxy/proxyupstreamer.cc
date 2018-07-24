@@ -12,7 +12,7 @@ using namespace boost;
 
 void ProxyUpstreamer::honorRequest()
 {
-	if (request->getOptionSet()->getToken() && replyOptions.getExpenditureReply() != SOCKS6_TOK_EXPEND_SUCCESS)
+	if (mustFail)
 	{
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
 		*reply.getOptionSet() = replyOptions;
@@ -79,7 +79,7 @@ void ProxyUpstreamer::honorRequest()
 }
 
 ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int srcFD)
-	: StreamReactor(proxy->getPoller(), srcFD, -1), proxy(proxy), state(S_READING_REQ), authenticated(false), replyOptions(S6M::OptionSet::M_OP_REP), authServer(NULL) {}
+	: StreamReactor(proxy->getPoller(), srcFD, -1), proxy(proxy), state(S_READING_REQ), authenticated(false), replyOptions(S6M::OptionSet::M_OP_REP), authServer(NULL), mustFail(false) {}
 
 void ProxyUpstreamer::process(int fd, uint32_t events)
 {

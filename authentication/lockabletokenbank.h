@@ -8,6 +8,9 @@ class LockableTokenBank: public S6U::TokenBank
 {
 	Spinlock spinlock;
 public:
+	LockableTokenBank(uint32_t base, uint32_t size, uint32_t lowWatermark, uint32_t highWatermark)
+		: TokenBank(base, size, lowWatermark, highWatermark) {}
+	
 	void acquire()
 	{
 		spinlock.acquire();
@@ -22,6 +25,6 @@ public:
 	{
 		spinlock.release();
 	}
-}
+};
 
 #endif // LOCKABLETOKENBANK_H
