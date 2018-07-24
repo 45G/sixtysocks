@@ -62,7 +62,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 			uint32_t token = req->getOptionSet()->getToken();
 			
 			bank->acquire();
-			SOCKS6TokenExpenditureCode code = bank->withdraw(token);
+			expendCode = bank->withdraw(token);
 			bank->release();
 			
 			if (expendCode == SOCKS6_TOK_EXPEND_OUT_OF_WND || expendCode == SOCKS6_TOK_EXPEND_DUPLICATE)

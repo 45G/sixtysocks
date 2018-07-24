@@ -22,7 +22,7 @@ SOURCES += \
     sixtysocks.cc \
     authentication/passwordchecker.cc \
     authentication/simplepasswordchecker.cc \
-    proxifier/windowsupplicant.cc
+    proxifier/supplicationagent.cc
 
 HEADERS += \
     core/poller.hh \
@@ -42,7 +42,7 @@ HEADERS += \
     authentication/simplepasswordchecker.hh \
     authentication/lockabletokenbank.h \
     core/uniqfd.hh \
-    proxifier/windowsupplicant.hh \
-    core/streambuffer.hh
+    core/streambuffer.hh \
+    proxifier/supplicationagent.hh
 
 LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system

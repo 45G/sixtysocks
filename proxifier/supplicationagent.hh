@@ -1,5 +1,5 @@
-#ifndef WINDOWSUPPLICANT_HH
-#define WINDOWSUPPLICANT_HH
+#ifndef SUPPLICATIONAGENT_HH
+#define SUPPLICATIONAGENT_HH
 
 #include "../core/reactor.hh"
 #include "../core/streambuffer.hh"
@@ -7,7 +7,7 @@
 
 class Proxifier;
 
-class WindowSupplicant: public Reactor
+class SupplicationAgent: public Reactor
 {
 	enum State
 	{
@@ -26,9 +26,9 @@ class WindowSupplicant: public Reactor
 	bool supplicating;
 	
 public:
-	WindowSupplicant(Proxifier *proxifier);
+	SupplicationAgent(Proxifier *proxifier);
 	
-	~WindowSupplicant();
+	~SupplicationAgent();
 	
 	void process(int fd, uint32_t events);
 	
@@ -37,4 +37,4 @@ public:
 	void start(bool defer);
 };
 
-#endif // WINDOWSUPPLICANT_HH
+#endif // SUPPLICATIONAGENT_HH

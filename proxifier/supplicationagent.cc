@@ -1,12 +1,12 @@
 #include <system_error>
 #include <socks6msg/socks6msg.hh>
 #include "proxifier.hh"
-#include "windowsupplicant.hh"
+#include "supplicationagent.hh"
 #include "../core/poller.hh"
 
 using namespace std;
 
-WindowSupplicant::WindowSupplicant(Proxifier *proxifier)
+SupplicationAgent::SupplicationAgent(Proxifier *proxifier)
 	: Reactor(proxifier->getPoller()), proxifier(proxifier), state(S_SENDING_REQ), supplicating(true)
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
@@ -27,13 +27,13 @@ WindowSupplicant::WindowSupplicant(Proxifier *proxifier)
 	buf.use(bb.getUsed());
 }
 
-WindowSupplicant::~WindowSupplicant()
+SupplicationAgent::~SupplicationAgent()
 {
 	if (supplicating)
 		proxifier->supplicantDone();
 }
 
-void WindowSupplicant::process(int fd, uint32_t events)
+void SupplicationAgent::process(int fd, uint32_t events)
 {
 	(void)events;
 	
@@ -103,14 +103,14 @@ void WindowSupplicant::process(int fd, uint32_t events)
 	}
 }
 
-void WindowSupplicant::deactivate()
+void SupplicationAgent::deactivate()
 {
 	Reactor::deactivate();
 	poller->remove(fd);
 	close(fd); //tolerable error
 }
 
-void WindowSupplicant::start(bool defer)
+void SupplicationAgent::start(bool defer)
 {
 	poller->add(this, fd, Poller::OUT_EVENTS);
 }
