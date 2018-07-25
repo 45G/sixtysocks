@@ -7,7 +7,7 @@
 #include <socks6util/socks6util.hh>
 #include "../core/listenreactor.hh"
 #include "../authentication/passwordchecker.hh"
-#include "../authentication/lockabletokenbank.h"
+#include "../authentication/lockabletokenstuff.h"
 
 class Proxy: public ListenReactor
 {

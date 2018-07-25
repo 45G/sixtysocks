@@ -10,8 +10,11 @@
 using namespace std;
 
 ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, bool supplicate)
-	: StreamReactor(proxifier->getPoller(), srcFD, -1, SS_WAITING_TO_SEND), proxifier(proxifier), state(S_CONNECTING), supplicating(supplicate)
+	: StreamReactor(proxifier->getPoller(), srcFD, -1, SS_WAITING_TO_SEND), proxifier(proxifier), state(S_CONNECTING)
 {
+	if (supplicate)
+		supplicant = boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(proxifier));
+	
 	dstFD = socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
 	if (dstFD < 0)
 		throw system_error(errno, system_category());
@@ -35,12 +38,20 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, bool s
 		wallet = proxifier->getWallet();
 		uint32_t token;
 		
-		if (wallet.get() != NULL && wallet->extract(&token))
+		if (wallet.get() != NULL)
 		{
-			req.getOptionSet()->setToken(token);
-			polFlags |= S6U::TFOSafety::TFOS_SPEND_TOKEN;
+			wallet->acquire();
+			if (wallet->extract(&token))
+			{
+				req.getOptionSet()->setToken(token);
+				polFlags |= S6U::TFOSafety::TFOS_SPEND_TOKEN;
+			}
+			wallet->release();
 		}
 	}
+	
+	if (supplicate)
+		supplicant->process(&req);
 	
 	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
 	req.pack(&bb);
@@ -81,12 +92,6 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, bool s
 			}
 		}
 	}
-}
-
-ProxifierUpstreamer::~ProxifierUpstreamer()
-{
-	if (supplicating)
-		proxifier->supplicantDone();
 }
 
 void ProxifierUpstreamer::process(int fd, uint32_t events)

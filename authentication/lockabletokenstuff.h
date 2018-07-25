@@ -1,5 +1,5 @@
-#ifndef LOCKABLETOKENBANK_H
-#define LOCKABLETOKENBANK_H
+#ifndef LOCKABLETOKENSTUFF_H
+#define LOCKABLETOKENSTUFF_H
 
 #include <socks6util/socks6util_idempotence.hh>
 #include "../core/spinlock.hh"
@@ -27,4 +27,29 @@ public:
 	}
 };
 
-#endif // LOCKABLETOKENBANK_H
+class LockableTokenWallet: public S6U::TokenWallet
+{
+	Spinlock spinlock;
+public:
+	LockableTokenWallet() {}
+	
+	LockableTokenWallet(uint32_t base, uint32_t size)
+		: TokenWallet(base, size) {}
+	
+	void acquire()
+	{
+		spinlock.acquire();
+	}
+	
+	void attempt()
+	{
+		spinlock.attempt();
+	}
+	
+	void release()
+	{
+		spinlock.release();
+	}
+};
+
+#endif // LOCKABLETOKENSTUFF_H

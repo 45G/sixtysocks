@@ -3,6 +3,7 @@
 
 #include "../core/streamreactor.hh"
 #include "proxifier.hh"
+#include "windowsupplicant.hh"
 
 class ProxifierUpstreamer;
 
@@ -19,6 +20,8 @@ class ProxifierDownstreamer: public StreamReactor
 	boost::intrusive_ptr<ProxifierUpstreamer> upstreamer;
 
 	State state;
+	
+	boost::shared_ptr<WindowSupplicant> supplicant;
 
 public:
 	ProxifierDownstreamer(ProxifierUpstreamer *upstreamer);

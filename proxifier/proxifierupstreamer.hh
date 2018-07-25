@@ -2,7 +2,9 @@
 #define PROXIFIERUPSTREAMER_HH
 
 #include <socks6util/socks6util.hh>
+#include "../authentication/lockabletokenstuff.h"
 #include "../core/streamreactor.hh"
+#include "windowsupplicant.hh"
 
 class Proxifier;
 class ProxifierDownstreamer;
@@ -19,16 +21,14 @@ class ProxifierUpstreamer: public StreamReactor
 	
 	State state;
 	
-	bool supplicating;
-	
-	boost::shared_ptr<S6U::TokenWallet> wallet;
+	boost::shared_ptr<LockableTokenWallet> wallet;
 	
 	S6U::SocketAddress dest;
 	
+	boost::shared_ptr<WindowSupplicant> supplicant;
+	
 public:
 	ProxifierUpstreamer(Proxifier *proxifier, int srcFD, bool supplicate = false);
-	
-	~ProxifierUpstreamer();
 	
 	void process(int fd, uint32_t events);
 	
@@ -37,9 +37,14 @@ public:
 		return proxifier.get();
 	}
 	
-	boost::shared_ptr<S6U::TokenWallet> getWallet() const
+	boost::shared_ptr<LockableTokenWallet> getWallet() const
 	{
 		return wallet;
+	}
+	
+	boost::shared_ptr<WindowSupplicant> getSupplicant()
+	{
+		return supplicant;
 	}
 };
 

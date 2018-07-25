@@ -7,7 +7,7 @@
 using namespace std;
 
 ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
-	: StreamReactor(upstreamer->getPoller(), -1, -1), proxifier(upstreamer->getProxifier()), upstreamer(upstreamer), state(S_WAITING_FOR_AUTH_REP)
+	: StreamReactor(upstreamer->getPoller(), -1, -1), proxifier(upstreamer->getProxifier()), upstreamer(upstreamer), state(S_WAITING_FOR_AUTH_REP), supplicant(upstreamer->getSupplicant())
 {
 	srcFD = dup(upstreamer->getDstFD());
 	if (srcFD < 0)
@@ -44,6 +44,18 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			SOCKS6TokenExpenditureCode expenditureCode = authRep.getOptionSet()->getExpenditureReply();
 			if (upstreamer->getWallet().get() != NULL && (expenditureCode == (SOCKS6TokenExpenditureCode)0 || expenditureCode == SOCKS6_TOK_EXPEND_NO_WND))
 				proxifier->killWallet(upstreamer->getWallet());
+			
+			if (supplicant.get() != NULL)
+			{
+				supplicant->process(&authRep);
+			}
+			else
+			{
+				boost::shared_ptr<LockableTokenWallet> wallet = upstreamer->getWallet();
+				wallet->acquire();
+				wallet->updateWindow(authRep.getOptionSet());
+				wallet->release();
+			}
 			
 			state = S_WAITING_FOR_OP_REP;
 		}

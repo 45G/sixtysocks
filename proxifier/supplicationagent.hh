@@ -4,6 +4,7 @@
 #include "../core/reactor.hh"
 #include "../core/streambuffer.hh"
 #include "../core/uniqfd.hh"
+#include "windowsupplicant.hh"
 
 class Proxifier;
 
@@ -23,12 +24,10 @@ class SupplicationAgent: public Reactor
 	
 	State state;
 	
-	bool supplicating;
+	WindowSupplicant supplicant;
 	
 public:
 	SupplicationAgent(Proxifier *proxifier);
-	
-	~SupplicationAgent();
 	
 	void process(int fd, uint32_t events);
 	

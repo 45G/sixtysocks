@@ -4,6 +4,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <socks6util/socks6util.hh>
+#include "../authentication/lockabletokenstuff.h"
 #include "../core/listenreactor.hh"
 #include "../core/spinlock.hh"
 
@@ -16,7 +17,7 @@ class Proxifier: public ListenReactor
 	
 	bool idempotence;
 	
-	boost::shared_ptr<S6U::TokenWallet> wallet;
+	boost::shared_ptr<LockableTokenWallet> wallet;
 	Spinlock walletLock;
 	volatile bool supplicating;
 	
@@ -24,7 +25,7 @@ public:
 	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, int listenFD, const std::string &username = "", const std::string &password = "", bool idempotence = false)
 		: ListenReactor(poller, listenFD), proxyAddr(proxyAddr),
 		  username(new std::string(username)), password(new std::string(password)),
-		  idempotence(idempotence), wallet(new S6U::TokenWallet()), supplicating(false) {}
+		  idempotence(idempotence), wallet(new LockableTokenWallet()), supplicating(false) {}
 	
 	const S6U::SocketAddress *getProxyAddr() const
 	{
@@ -43,22 +44,22 @@ public:
 		return password;
 	}
 	
-	boost::shared_ptr<S6U::TokenWallet> getWallet()
+	boost::shared_ptr<LockableTokenWallet> getWallet()
 	{
 		ScopedSpinlock lock(&walletLock); (void)lock;
 		
 		return wallet;
 	}
 	
-	void killWallet(boost::shared_ptr<S6U::TokenWallet> wallet)
+	void killWallet(boost::shared_ptr<LockableTokenWallet> wallet)
 	{
 		ScopedSpinlock lock(&walletLock); (void)lock;
 		
 		if (wallet.get() == this->wallet.get())
-			wallet = boost::shared_ptr<S6U::TokenWallet>(new S6U::TokenWallet());
+			wallet = boost::shared_ptr<LockableTokenWallet>(new LockableTokenWallet());
 	}
 	
-	void setWallet(boost::shared_ptr<S6U::TokenWallet> wallet)
+	void setWallet(boost::shared_ptr<LockableTokenWallet> wallet)
 	{
 		ScopedSpinlock lock(&walletLock); (void)lock;
 		
