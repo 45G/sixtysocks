@@ -12,7 +12,7 @@ using namespace std;
 ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost::shared_ptr<WindowSupplicant> supplicant)
 	: StreamReactor(proxifier->getPoller(), srcFD, -1, SS_WAITING_TO_SEND), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
 {
-	dstFD = socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
+	dstFD.assign(socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (dstFD < 0)
 		throw system_error(errno, system_category());
 	

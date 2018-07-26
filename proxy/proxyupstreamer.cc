@@ -33,7 +33,7 @@ void ProxyUpstreamer::honorRequest()
 		}
 		
 		S6U::SocketAddress addr(*request->getAddress(), request->getPort());
-		dstFD = socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
+		dstFD.assign(socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 		if (dstFD < 0)
 			throw system_error(errno, system_category());
 		

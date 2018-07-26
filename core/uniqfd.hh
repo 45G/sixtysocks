@@ -25,7 +25,7 @@ public:
 		this->fd = fd;
 	}
 	
-	operator int()
+	operator int() const
 	{
 		return fd;
 	}
@@ -48,6 +48,12 @@ public:
 
 class UniqRecvFD: public UniqFD
 {
+public:
+	UniqRecvFD() {}
+
+	explicit UniqRecvFD(int fd)
+		: UniqFD(fd) {}
+
 	void reset()
 	{
 		if (fd != -1)
@@ -67,6 +73,12 @@ class UniqRecvFD: public UniqFD
 
 class UniqSendFD: public UniqFD
 {
+public:
+	UniqSendFD() {}
+
+	explicit UniqSendFD(int fd)
+		: UniqFD(fd) {}
+
 	void reset()
 	{
 		if (fd != -1)

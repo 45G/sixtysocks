@@ -8,7 +8,7 @@ using namespace std;
 void StreamReactor::process(int fd, uint32_t events)
 {
 	(void)fd; (void)events;
-	
+
 	switch (streamState)
 	{
 	case SS_WAITING_TO_RECV:
@@ -96,26 +96,10 @@ void StreamReactor::start(bool defer)
 
 StreamReactor::~StreamReactor()
 {
-	if (srcFD != -1)
+	try
 	{
-		try
-		{
-			poller->remove(srcFD);
-		}
-		catch(...) {}
-		
-		shutdown(srcFD, SHUT_RD);  // tolerable error
-		close(srcFD); // tolerable error
+		poller->remove(srcFD);
+		poller->remove(dstFD);
 	}
-	if (dstFD != -1)
-	{
-		try
-		{
-			poller->remove(dstFD);
-		}
-		catch(...) {}
-		
-		shutdown(dstFD, SHUT_WR); // tolerable error
-		close(dstFD); // tolerable error
-	}
+	catch(...) {}
 }

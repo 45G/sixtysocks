@@ -3,6 +3,7 @@
 
 #include <socks6util/socks6util_socketaddress.hh>
 #include "streambuffer.hh"
+#include "uniqfd.hh"
 #include "reactor.hh"
 
 class AuthenticationReactor;
@@ -10,8 +11,8 @@ class AuthenticationReactor;
 class StreamReactor: public Reactor
 {
 protected:
-	int srcFD;
-	int dstFD;
+	UniqRecvFD srcFD;
+	UniqSendFD dstFD;
 	
 	StreamBuffer buf;
 	

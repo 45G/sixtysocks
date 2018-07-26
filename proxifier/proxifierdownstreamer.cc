@@ -9,16 +9,13 @@ using namespace std;
 ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
 	: StreamReactor(upstreamer->getPoller(), -1, -1), proxifier(upstreamer->getProxifier()), upstreamer(upstreamer), state(S_WAITING_FOR_AUTH_REP), supplicant(upstreamer->getSupplicant())
 {
-	srcFD = dup(upstreamer->getDstFD());
+	srcFD.assign(dup(upstreamer->getDstFD()));
 	if (srcFD < 0)
 		throw system_error(errno, system_category());
 	
-	dstFD = dup(upstreamer->getSrcFD());
+	dstFD.assign(dup(upstreamer->getSrcFD()));
 	if (dstFD < 0)
-	{
-		close(srcFD); // tolerable error
 		throw system_error(errno, system_category());
-	}
 }
 
 void ProxifierDownstreamer::process(int fd, uint32_t events)
