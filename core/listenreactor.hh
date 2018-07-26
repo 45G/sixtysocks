@@ -1,16 +1,16 @@
 #ifndef LISTENREACTOR_HH
 #define LISTENREACTOR_HH
 
+#include "uniqfd.hh"
 #include "reactor.hh"
 
 class ListenReactor: public Reactor
 {
 protected:
-	int listenFD;
+	UniqFD listenFD;
 	
 public:
-	ListenReactor(Poller *poller, int listenFD)
-		: Reactor(poller), listenFD(listenFD) {}
+	ListenReactor(Poller *poller, const S6U::SocketAddress &bindAddr);
 	
 	void process(int fd, uint32_t events);
 	

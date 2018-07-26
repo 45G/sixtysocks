@@ -17,8 +17,8 @@ class Proxy: public ListenReactor
 	Spinlock bankLock;
 
 public:
-	Proxy(Poller *poller, int listenFD, PasswordChecker *passwordChecker)
-		: ListenReactor(poller, listenFD), passwordChecker(passwordChecker) {}
+	Proxy(Poller *poller, const S6U::SocketAddress &bindAddr, PasswordChecker *passwordChecker)
+		: ListenReactor(poller, bindAddr), passwordChecker(passwordChecker) {}
 	
 	void handleNewConnection(int fd);
 

@@ -151,38 +151,15 @@ int main(int argc, char **argv)
 	Poller poller(numThreads, cpuOffset);
 	//poller.start();
 
-	
-	int listenFD = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-	if (listenFD < 0)
-		throw std::system_error(errno, std::system_category());
-	
-	// tolerable errors
-	static const int ONE = 1;
-	setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &ONE, sizeof(int));
-	setsockopt(listenFD, SOL_TCP,    TCP_FASTOPEN, &ONE, sizeof(int));
-	
-	struct sockaddr_in addr;
-	memset(&addr, 0, sizeof(addr));
-	
-	addr.sin_family      = AF_INET;
-	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	addr.sin_port        = htons(port);
-	
-	int rc = bind(listenFD, (struct sockaddr *)&addr, sizeof(addr));
-	if (rc < 0)
-		throw system_error(errno, std::system_category());
-	
-	rc = listen(listenFD, 100);
-	if (rc < 0)
-		throw system_error(errno, std::system_category());
-	
-	// tolerable error
-	S6U::Socket::saveSYN(listenFD);
+	S6U::SocketAddress bindAddr;
+	bindAddr.ipv4.sin_family      = AF_INET;
+	bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
+	bindAddr.ipv4.sin_port        = htons(port);
 	
 	if (mode == M_PROXIFIER)
-		(new Proxifier(&poller, proxyAddr.storage, listenFD, username, password))->start(true);
+		(new Proxifier(&poller, proxyAddr.storage, bindAddr, username, password))->start(true);
 	else
-		(new Proxy(&poller, listenFD, passwordChecker.get()))->start(true);
+		(new Proxy(&poller, bindAddr, passwordChecker.get()))->start(true);
 	
 //	sleep(1000);
 	poller.threadFun(&poller);

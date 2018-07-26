@@ -4,15 +4,24 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/tcp.h>
+#include <socks6util/socks6util.hh>
 #include "poller.hh"
 #include "listenreactor.hh"
 
-using namespace std;
-
-ListenReactor::ListenReactor(Poller *poller, int listenFD)
-	: Reactor(poller), listenFD(listenFD)
+ListenReactor::ListenReactor(Poller *poller, const S6U::SocketAddress &bindAddr)
+	: Reactor(poller)
 {
+	listenFD.assign(socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0));
+	if (listenFD < 0)
+		throw std::system_error(errno, std::system_category());
 
+	int rc = bind(listenFD, &bindAddr.sockAddress, bindAddr.size());
+	if (rc < 0)
+		throw std::system_error(errno, std::system_category());
+
+	rc = listen(listenFD, 100); //TODO: configurable backlog?
+	if (rc < 0)
+		throw std::system_error(errno, std::system_category());
 }
 
 void ListenReactor::process(int fd, uint32_t events)
@@ -49,7 +58,7 @@ void ListenReactor::process(int fd, uint32_t events)
 				break;
 				
 			default:
-				throw system_error(errno, system_category());
+				throw std::system_error(errno, std::system_category());
 			}
 			continue;
 		}
@@ -67,7 +76,6 @@ resched:
 void ListenReactor::deactivate()
 {
 	Reactor::deactivate();
-	
 	poller->remove(listenFD);
 }
 
@@ -79,5 +87,4 @@ void ListenReactor::start(bool defer)
 ListenReactor::~ListenReactor()
 {
 	poller->remove(listenFD);
-	close(listenFD);
 }

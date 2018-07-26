@@ -23,10 +23,7 @@ class Proxifier: public ListenReactor
 	Spinlock supplicationLock;
 	
 public:
-	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, int listenFD, const std::string &username = "", const std::string &password = "", bool idempotence = false)
-		: ListenReactor(poller, listenFD), proxyAddr(proxyAddr),
-		  username(new std::string(username)), password(new std::string(password)),
-		  idempotence(idempotence), wallet(new LockableTokenWallet()) {}
+	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, const std::string &username = "", const std::string &password = "", bool idempotence = false);
 	
 	const S6U::SocketAddress *getProxyAddr() const
 	{
