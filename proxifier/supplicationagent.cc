@@ -6,8 +6,8 @@
 
 using namespace std;
 
-SupplicationAgent::SupplicationAgent(Proxifier *proxifier)
-	: Reactor(proxifier->getPoller()), proxifier(proxifier), state(S_SENDING_REQ), supplicant(proxifier)
+SupplicationAgent::SupplicationAgent(Proxifier *proxifier, boost::shared_ptr<WindowSupplicant> supplicant)
+	: Reactor(proxifier->getPoller()), proxifier(proxifier), state(S_SENDING_REQ), supplicant(supplicant)
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
 	fd = socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
@@ -20,7 +20,7 @@ SupplicationAgent::SupplicationAgent(Proxifier *proxifier)
 	
 	S6M::Request req(SOCKS6_REQUEST_NOOP, S6U::Socket::QUAD_ZERO, 0, 0);
 	req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());
-	supplicant.process(&req);
+	supplicant->process(&req);
 
 	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
 	req.pack(&bb);
@@ -77,7 +77,7 @@ void SupplicationAgent::process(int fd, uint32_t events)
 			S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
 			S6M::AuthenticationReply authRep(&bb);
 			
-			supplicant.process(&authRep);
+			supplicant->process(&authRep);
 			
 		}
 		catch (S6M::EndOfBufferException)

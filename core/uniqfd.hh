@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <system_error>
 #include <sys/socket.h>
+#include <assert.h>
 
 class UniqFD
 {
@@ -15,12 +16,14 @@ public:
 	UniqFD()
 		: fd(-1) {}
 	
-	UniqFD(int fd)
+	explicit UniqFD(int fd)
 		: fd(fd) {}
-	
-//	UniqFD(const UniqFD &) = delete;
-	
-//	void operator =(const UniqFD &) = delete;
+
+	void assign(int fd)
+	{
+		assert(fd == -1);
+		this->fd = fd;
+	}
 	
 	operator int()
 	{

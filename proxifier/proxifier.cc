@@ -9,16 +9,38 @@
 #include <system_error>
 #include "proxifier.hh"
 #include "../core/poller.hh"
+#include "supplicationagent.hh"
 #include "proxifierupstreamer.hh"
 
 using namespace std;
 
+void Proxifier::start(bool defer)
+{
+	ListenReactor::start(defer);
+	supplicationLock.acquire();
+	if (username->length() > 0)
+	{
+		(new SupplicationAgent(this, boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(this))))->start();
+	}
+}
+
 void Proxifier::handleNewConnection(int fd)
 {
 	ProxifierUpstreamer *upstreamReactor = NULL;
+	boost::shared_ptr<WindowSupplicant> supplicant;
+
+	if (supplicationLock.attempt())
+	{
+		if (wallet->remaining() == 0)
+			supplicant = boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(this));
+		else
+			supplicationLock.release();
+	}
+
 	try
 	{
-		upstreamReactor = new ProxifierUpstreamer(this, fd);
+
+		upstreamReactor = new ProxifierUpstreamer(this, fd, supplicant);
 	}
 	catch (...)
 	{

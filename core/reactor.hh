@@ -22,6 +22,8 @@ public:
 	Reactor(Poller *poller)
 		: poller(poller), active(true) {}
 	
+	virtual void start(bool defer = false) = 0;
+
 	virtual void process(int fd, uint32_t events) = 0;
 	
 	virtual void deactivate();
@@ -35,8 +37,6 @@ public:
 	{
 		return poller;
 	}
-
-	virtual void start(bool defer = false) = 0;
 	
 	virtual ~Reactor();
 };

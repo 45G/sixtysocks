@@ -24,16 +24,16 @@ class SupplicationAgent: public Reactor
 	
 	State state;
 	
-	WindowSupplicant supplicant;
+	boost::shared_ptr<WindowSupplicant> supplicant;
 	
 public:
-	SupplicationAgent(Proxifier *proxifier);
+	SupplicationAgent(Proxifier *proxifier, boost::shared_ptr<WindowSupplicant> supplicant);
 	
 	void process(int fd, uint32_t events);
 	
 	void deactivate();
 	
-	void start(bool defer);
+	void start(bool defer = false);
 };
 
 #endif // SUPPLICATIONAGENT_HH

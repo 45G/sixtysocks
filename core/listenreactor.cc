@@ -9,6 +9,12 @@
 
 using namespace std;
 
+ListenReactor::ListenReactor(Poller *poller, int listenFD)
+	: Reactor(poller), listenFD(listenFD)
+{
+
+}
+
 void ListenReactor::process(int fd, uint32_t events)
 {
 	(void)fd; (void)events;

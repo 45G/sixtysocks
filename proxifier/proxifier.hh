@@ -3,6 +3,7 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <boost/atomic.hpp>
 #include <socks6util/socks6util.hh>
 #include "../authentication/lockabletokenstuff.h"
 #include "../core/listenreactor.hh"
@@ -19,19 +20,21 @@ class Proxifier: public ListenReactor
 	
 	boost::shared_ptr<LockableTokenWallet> wallet;
 	Spinlock walletLock;
-	volatile bool supplicating;
+	Spinlock supplicationLock;
 	
 public:
 	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, int listenFD, const std::string &username = "", const std::string &password = "", bool idempotence = false)
 		: ListenReactor(poller, listenFD), proxyAddr(proxyAddr),
 		  username(new std::string(username)), password(new std::string(password)),
-		  idempotence(idempotence), wallet(new LockableTokenWallet()), supplicating(false) {}
+		  idempotence(idempotence), wallet(new LockableTokenWallet()) {}
 	
 	const S6U::SocketAddress *getProxyAddr() const
 	{
 		return &proxyAddr;
 	}
 	
+	void start(bool defer);
+
 	void handleNewConnection(int fd);
 
 	const boost::shared_ptr<std::string> getUsername() const
@@ -68,7 +71,7 @@ public:
 	
 	void supplicantDone()
 	{
-		supplicating = false;
+		supplicationLock.release();
 	}
 	
 	bool idempotenceForTFO()

@@ -9,12 +9,9 @@
 
 using namespace std;
 
-ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, bool supplicate)
-	: StreamReactor(proxifier->getPoller(), srcFD, -1, SS_WAITING_TO_SEND), proxifier(proxifier), state(S_CONNECTING)
+ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost::shared_ptr<WindowSupplicant> supplicant)
+	: StreamReactor(proxifier->getPoller(), srcFD, -1, SS_WAITING_TO_SEND), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
 {
-	if (supplicate)
-		supplicant = boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(proxifier));
-	
 	dstFD = socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
 	if (dstFD < 0)
 		throw system_error(errno, system_category());
@@ -50,7 +47,7 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, bool s
 		}
 	}
 	
-	if (supplicate)
+	if (supplicant.get() != NULL)
 		supplicant->process(&req);
 	
 	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
