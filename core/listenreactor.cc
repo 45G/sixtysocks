@@ -11,9 +11,14 @@
 ListenReactor::ListenReactor(Poller *poller, const S6U::SocketAddress &bindAddr)
 	: Reactor(poller)
 {
+	static const int ONE = 1;
+
 	listenFD.assign(socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0));
 	if (listenFD < 0)
 		throw std::system_error(errno, std::system_category());
+
+	// tolerable error
+	setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &ONE, sizeof(ONE));
 
 	int rc = bind(listenFD, &bindAddr.sockAddress, bindAddr.size());
 	if (rc < 0)
