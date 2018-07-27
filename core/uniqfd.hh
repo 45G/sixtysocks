@@ -21,7 +21,7 @@ public:
 
 	void assign(int fd)
 	{
-		assert(fd != -1);
+		assert(this->fd == -1);
 		this->fd = fd;
 	}
 	
