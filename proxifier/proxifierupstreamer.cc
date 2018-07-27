@@ -30,7 +30,7 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 		polFlags |= S6U::TFOSafety::TFOS_NO_DATA;
 	if (req.getOptionSet()->getTFO())
 		polFlags |= S6U::TFOSafety::TFOS_TFO_SYN;
-	if (!S6U::TFOSafety::tfoSafe(polFlags) && proxifier->idempotenceForTFO())
+	if (!S6U::TFOSafety::tfoSafe(polFlags))
 	{
 		wallet = proxifier->getWallet();
 		uint32_t token;
