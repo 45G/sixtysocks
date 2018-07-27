@@ -72,6 +72,8 @@ int main(int argc, char **argv)
 	string password;
 	boost::intrusive_ptr<SimplePasswordChecker> passwordChecker;
 	
+	srand(time(NULL));
+
 	//TODO: fix this shit
 	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:")) != -1)
 	{
