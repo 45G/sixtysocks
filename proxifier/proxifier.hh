@@ -56,7 +56,7 @@ public:
 		ScopedSpinlock lock(&walletLock); (void)lock;
 		
 		if (wallet.get() == this->wallet.get())
-			wallet = boost::shared_ptr<LockableTokenWallet>(new LockableTokenWallet());
+			this->wallet = boost::shared_ptr<LockableTokenWallet>(new LockableTokenWallet());
 	}
 	
 	void setWallet(boost::shared_ptr<LockableTokenWallet> wallet)
