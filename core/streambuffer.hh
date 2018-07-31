@@ -18,9 +18,6 @@ public:
 	StreamBuffer()
 		: head(0), tail(0) {}
 	
-	StreamBuffer(size_t headroom)
-		: head(headroom), tail(headroom) {}
-	
 	uint8_t *getHead()
 	{
 		return &buf[head];
@@ -65,6 +62,8 @@ public:
 	{
 		tail += count;
 	}
+	
+	void makeHeadroom(size_t size);
 	
 	void prepend(uint8_t *stuff, uint8_t size);
 	

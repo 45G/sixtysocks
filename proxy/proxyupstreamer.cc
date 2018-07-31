@@ -2,7 +2,7 @@
 #include <socks6util/socks6util.hh>
 #include "../core/poller.hh"
 #include "proxy.hh"
-#include "../authentication/authserver.hh"
+#include "authserver.hh"
 #include "connectproxydownstreamer.hh"
 #include "simpleproxydownstreamer.hh"
 #include "proxyupstreamer.hh"

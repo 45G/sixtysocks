@@ -24,7 +24,7 @@ ListenReactor::ListenReactor(Poller *poller, const S6U::SocketAddress &bindAddr)
 	if (rc < 0)
 		throw std::system_error(errno, std::system_category());
 
-	rc = listen(listenFD, 100); //TODO: configurable backlog?
+	rc = listen(listenFD, 128); //TODO: configurable backlog?
 	if (rc < 0)
 		throw std::system_error(errno, std::system_category());
 }

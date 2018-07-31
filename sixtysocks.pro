@@ -18,13 +18,13 @@ SOURCES += \
     proxy/proxyupstreamer.cc \
     proxy/simpleproxydownstreamer.cc \
     proxy/connectproxydownstreamer.cc \
-    authentication/authserver.cc \
     sixtysocks.cc \
     authentication/passwordchecker.cc \
     authentication/simplepasswordchecker.cc \
     proxifier/supplicationagent.cc \
     proxifier/windowsupplicant.cc \
-    core/streambuffer.cc
+    core/streambuffer.cc \
+    proxy/authserver.cc
 
 HEADERS += \
     core/poller.hh \
@@ -39,13 +39,13 @@ HEADERS += \
     proxy/simpleproxydownstreamer.hh \
     proxy/connectproxydownstreamer.hh \
     core/spinlock.hh \
-    authentication/authserver.hh \
     authentication/passwordchecker.hh \
     authentication/simplepasswordchecker.hh \
     core/uniqfd.hh \
     core/streambuffer.hh \
     proxifier/supplicationagent.hh \
     proxifier/windowsupplicant.hh \
-    authentication/syncedtokenstuff.h
+    authentication/syncedtokenstuff.h \
+    proxy/authserver.hh
 
 LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system

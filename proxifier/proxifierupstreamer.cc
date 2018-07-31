@@ -16,7 +16,20 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 	if (dstFD < 0)
 		throw system_error(errno, system_category());
 	
-	S6U::Socket::getOriginalDestination(srcFD, &dest.storage);
+	int rc = S6U::Socket::getOriginalDestination(srcFD, &dest.storage);
+	if (rc < 0)
+		throw system_error(errno, system_category());
+	
+	uint8_t reqBuf[512];
+	buf.makeHeadroom(sizeof(reqBuf));
+	
+	/* read initial data opportunistically */
+	ssize_t bytes = fill(srcFD);
+	if (bytes < 0)
+	{
+		if (errno != EWOULDBLOCK && errno != EAGAIN)
+			throw system_error(errno, system_category());
+	}
 	
 	S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), 0);
 	if (S6U::Socket::tfoAttempted(srcFD))
@@ -26,7 +39,7 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 	
 	/* check if idempotence is wanted */
 	uint32_t polFlags = 0;
-	if (S6U::Socket::pendingRecv(srcFD) <= 0)
+	if (buf.usedSize() == 0)
 		polFlags |= S6U::TFOSafety::TFOS_NO_DATA;
 	if (req.getOptionSet()->getTFO())
 		polFlags |= S6U::TFOSafety::TFOS_TFO_SYN;
@@ -48,20 +61,9 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 	if (supplicant.get() != NULL)
 		supplicant->process(&req);
 	
-	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
+	S6M::ByteBuffer bb(reqBuf, sizeof(reqBuf));
 	req.pack(&bb);
-	buf.use(bb.getUsed());
-	
-	/* read initial data opportunistically */
-	if (!(polFlags & S6U::TFOSafety::TFOS_NO_DATA))
-	{
-		ssize_t bytes = fill(srcFD);
-		if (bytes < 0)
-		{
-			if (errno != EWOULDBLOCK && errno != EAGAIN)
-				throw system_error(errno, system_category());
-		}
-	}
+	buf.prepend(bb.getBuf(), bb.getUsed());
 	
 	/* connect */
 	{
