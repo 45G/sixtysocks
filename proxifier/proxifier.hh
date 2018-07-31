@@ -5,7 +5,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/atomic.hpp>
 #include <socks6util/socks6util.hh>
-#include "../authentication/lockabletokenstuff.h"
+#include "../authentication/syncedtokenstuff.h"
 #include "../core/listenreactor.hh"
 #include "../core/spinlock.hh"
 

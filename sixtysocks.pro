@@ -23,7 +23,8 @@ SOURCES += \
     authentication/passwordchecker.cc \
     authentication/simplepasswordchecker.cc \
     proxifier/supplicationagent.cc \
-    proxifier/windowsupplicant.cc
+    proxifier/windowsupplicant.cc \
+    core/streambuffer.cc
 
 HEADERS += \
     core/poller.hh \
@@ -45,6 +46,6 @@ HEADERS += \
     core/streambuffer.hh \
     proxifier/supplicationagent.hh \
     proxifier/windowsupplicant.hh \
-    authentication/lockabletokenstuff.h
+    authentication/syncedtokenstuff.h
 
 LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system

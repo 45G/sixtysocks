@@ -7,13 +7,13 @@
 #include <socks6util/socks6util.hh>
 #include "../core/listenreactor.hh"
 #include "../authentication/passwordchecker.hh"
-#include "../authentication/lockabletokenstuff.h"
+#include "../authentication/syncedtokenstuff.h"
 
 class Proxy: public ListenReactor
 {
 	std::unique_ptr<PasswordChecker> passwordChecker;
 	
-	std::unordered_map<std::string, std::unique_ptr<LockableTokenBank> > banks;
+	std::unordered_map<std::string, std::unique_ptr<SyncedTokenBank> > banks;
 	Spinlock bankLock;
 
 public:
@@ -28,9 +28,9 @@ public:
 		return passwordChecker.get();
 	}
 	
-	LockableTokenBank *createBank(const std::string &user, uint32_t size);
+	SyncedTokenBank *createBank(const std::string &user, uint32_t size);
 	
-	LockableTokenBank *getBank(const std::string &user);
+	SyncedTokenBank *getBank(const std::string &user);
 };
 
 #endif // PROXY_HH

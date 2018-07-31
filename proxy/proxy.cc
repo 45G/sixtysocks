@@ -21,16 +21,16 @@ void Proxy::handleNewConnection(int fd)
     upstreamReactor->start(true);
 }
 
-LockableTokenBank *Proxy::createBank(const string &user, uint32_t size)
+SyncedTokenBank *Proxy::createBank(const string &user, uint32_t size)
 {
 	ScopedSpinlock lock(&bankLock); (void)lock;
-	LockableTokenBank *bank = new LockableTokenBank((uint32_t)rand(), size, 0, size / 2);
+	SyncedTokenBank *bank = new SyncedTokenBank((uint32_t)rand(), size, 0, size / 2);
 	
-	banks[user] = unique_ptr<LockableTokenBank>(bank);
+	banks[user] = unique_ptr<SyncedTokenBank>(bank);
 	return bank;
 }
 
-LockableTokenBank *Proxy::getBank(const string &user)
+SyncedTokenBank *Proxy::getBank(const string &user)
 {
 	ScopedSpinlock lock(&bankLock); (void)lock;
 	

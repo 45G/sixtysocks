@@ -1,29 +1,33 @@
-#ifndef LOCKABLETOKENSTUFF_H
-#define LOCKABLETOKENSTUFF_H
+#ifndef SYNCEDTOKENSTUFF_H
+#define SYNCEDTOKENSTUFF_H
 
 #include <socks6util/socks6util_idempotence.hh>
 #include "../core/spinlock.hh"
 
-class LockableTokenBank: public S6U::TokenBank
+class SyncedTokenBank: S6U::TokenBank
 {
 	Spinlock spinlock;
 public:
-	LockableTokenBank(uint32_t base, uint32_t size, uint32_t lowWatermark, uint32_t highWatermark)
+	SyncedTokenBank(uint32_t base, uint32_t size, uint32_t lowWatermark, uint32_t highWatermark)
 		: TokenBank(base, size, lowWatermark, highWatermark) {}
 	
-	void acquire()
+	SOCKS6TokenExpenditureCode withdraw(uint32_t token)
 	{
-		spinlock.acquire();
+		ScopedSpinlock lock(&spinlock); (void)lock;
+		return TokenBank::withdraw(token);
 	}
 	
-	void attempt()
+	void renew()
 	{
-		spinlock.attempt();
+		ScopedSpinlock lock(&spinlock); (void)lock;
+		TokenBank::renew();
 	}
 	
-	void release()
+	void getWindow(uint32_t *base, uint32_t *size)
 	{
-		spinlock.release();
+		ScopedSpinlock lock(&spinlock); (void)lock;
+		*base = getBase();
+		*size = getSize();
 	}
 };
 
@@ -61,4 +65,4 @@ public:
 	}
 };
 
-#endif // LOCKABLETOKENSTUFF_H
+#endif // SYNCEDTOKENSTUFF_H

@@ -2,7 +2,7 @@
 #define PROXIFIERUPSTREAMER_HH
 
 #include <socks6util/socks6util.hh>
-#include "../authentication/lockabletokenstuff.h"
+#include "../authentication/syncedtokenstuff.h"
 #include "../core/streamreactor.hh"
 #include "windowsupplicant.hh"
 

@@ -42,7 +42,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	bool idempotenceFail = false;
 	
 	//TODO: untangle mess
-	LockableTokenBank *bank = NULL;
+	SyncedTokenBank *bank = NULL;
 	if (success && method != SOCKS6_METHOD_NOAUTH)
 		bank = proxy->getBank(*req->getOptionSet()->getUsername());
 	
@@ -61,9 +61,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		{
 			uint32_t token = req->getOptionSet()->getToken();
 			
-			bank->acquire();
 			expendCode = bank->withdraw(token);
-			bank->release();
 			
 			if (expendCode == SOCKS6_TOK_EXPEND_OUT_OF_WND || expendCode == SOCKS6_TOK_EXPEND_DUPLICATE)
 			{
@@ -79,23 +77,19 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	if (success && method != SOCKS6_METHOD_NOAUTH && !idempotenceFail && requestedWindow > 0)
 	{
 		if (bank == NULL)
-		{
 			bank = proxy->createBank(*req->getOptionSet()->getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
-		}
 		else
-		{
-			bank->acquire();
 			bank->renew();
-			bank->release();
-		}
 	}
 	
 	/* advertise window */
 	if (bank != NULL)
 	{
-		bank->acquire();
-		rep.getOptionSet()->setTokenWindow(bank->getBase(), bank->getSize());
-		bank->release();
+		uint32_t base;
+		uint32_t size;
+		
+		bank->getWindow(&base, &size);
+		rep.getOptionSet()->setTokenWindow(base, size);
 	}
 	
 	buf.use(rep.pack(buf.getTail(), buf.availSize()));
