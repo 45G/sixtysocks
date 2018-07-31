@@ -37,13 +37,11 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 		
 		if (wallet.get() != NULL)
 		{
-			wallet->acquire();
 			if (wallet->extract(&token))
 			{
 				req.getOptionSet()->setToken(token);
 				polFlags |= S6U::TFOSafety::TFOS_SPEND_TOKEN;
 			}
-			wallet->release();
 		}
 	}
 	

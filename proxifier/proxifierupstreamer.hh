@@ -21,7 +21,7 @@ class ProxifierUpstreamer: public StreamReactor
 	
 	State state;
 	
-	boost::shared_ptr<LockableTokenWallet> wallet;
+	boost::shared_ptr<SyncedTokenWallet> wallet;
 	
 	S6U::SocketAddress dest;
 	
@@ -37,7 +37,7 @@ public:
 		return proxifier.get();
 	}
 	
-	boost::shared_ptr<LockableTokenWallet> getWallet() const
+	boost::shared_ptr<SyncedTokenWallet> getWallet() const
 	{
 		return wallet;
 	}

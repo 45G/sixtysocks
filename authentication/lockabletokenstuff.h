@@ -27,28 +27,37 @@ public:
 	}
 };
 
-class LockableTokenWallet: public S6U::TokenWallet
+class SyncedTokenWallet: S6U::TokenWallet
 {
-	Spinlock spinlock;
+	mutable Spinlock spinlock;
 public:
-	LockableTokenWallet() {}
+	SyncedTokenWallet() {}
 	
-	LockableTokenWallet(uint32_t base, uint32_t size)
+	SyncedTokenWallet(uint32_t base, uint32_t size)
 		: TokenWallet(base, size) {}
 	
-	void acquire()
+	bool extract(uint32_t *token)
 	{
-		spinlock.acquire();
+		ScopedSpinlock lock(&spinlock); (void)lock;
+		return S6U::TokenWallet::extract(token);
 	}
 	
-	void attempt()
+	void updateWindow(uint32_t newBase, uint32_t newSize)
 	{
-		spinlock.attempt();
+		ScopedSpinlock lock(&spinlock); (void)lock;
+		return S6U::TokenWallet::updateWindow(newBase, newSize);
 	}
 	
-	void release()
+	void updateWindow(const S6M::OptionSet *optionSet)
 	{
-		spinlock.release();
+		ScopedSpinlock lock(&spinlock); (void)lock;
+		return S6U::TokenWallet::updateWindow(optionSet);
+	}
+	
+	uint32_t remaining() const
+	{
+		ScopedSpinlock lock(&spinlock); (void)lock;
+		return S6U::TokenWallet::remaining();
 	}
 };
 

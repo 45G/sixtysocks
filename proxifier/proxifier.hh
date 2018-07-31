@@ -18,7 +18,7 @@ class Proxifier: public ListenReactor
 	
 	bool idempotence;
 	
-	boost::shared_ptr<LockableTokenWallet> wallet;
+	boost::shared_ptr<SyncedTokenWallet> wallet;
 	Spinlock walletLock;
 	Spinlock supplicationLock;
 	
@@ -44,22 +44,22 @@ public:
 		return password;
 	}
 	
-	boost::shared_ptr<LockableTokenWallet> getWallet()
+	boost::shared_ptr<SyncedTokenWallet> getWallet()
 	{
 		ScopedSpinlock lock(&walletLock); (void)lock;
 		
 		return wallet;
 	}
 	
-	void killWallet(boost::shared_ptr<LockableTokenWallet> wallet)
+	void killWallet(boost::shared_ptr<SyncedTokenWallet> wallet)
 	{
 		ScopedSpinlock lock(&walletLock); (void)lock;
 		
 		if (wallet.get() == this->wallet.get())
-			this->wallet = boost::shared_ptr<LockableTokenWallet>(new LockableTokenWallet());
+			this->wallet = boost::shared_ptr<SyncedTokenWallet>(new SyncedTokenWallet());
 	}
 	
-	void setWallet(boost::shared_ptr<LockableTokenWallet> wallet)
+	void setWallet(boost::shared_ptr<SyncedTokenWallet> wallet)
 	{
 		ScopedSpinlock lock(&walletLock); (void)lock;
 		

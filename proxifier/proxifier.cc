@@ -17,7 +17,7 @@ using namespace std;
 Proxifier::Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, const string &username, const string &password)
 	: ListenReactor(poller, bindAddr), proxyAddr(proxyAddr),
 	  username(new std::string(username)), password(new std::string(password)),
-	  wallet(new LockableTokenWallet())
+	  wallet(new SyncedTokenWallet())
 {
 	// tolerable error
 	S6U::Socket::saveSYN(listenFD);

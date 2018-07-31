@@ -48,13 +48,9 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			}
 			else
 			{
-				boost::shared_ptr<LockableTokenWallet> wallet = upstreamer->getWallet();
+				boost::shared_ptr<SyncedTokenWallet> wallet = upstreamer->getWallet();
 				if (wallet.get() != NULL)
-				{
-					wallet->acquire();
 					wallet->updateWindow(authRep.getOptionSet());
-					wallet->release();
-				}
 			}
 			
 			state = S_WAITING_FOR_OP_REP;
