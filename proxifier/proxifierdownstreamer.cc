@@ -26,16 +26,25 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 	{
 		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
+		{
+			upstreamer->deactivate();
 			return;
+		}
 		if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
+		{
+			upstreamer->deactivate();
 			return;
+		}
 		
 		S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
 		try
 		{
 			S6M::AuthenticationReply authRep(&bb);
 			if (authRep.getReplyCode() != SOCKS6_AUTH_REPLY_SUCCESS)
+			{
+				upstreamer->deactivate();
 				return;
+			}
 			buf.unuseHead(bb.getUsed());
 			
 			SOCKS6TokenExpenditureCode expenditureCode = authRep.getOptionSet()->getExpenditureReply();

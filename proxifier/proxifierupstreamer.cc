@@ -9,9 +9,13 @@
 
 using namespace std;
 
+static const size_t HEADROOM = 512; //more than enough for any request
+
 ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost::shared_ptr<WindowSupplicant> supplicant)
 	: StreamReactor(proxifier->getPoller(), srcFD, -1, SS_WAITING_TO_SEND), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
 {
+	buf.makeHeadroom(HEADROOM);
+	
 	dstFD.assign(socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (dstFD < 0)
 		throw system_error(errno, system_category());
@@ -20,20 +24,15 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 	if (rc < 0)
 		throw system_error(errno, system_category());
 	
-	uint8_t reqBuf[512];
-	buf.makeHeadroom(sizeof(reqBuf));
-	
 	/* read initial data opportunistically */
 	ssize_t bytes = fill(srcFD);
-	if (bytes < 0)
-	{
-		if (errno != EWOULDBLOCK && errno != EAGAIN)
-			throw system_error(errno, system_category());
-	}
+	if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
+		throw system_error(errno, system_category());
 	
 	S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), 0);
 	if (S6U::Socket::tfoAttempted(srcFD))
 		req.getOptionSet()->setTFO();
+	
 	if (proxifier->getUsername()->length() > 0)
 		req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());
 	
@@ -48,47 +47,28 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 		wallet = proxifier->getWallet();
 		uint32_t token;
 		
-		if (wallet.get() != NULL)
+		if (wallet->extract(&token))
 		{
-			if (wallet->extract(&token))
-			{
-				req.getOptionSet()->setToken(token);
-				polFlags |= S6U::TFOSafety::TFOS_SPEND_TOKEN;
-			}
+			req.getOptionSet()->setToken(token);
+			polFlags |= S6U::TFOSafety::TFOS_SPEND_TOKEN;
 		}
 	}
 	
 	if (supplicant.get() != NULL)
 		supplicant->process(&req);
 	
+	uint8_t reqBuf[HEADROOM];	
 	S6M::ByteBuffer bb(reqBuf, sizeof(reqBuf));
 	req.pack(&bb);
 	buf.prepend(bb.getBuf(), bb.getUsed());
 	
 	/* connect */
-	{
-		ssize_t bytes;
-		
-		/* check if TFO is wanted */
-		if (S6U::TFOSafety::tfoSafe(polFlags))
-		{
-			bytes = spillTFO(dstFD, *proxifier->getProxyAddr());
-			if (bytes < 0)
-			{
-				if (errno != EINPROGRESS)
-					throw system_error(errno, system_category());
-			}
-		}
-		else
-		{
-			int rc = connect(dstFD, &proxifier->getProxyAddr()->sockAddress, dest.size());
-			if (rc < 0)
-			{
-				if (errno != EINPROGRESS)
-					throw system_error(errno, system_category());
-			}
-		}
-	}
+	if (S6U::TFOSafety::tfoSafe(polFlags))
+		bytes = spillTFO(dstFD, *proxifier->getProxyAddr());
+	else
+		bytes = connect(dstFD, &proxifier->getProxyAddr()->sockAddress, dest.size());
+	if (bytes < 0 && errno != EINPROGRESS)
+		throw system_error(errno, system_category());
 }
 
 void ProxifierUpstreamer::process(int fd, uint32_t events)

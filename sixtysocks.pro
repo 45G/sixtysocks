@@ -24,7 +24,9 @@ SOURCES += \
     proxifier/supplicationagent.cc \
     proxifier/windowsupplicant.cc \
     core/streambuffer.cc \
-    proxy/authserver.cc
+    proxy/authserver.cc \
+    core/streamreactorng.cc \
+    core/fsm.cc
 
 HEADERS += \
     core/poller.hh \
@@ -46,6 +48,8 @@ HEADERS += \
     proxifier/supplicationagent.hh \
     proxifier/windowsupplicant.hh \
     authentication/syncedtokenstuff.h \
-    proxy/authserver.hh
+    proxy/authserver.hh \
+    core/fsm.hh \
+    core/streamreactorng.hh
 
 LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system
