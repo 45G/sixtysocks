@@ -5,11 +5,14 @@ using namespace std;
 
 void StreamBuffer::makeHeadroom(size_t size)
 {
-	if (BUF_SIZE - usedSize() < size)
+	size_t dataSize = usedSize();
+
+	if (BUF_SIZE - dataSize < size)
 		throw NoRoomException();
 	if (size > head)
 	{
-		memmove(&buf[size], &buf[head], usedSize());
+		memmove(&buf[size], &buf[head], dataSize);
+		tail += size - head;
 		head = size;
 	}
 }

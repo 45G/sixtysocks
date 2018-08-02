@@ -27,7 +27,6 @@ class Poller
 	std::vector<std::thread> threads;
 	
 	std::vector<FDEntry> fdEntries;
-	boost::mutex entriesMutex;
 	
 	volatile bool alive;
 	

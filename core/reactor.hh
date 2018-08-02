@@ -39,6 +39,15 @@ public:
 	}
 	
 	virtual ~Reactor();
+
+	struct RescheduleMe
+	{
+		int fd;
+		uint32_t events;
+
+		RescheduleMe(int fd, uint32_t events)
+			: fd(fd), events(events) {}
+	};
 };
 
 #endif // REACTOR_HH

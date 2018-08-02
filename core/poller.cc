@@ -122,6 +122,10 @@ void Poller::threadFun(Poller *poller)
 		{
 			reactor->process(event.data.fd, event.events);
 		}
+		catch (Reactor::RescheduleMe resched)
+		{
+			poller->add(reactor, resched.fd, resched.events);
+		}
 		catch (...)
 		{
 			reactor->deactivate();
