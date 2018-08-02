@@ -90,8 +90,6 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
 			return;
-		if (bytes < 0 && errno != EAGAIN && errno != EWOULDBLOCK)
-			throw system_error(errno, system_category());
 
 		S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
 		try
@@ -136,14 +134,6 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		if (bytes == 0)
 		{
 			deactivate();
-			return;
-		}
-		if (bytes < 0)
-		{
-			if (errno == EWOULDBLOCK || errno == EAGAIN)
-				poller->add(this, srcFD, Poller::IN_EVENTS);
-			else
-				deactivate();
 			return;
 		}
 		if (buf.usedSize() >= request->getInitialDataLen())

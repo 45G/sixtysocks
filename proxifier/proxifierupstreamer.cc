@@ -25,9 +25,12 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 		throw system_error(errno, system_category());
 	
 	/* read initial data opportunistically */
-	ssize_t bytes = fill(srcFD);
-	if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
-		throw system_error(errno, system_category());
+	ssize_t bytes = 0;
+	try
+	{
+		bytes = fill(srcFD);
+	}
+	catch (RescheduleMe) {}
 	
 	S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), 0);
 	if (S6U::Socket::tfoAttempted(srcFD))

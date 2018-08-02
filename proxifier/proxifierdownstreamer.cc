@@ -27,12 +27,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
 		{
-			upstreamer->deactivate();
-			return;
-		}
-		if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
-		{
-			upstreamer->deactivate();
+			deactivate();
 			return;
 		}
 		
@@ -42,7 +37,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			S6M::AuthenticationReply authRep(&bb);
 			if (authRep.getReplyCode() != SOCKS6_AUTH_REPLY_SUCCESS)
 			{
-				upstreamer->deactivate();
+				deactivate();
 				return;
 			}
 			buf.unuseHead(bb.getUsed());
@@ -74,8 +69,6 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 	{
 		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
-			return;
-		if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
 			return;
 		
 		S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
@@ -119,4 +112,10 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 		StreamReactor::process(fd, events);
 		break;
 	}
+}
+
+void ProxifierDownstreamer::deactivate()
+{
+	StreamReactor::deactivate();
+	upstreamer->deactivate();
 }

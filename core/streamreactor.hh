@@ -24,29 +24,11 @@ protected:
 
 	StreamState streamState;
 	
-	int fill(int fd)
-	{
-		ssize_t bytes = recv(fd, buf.getTail(), buf.availSize(), MSG_NOSIGNAL);
-		if (bytes > 0)
-			buf.use(bytes);
-		return bytes;
-	}
+	int fill(int fd);
 
-	int spill(int fd)
-	{
-		ssize_t bytes = send(fd, buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
-		if (bytes >0)
-			buf.unuseHead(bytes);
-		return bytes;
-	}
+	int spill(int fd);
 
-	int spillTFO(int fd, S6U::SocketAddress dest)
-	{
-		ssize_t bytes = sendto(fd, buf.getHead(), buf.usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.sockAddress, dest.size());
-		if (bytes > 0)
-			buf.unuseHead(bytes);
-		return bytes;
-	}
+	int spillTFO(int fd, S6U::SocketAddress dest);
 
 public:
 	StreamReactor(Poller *poller, int srcFD, int dstFD, StreamState streamState = SS_WAITING_TO_RECV)
