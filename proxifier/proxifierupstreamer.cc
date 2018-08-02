@@ -23,7 +23,10 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 	int rc = S6U::Socket::getOriginalDestination(srcFD, &dest.storage);
 	if (rc < 0)
 		throw system_error(errno, system_category());
-	
+}
+
+void ProxifierUpstreamer::start(bool defer)
+{
 	/* read initial data opportunistically */
 	ssize_t bytes = 0;
 	try
@@ -31,14 +34,14 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 		bytes = fill(srcFD);
 	}
 	catch (RescheduleMe) {}
-	
+
 	S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), 0);
 	if (S6U::Socket::tfoAttempted(srcFD))
 		req.getOptionSet()->setTFO();
-	
+
 	if (proxifier->getUsername()->length() > 0)
 		req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());
-	
+
 	/* check if idempotence is wanted */
 	uint32_t polFlags = 0;
 	if (buf.usedSize() == 0)
@@ -49,22 +52,22 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 	{
 		wallet = proxifier->getWallet();
 		uint32_t token;
-		
+
 		if (wallet->extract(&token))
 		{
 			req.getOptionSet()->setToken(token);
 			polFlags |= S6U::TFOSafety::TFOS_SPEND_TOKEN;
 		}
 	}
-	
+
 	if (supplicant.get() != NULL)
 		supplicant->process(&req);
-	
-	uint8_t reqBuf[HEADROOM];	
+
+	uint8_t reqBuf[HEADROOM];
 	S6M::ByteBuffer bb(reqBuf, sizeof(reqBuf));
 	req.pack(&bb);
 	buf.prepend(bb.getBuf(), bb.getUsed());
-	
+
 	/* connect */
 	if (S6U::TFOSafety::tfoSafe(polFlags))
 		bytes = spillTFO(dstFD, *proxifier->getProxyAddr());
@@ -72,6 +75,8 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost:
 		bytes = connect(dstFD, &proxifier->getProxyAddr()->sockAddress, dest.size());
 	if (bytes < 0 && errno != EINPROGRESS)
 		throw system_error(errno, system_category());
+
+	StreamReactor::start(defer);
 }
 
 void ProxifierUpstreamer::process(int fd, uint32_t events)
