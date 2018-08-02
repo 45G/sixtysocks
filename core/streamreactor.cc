@@ -11,7 +11,7 @@ int StreamReactor::fill(int fd)
 	if (bytes < 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK) //TODO: maybe EINTR as well
-			throw RescheduleMe(fd, Poller::IN_EVENTS);
+			throw ReschedDisposition(fd, Poller::IN_EVENTS);
 		throw system_error(errno, system_category());
 	}
 	buf.use(bytes);
@@ -24,7 +24,7 @@ int StreamReactor::spill(int fd)
 	if (bytes < 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK) //TODO: maybe EINTR as well
-			throw RescheduleMe(fd, Poller::OUT_EVENTS);
+			throw ReschedDisposition(fd, Poller::OUT_EVENTS);
 		throw system_error(errno, system_category());
 	}
 	buf.unuseHead(bytes);

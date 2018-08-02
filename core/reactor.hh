@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/intrusive_ptr.hpp>
+#include "rescheddisposition.h"
 
 class Poller;
 
@@ -39,15 +40,6 @@ public:
 	}
 	
 	virtual ~Reactor();
-
-	struct RescheduleMe
-	{
-		int fd;
-		uint32_t events;
-
-		RescheduleMe(int fd, uint32_t events)
-			: fd(fd), events(events) {}
-	};
 };
 
 #endif // REACTOR_HH

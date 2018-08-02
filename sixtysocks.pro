@@ -47,6 +47,8 @@ HEADERS += \
     proxifier/windowsupplicant.hh \
     authentication/syncedtokenstuff.h \
     proxy/authserver.hh \
-    core/tlscontext.hh
+    core/tlscontext.hh \
+    core/sockio.hh \
+    core/rescheddisposition.hh
 
 LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lssl -lcrypto
