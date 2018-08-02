@@ -12,13 +12,14 @@ class SupplicationAgent: public Reactor
 {
 	enum State
 	{
+		S_CONNECTING,
 		S_SENDING_REQ,
 		S_RECEIVING_AUTH_REP,
 	};
 	
 	boost::intrusive_ptr<Proxifier> proxifier;
 	
-	int fd;
+	UniqFD sock;
 	
 	StreamBuffer buf;
 	

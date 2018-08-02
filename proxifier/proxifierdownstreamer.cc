@@ -97,12 +97,12 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 		}
 		if (buf.usedSize() == 0)
 		{
-			streamState = SS_WAITING_TO_RECV;
+			streamState = SS_RECEIVING;
 			poller->add(this, srcFD, Poller::IN_EVENTS);
 		}
 		else
 		{
-			streamState = SS_WAITING_TO_SEND;
+			streamState = SS_SENDING;
 			poller->add(this, srcFD, Poller::OUT_EVENTS);
 		}
 		

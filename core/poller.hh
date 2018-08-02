@@ -5,7 +5,6 @@
 #include <thread>
 #include <vector>
 #include <sys/epoll.h>
-#include <boost/thread/mutex.hpp>
 #include <exception>
 #include "reactor.hh"
 

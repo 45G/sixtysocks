@@ -18,8 +18,8 @@ protected:
 	
 	enum StreamState
 	{
-		SS_WAITING_TO_RECV,
-		SS_WAITING_TO_SEND,
+		SS_RECEIVING,
+		SS_SENDING,
 	};
 
 	StreamState streamState;
@@ -31,7 +31,7 @@ protected:
 	int spillTFO(int fd, S6U::SocketAddress dest);
 
 public:
-	StreamReactor(Poller *poller, StreamState streamState = SS_WAITING_TO_RECV)
+	StreamReactor(Poller *poller, StreamState streamState = SS_RECEIVING)
 		: Reactor(poller), streamState(streamState) {}
 	
 	UniqRecvFD *getSrcFD()

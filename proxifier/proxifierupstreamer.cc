@@ -12,7 +12,7 @@ using namespace std;
 static const size_t HEADROOM = 512; //more than enough for any request
 
 ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, boost::shared_ptr<WindowSupplicant> supplicant)
-	: StreamReactor(proxifier->getPoller(), SS_WAITING_TO_SEND), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
+	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
 {
 	buf.makeHeadroom(HEADROOM);
 
@@ -92,16 +92,16 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 		downstreamer->start();
 		state = S_STREAM;
 		
-		streamState = buf.usedSize() > 0 ? SS_WAITING_TO_SEND : SS_WAITING_TO_RECV;
+		streamState = buf.usedSize() > 0 ? SS_SENDING : SS_RECEIVING;
 		
 		if (buf.usedSize() > 0)
 		{
-			streamState = SS_WAITING_TO_SEND;
+			streamState = SS_SENDING;
 			poller->add(this, dstFD, Poller::OUT_EVENTS);
 		}
 		else
 		{
-			streamState = SS_WAITING_TO_RECV;
+			streamState = SS_RECEIVING;
 			poller->add(this, srcFD, Poller::IN_EVENTS);
 		}
 			

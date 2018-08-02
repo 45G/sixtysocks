@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <system_error>
 #include "../core/poller.hh"
+#include "../core/sockio.hh"
 #include "streamreactor.hh"
 
 using namespace std;
@@ -45,46 +46,39 @@ void StreamReactor::process(int fd, uint32_t events)
 
 	switch (streamState)
 	{
-	case SS_WAITING_TO_RECV:
+	case SS_RECEIVING:
 	{
 		ssize_t bytes = fill(srcFD);
 		if (bytes == 0)
-			return;
-
-		bytes = spill(dstFD);
-		if (bytes < 0)
 		{
-			if (errno != EWOULDBLOCK && errno != EAGAIN)
-				throw system_error(errno, system_category());
+			poller->remove(srcFD);
+			srcFD.reset();
+			if (buf.usedSize() == 0)
+			{
+				poller->remove(dstFD);
+				dstFD.reset();
+				return;
+			}
 		}
 
-		if (buf.usedSize() > 0)
-		{
-			streamState = SS_WAITING_TO_SEND;
-			poller->add(this, dstFD, Poller::OUT_EVENTS);
-		}
-		else
-		{
-			poller->add(this, srcFD, Poller::IN_EVENTS);
-		}
-
-		break;
+		streamState = SS_SENDING;
+		[[fallthrough]];
 	}
-	case SS_WAITING_TO_SEND:
+	case SS_SENDING:
 	{
 		ssize_t bytes = spill(dstFD);
-		if (bytes < 0)
+		if (bytes == 0)
 		{
-			if (errno != EWOULDBLOCK && errno != EAGAIN)
-				throw system_error(errno, system_category());
+			poller->remove(srcFD);
+			srcFD.reset();
+			poller->remove(dstFD);
+			dstFD.reset();
+			return;
 		}
 
 		if (buf.usedSize() == 0)
 		{
-			if (srcFD == -1)
-				return;
-
-			streamState = SS_WAITING_TO_RECV;
+			streamState = SS_RECEIVING;
 			poller->add(this, srcFD, Poller::IN_EVENTS);
 		}
 		else
@@ -109,11 +103,11 @@ void StreamReactor::start()
 {
 	switch (streamState)
 	{
-	case SS_WAITING_TO_RECV:
+	case SS_RECEIVING:
 		poller->add(this, srcFD, Poller::IN_EVENTS);
 		break;
 
-	case SS_WAITING_TO_SEND:
+	case SS_SENDING:
 		poller->add(this, dstFD, Poller::OUT_EVENTS);
 		break;
 	}
