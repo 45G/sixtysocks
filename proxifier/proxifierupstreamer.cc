@@ -88,8 +88,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 	{
 	case S_CONNECTING:
 	{
-		ProxifierDownstreamer *downstreamer = new ProxifierDownstreamer(this);
-		downstreamer->start();
+		poller->assign(new ProxifierDownstreamer(this));
 		state = S_STREAM;
 		
 		streamState = buf.usedSize() > 0 ? SS_SENDING : SS_RECEIVING;

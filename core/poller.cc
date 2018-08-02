@@ -34,6 +34,18 @@ Poller::Poller(int numThreads, int cpuOffset, size_t expectedFDs)
 	//	}
 }
 
+void Poller::assign(boost::intrusive_ptr<Reactor> reactor)
+{
+	try
+	{
+		reactor->start();
+	}
+	catch(...)
+	{
+		reactor->deactivate();
+	}
+}
+
 void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 {
 	if (fd < 0 || !reactor->isActive())

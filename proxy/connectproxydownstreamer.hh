@@ -17,8 +17,12 @@ class ConnectProxyDownstreamer: public StreamReactor
 
 	State state;
 
+	boost::intrusive_ptr<ProxyUpstreamer> upstreamer;
+
 public:
 	ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer, S6M::OperationReply *reply);
+
+	void deactivate();
 };
 
 #endif // CONNECTPROXYDOWNSTREAMER_HH

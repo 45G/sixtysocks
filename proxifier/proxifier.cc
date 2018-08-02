@@ -28,14 +28,17 @@ void Proxifier::start()
 	supplicationLock.acquire();
 	if (username->length() > 0)
 	{
-		(new SupplicationAgent(this, boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(this))))->start();
+		try
+		{
+			poller->assign(new SupplicationAgent(this, boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(this))));
+		}
+		catch(...) {}
 	}
 	ListenReactor::start();
 }
 
 void Proxifier::handleNewConnection(int fd)
 {
-	boost::intrusive_ptr<ProxifierUpstreamer> upstreamReactor;
 	boost::shared_ptr<WindowSupplicant> supplicant;
 
 	if (supplicationLock.attempt())
@@ -48,8 +51,7 @@ void Proxifier::handleNewConnection(int fd)
 
 	try
 	{
-		upstreamReactor = new ProxifierUpstreamer(this, &fd, supplicant);
-		upstreamReactor->start();
+		poller->assign(new ProxifierUpstreamer(this, &fd, supplicant));
 	}
 	catch (...)
 	{

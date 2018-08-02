@@ -16,7 +16,7 @@ void ProxyUpstreamer::honorRequest()
 	{
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
 		*reply.getOptionSet() = replyOptions;
-		(new SimpleProxyDownstreamer(this, &reply))->start();
+		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 		return;
 	}
 	
@@ -29,7 +29,7 @@ void ProxyUpstreamer::honorRequest()
 		{
 			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
 			*reply.getOptionSet() = replyOptions;
-			(new SimpleProxyDownstreamer(this, &reply))->start();
+			poller->assign(new SimpleProxyDownstreamer(this, &reply));
 		}
 		
 		S6U::SocketAddress addr(*request->getAddress(), request->getPort());
@@ -65,14 +65,14 @@ void ProxyUpstreamer::honorRequest()
 	{
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
 		*reply.getOptionSet() = replyOptions;
-		(new SimpleProxyDownstreamer(this, &reply))->start();
+		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 		break;
 	}
 	default:
 	{
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
 		*reply.getOptionSet() = replyOptions;
-		(new SimpleProxyDownstreamer(this, &reply))->start();
+		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 		break;
 	}
 	}
@@ -107,8 +107,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			return;
 		}
 
-		authServer = new AuthServer(this);
-		authServer->start();
+		poller->assign(new AuthServer(this));
 		
 		if (buf.usedSize() < request->getInitialDataLen())
 		{
@@ -168,7 +167,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 					
 			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort(), request->getInitialDataLen());
 			*reply.getOptionSet() = replyOptions;
-			(new ConnectProxyDownstreamer(this, &reply))->start();
+			poller->assign(new ConnectProxyDownstreamer(this, &reply));
 			
 			state = S_STREAM;
 		
@@ -197,7 +196,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			
 			S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
 			*reply.getOptionSet() = replyOptions;
-			(new SimpleProxyDownstreamer(this, &reply))->start();
+			poller->assign(new SimpleProxyDownstreamer(this, &reply));
 		}
 		
 		break;

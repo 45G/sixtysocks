@@ -7,11 +7,9 @@ using namespace std;
 
 void Proxy::handleNewConnection(int fd)
 {
-	boost::intrusive_ptr<ProxyUpstreamer> upstreamReactor;
 	try
 	{
-		upstreamReactor = new ProxyUpstreamer(this, &fd);
-		upstreamReactor->start();
+		poller->assign(new ProxyUpstreamer(this, &fd));
 	}
 	catch (...)
 	{
