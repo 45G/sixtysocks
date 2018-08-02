@@ -34,30 +34,13 @@ Poller::Poller(int numThreads, int cpuOffset, size_t expectedFDs)
 	//	}
 }
 
-void Poller::ensureFit(int fd)
-{
-	if ((int)fdEntries.size() < fd + 1)
-	{
-		size_t reqSize = fdEntries.size();
-		do
-		{
-			reqSize *= 2;
-		}
-		while ((int)reqSize < fd + 1);
-
-		entriesMutex.lock();
-		if (fdEntries.size() < reqSize)
-			fdEntries.resize(reqSize);
-		entriesMutex.unlock();
-	}
-}
-
 void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 {
 	if (fd < 0 || !reactor->isActive())
 		return;
 
-	ensureFit(fd);
+	if (fd >= (int)fdEntries.size())
+		throw MaxFDsExceededException();
 	
 	int epollOp;
 	if (fdEntries[fd].registered)
@@ -144,4 +127,9 @@ void Poller::threadFun(Poller *poller)
 			reactor->deactivate();
 		}
 	}
+}
+
+const char *Poller::MaxFDsExceededException::what() const throw()
+{
+	return "Maximum number of FDs exceeded";
 }

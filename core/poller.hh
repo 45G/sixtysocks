@@ -6,6 +6,7 @@
 #include <vector>
 #include <sys/epoll.h>
 #include <boost/thread/mutex.hpp>
+#include <exception>
 #include "reactor.hh"
 
 class Poller
@@ -34,9 +35,7 @@ public:
 	static const uint32_t IN_EVENTS  = EPOLLIN | EPOLLRDHUP;
 	static const uint32_t OUT_EVENTS = EPOLLOUT;
 	
-	Poller(int numThreads, int cpuOffset, size_t expectedFDs = 1024);
-	
-	void ensureFit(int fd);
+	Poller(int numThreads, int cpuOffset, size_t expectedFDs = 1 << 17);
 	
 	void add(boost::intrusive_ptr<Reactor> reactor, int fd, uint32_t events);
 	
@@ -47,6 +46,12 @@ public:
 	void join();
 	
 	static void threadFun(Poller *poller);
+
+	class MaxFDsExceededException: public std::exception
+	{
+	public:
+		const char *what() const throw();
+	};
 };
 
 #endif // POLLER_HH
