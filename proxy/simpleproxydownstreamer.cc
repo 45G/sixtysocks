@@ -5,7 +5,7 @@
 using namespace std;
 
 SimpleProxyDownstreamer::SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, const S6M::OperationReply *reply)
-	: StreamReactor(upstreamer->getPoller(), -1, -1, SS_WAITING_TO_SEND)
+	: StreamReactor(upstreamer->getPoller(), SS_WAITING_TO_SEND)
 {
 	buf.use(reply->pack(buf.getTail(), buf.availSize()));
 

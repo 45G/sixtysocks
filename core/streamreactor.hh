@@ -31,8 +31,8 @@ protected:
 	int spillTFO(int fd, S6U::SocketAddress dest);
 
 public:
-	StreamReactor(Poller *poller, int srcFD, int dstFD, StreamState streamState = SS_WAITING_TO_RECV)
-		: Reactor(poller), srcFD(srcFD), dstFD(dstFD), streamState(streamState) {}
+	StreamReactor(Poller *poller, StreamState streamState = SS_WAITING_TO_RECV)
+		: Reactor(poller), streamState(streamState) {}
 	
 	int getSrcFD() const
 	{

@@ -7,18 +7,16 @@ using namespace std;
 
 void Proxy::handleNewConnection(int fd)
 {
-    ProxyUpstreamer *upstreamReactor = NULL;
-    try
-    {
-        upstreamReactor = new ProxyUpstreamer(this, fd);
+	boost::intrusive_ptr<ProxyUpstreamer> upstreamReactor;
+	try
+	{
+		upstreamReactor = new ProxyUpstreamer(this, &fd);
+		upstreamReactor->start(true);
 	}
 	catch (...)
 	{
 		close(fd); // tolerable error
-		return;
 	}
-	
-    upstreamReactor->start(true);
 }
 
 SyncedTokenBank *Proxy::createBank(const string &user, uint32_t size)

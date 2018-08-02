@@ -28,7 +28,7 @@ class ProxifierUpstreamer: public StreamReactor
 	boost::shared_ptr<WindowSupplicant> supplicant;
 	
 public:
-	ProxifierUpstreamer(Proxifier *proxifier, int srcFD, boost::shared_ptr<WindowSupplicant> supplicant);
+	ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, boost::shared_ptr<WindowSupplicant> supplicant);
 
 	void start(bool defer = false);
 	

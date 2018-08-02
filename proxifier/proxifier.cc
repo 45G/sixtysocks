@@ -35,7 +35,7 @@ void Proxifier::start(bool defer)
 
 void Proxifier::handleNewConnection(int fd)
 {
-	ProxifierUpstreamer *upstreamReactor = NULL;
+	boost::intrusive_ptr<ProxifierUpstreamer> upstreamReactor;
 	boost::shared_ptr<WindowSupplicant> supplicant;
 
 	if (supplicationLock.attempt())
@@ -48,14 +48,11 @@ void Proxifier::handleNewConnection(int fd)
 
 	try
 	{
-
-		upstreamReactor = new ProxifierUpstreamer(this, fd, supplicant);
+		upstreamReactor = new ProxifierUpstreamer(this, &fd, supplicant);
+		upstreamReactor->start(true);
 	}
 	catch (...)
 	{
 		close(fd); // tolerable error
-		return;
 	}
-	
-	upstreamReactor->start(true);
 }

@@ -78,8 +78,12 @@ void ProxyUpstreamer::honorRequest()
 	}
 }
 
-ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int srcFD)
-	: StreamReactor(proxy->getPoller(), srcFD, -1), proxy(proxy), state(S_READING_REQ), authenticated(false), replyOptions(S6M::OptionSet::M_OP_REP), authServer(NULL), mustFail(false) {}
+ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int *pSrcFD)
+	: StreamReactor(proxy->getPoller()), proxy(proxy), state(S_READING_REQ), authenticated(false), replyOptions(S6M::OptionSet::M_OP_REP), authServer(NULL), mustFail(false)
+{
+	srcFD.assign(*pSrcFD);
+	*pSrcFD = -1;
+}
 
 void ProxyUpstreamer::process(int fd, uint32_t events)
 {
