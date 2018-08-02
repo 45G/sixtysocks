@@ -96,7 +96,7 @@ void SupplicationAgent::deactivate()
 	close(fd); //tolerable error
 }
 
-void SupplicationAgent::start(bool defer)
+void SupplicationAgent::start()
 {
 	poller->add(this, fd, Poller::OUT_EVENTS);
 }

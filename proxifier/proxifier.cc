@@ -23,14 +23,14 @@ Proxifier::Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const 
 	S6U::Socket::saveSYN(listenFD);
 }
 
-void Proxifier::start(bool defer)
+void Proxifier::start()
 {
-	ListenReactor::start(defer);
 	supplicationLock.acquire();
 	if (username->length() > 0)
 	{
 		(new SupplicationAgent(this, boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(this))))->start();
 	}
+	ListenReactor::start();
 }
 
 void Proxifier::handleNewConnection(int fd)
@@ -49,7 +49,7 @@ void Proxifier::handleNewConnection(int fd)
 	try
 	{
 		upstreamReactor = new ProxifierUpstreamer(this, &fd, supplicant);
-		upstreamReactor->start(true);
+		upstreamReactor->start();
 	}
 	catch (...)
 	{

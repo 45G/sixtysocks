@@ -84,7 +84,7 @@ void ListenReactor::deactivate()
 	poller->remove(listenFD);
 }
 
-void ListenReactor::start(bool defer)
+void ListenReactor::start()
 {
 	poller->add(this, listenFD, EPOLLIN);
 }

@@ -118,7 +118,7 @@ void AuthServer::process(int fd, uint32_t events)
 		upstreamer->deactivate();
 }
 
-void AuthServer::start(bool defer)
+void AuthServer::start()
 {
 	poller->add(this, upstreamer->getSrcFD(), Poller::OUT_EVENTS);
 }

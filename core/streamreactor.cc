@@ -105,7 +105,7 @@ void StreamReactor::deactivate()
 	poller->remove(dstFD);
 }
 
-void StreamReactor::start(bool defer)
+void StreamReactor::start()
 {
 	switch (streamState)
 	{

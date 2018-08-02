@@ -28,7 +28,7 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, boos
 		throw system_error(errno, system_category());
 }
 
-void ProxifierUpstreamer::start(bool defer)
+void ProxifierUpstreamer::start()
 {
 	/* read initial data opportunistically */
 	ssize_t bytes = 0;
@@ -79,7 +79,7 @@ void ProxifierUpstreamer::start(bool defer)
 	if (bytes < 0 && errno != EINPROGRESS)
 		throw system_error(errno, system_category());
 
-	StreamReactor::start(defer);
+	StreamReactor::start();
 }
 
 void ProxifierUpstreamer::process(int fd, uint32_t events)

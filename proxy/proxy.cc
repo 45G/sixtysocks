@@ -11,7 +11,7 @@ void Proxy::handleNewConnection(int fd)
 	try
 	{
 		upstreamReactor = new ProxyUpstreamer(this, &fd);
-		upstreamReactor->start(true);
+		upstreamReactor->start();
 	}
 	catch (...)
 	{

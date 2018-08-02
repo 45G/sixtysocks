@@ -18,7 +18,7 @@ public:
 	
 	void deactivate();
 
-	void start(bool defer = false);
+	void start();
 
 	~ListenReactor();
 };

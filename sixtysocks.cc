@@ -169,9 +169,9 @@ int main(int argc, char **argv)
 	bindAddr.ipv4.sin_port        = htons(port);
 	
 	if (mode == M_PROXIFIER)
-		(new Proxifier(&poller, proxyAddr.storage, bindAddr, username, password))->start(true);
+		(new Proxifier(&poller, proxyAddr.storage, bindAddr, username, password))->start();
 	else
-		(new Proxy(&poller, bindAddr, passwordChecker.get()))->start(true);
+		(new Proxy(&poller, bindAddr, passwordChecker.get()))->start();
 	
 //	sleep(1000);
 	poller.threadFun(&poller);

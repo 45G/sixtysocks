@@ -30,7 +30,7 @@ public:
 		return &proxyAddr;
 	}
 	
-	void start(bool defer);
+	void start();
 
 	void handleNewConnection(int fd);
 
