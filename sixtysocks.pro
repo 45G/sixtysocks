@@ -2,7 +2,6 @@ TEMPLATE = app
 CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
-LIBS += -lpthread
 
 QMAKE_CXXFLAGS += -std=c++11
 
@@ -25,8 +24,7 @@ SOURCES += \
     proxifier/windowsupplicant.cc \
     core/streambuffer.cc \
     proxy/authserver.cc \
-    core/streamreactorng.cc \
-    core/fsm.cc
+    core/tlscontext.cc
 
 HEADERS += \
     core/poller.hh \
@@ -49,7 +47,6 @@ HEADERS += \
     proxifier/windowsupplicant.hh \
     authentication/syncedtokenstuff.h \
     proxy/authserver.hh \
-    core/fsm.hh \
-    core/streamreactorng.hh
+    core/tlscontext.hh
 
-LIBS = -lsocks6msg -lsocks6util -lpthread -lboost_system
+LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lssl -lcrypto

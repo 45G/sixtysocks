@@ -16,6 +16,8 @@
 #include <sys/epoll.h>
 #include <socks6util/socks6util.hh>
 #include <algorithm>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 #include "core/poller.hh"
 #include "proxifier/proxifier.hh"
@@ -28,11 +30,11 @@ void usage()
 {
 	static const char *usageLines[] = {
 		"usage: sixtysocks [-j <thread count>] [-o <cpu offset>]",
-			"[-m <mode>]",
-			"[-l <port>] [-t <tls port>]",
+			"[-m <mode>] (\"proxify\"/\"proxy\")",
+			"[-l <listen port>] [-t <TLS listen port>]",
 			"[-U <username>] [-P <password>]",
 			"[-s <proxy IP>] [-p <proxy port>]",
-		//TODO: TLS proxy
+			"[-T] (use TLS)",
 		NULL,
 	};
 	
@@ -67,7 +69,7 @@ int main(int argc, char **argv)
 	uint16_t tlsPort = 0;
 	uint16_t proxyPort = 1080;
 	S6U::SocketAddress proxyAddr;
-	S6U::SocketAddress tlsProxyAddr;
+	bool useTLS = false;
 	string username;
 	string password;
 	boost::intrusive_ptr<SimplePasswordChecker> passwordChecker;
@@ -75,7 +77,7 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 
 	//TODO: fix this shit
-	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:")) != -1)
+	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:T")) != -1)
 	{
 		switch (c)
 		{
@@ -130,6 +132,10 @@ int main(int argc, char **argv)
 			if (proxyPort == 0)
 				usage();
 			break;
+
+		case 'T':
+			useTLS = true;
+			break;
 			
 		default:
 			usage();
@@ -149,7 +155,11 @@ int main(int argc, char **argv)
 	
 //	if (cpuOffset + numThreads > (int)thread::hardware_concurrency())
 //		usage();
-	
+
+	/* OpenSSL */
+	SSL_library_init();
+	SSL_load_error_strings();
+
 	Poller poller(numThreads, cpuOffset);
 	//poller.start();
 
