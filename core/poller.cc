@@ -38,7 +38,14 @@ void Poller::assign(boost::intrusive_ptr<Reactor> reactor)
 {
 	try
 	{
-		reactor->start();
+		try
+		{
+			reactor->start();
+		}
+		catch (ReschedDisposition resched)
+		{
+			add(reactor, resched.fd, resched.events);
+		}
 	}
 	catch(...)
 	{
@@ -132,11 +139,14 @@ void Poller::threadFun(Poller *poller)
 		
 		try
 		{
-			reactor->process(event.data.fd, event.events);
-		}
-		catch (ReschedDisposition resched)
-		{
-			poller->add(reactor, resched.fd, resched.events);
+			try
+			{
+				reactor->process(event.data.fd, event.events);
+			}
+			catch (ReschedDisposition resched)
+			{
+				poller->add(reactor, resched.fd, resched.events);
+			}
 		}
 		catch (...)
 		{
