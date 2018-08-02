@@ -24,7 +24,8 @@ SOURCES += \
     proxifier/windowsupplicant.cc \
     core/streambuffer.cc \
     proxy/authserver.cc \
-    core/tlscontext.cc
+    core/tlscontext.cc \
+    core/sockio.cc
 
 HEADERS += \
     core/poller.hh \

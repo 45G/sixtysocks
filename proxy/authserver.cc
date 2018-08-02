@@ -5,6 +5,7 @@
 #include "../core/streamreactor.hh"
 #include "../proxy/proxyupstreamer.hh"
 #include "../proxy/proxy.hh"
+#include "../core/sockio.hh"
 #include "authserver.hh"
 
 using namespace std;
@@ -93,25 +94,21 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	}
 	
 	buf.use(rep.pack(buf.getTail(), buf.availSize()));
+
+	int x = 0;
+	x = 1;
 }
 
 void AuthServer::process(int fd, uint32_t events)
 {
 	(void)fd; (void)events;
 
-	int bytes = send(upstreamer->getSrcFD(), buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
+	int bytes = sockSpill(upstreamer->getSrcFD(), &buf);
 	if (bytes == 0)
 		deactivate();
-	if (bytes < 0)
-	{
-		if (errno != EWOULDBLOCK && errno != EAGAIN)
-			throw system_error(errno, system_category());
-		bytes = 0;
-	}
-	buf.unuseHead(bytes);
 
 	if (buf.usedSize() > 0)
-		poller->add(this, upstreamer->getSrcFD(), Poller::OUT_EVENTS);
+		poller->add(this, *upstreamer->getSrcFD(), Poller::OUT_EVENTS);
 	else if (success)
 		((ProxyUpstreamer *)upstreamer.get())->authDone((SOCKS6TokenExpenditureCode)0);
 	else
@@ -120,7 +117,7 @@ void AuthServer::process(int fd, uint32_t events)
 
 void AuthServer::start()
 {
-	poller->add(this, upstreamer->getSrcFD(), Poller::OUT_EVENTS);
+	poller->add(this, *upstreamer->getSrcFD(), Poller::OUT_EVENTS);
 }
 
 void AuthServer::deactivate()

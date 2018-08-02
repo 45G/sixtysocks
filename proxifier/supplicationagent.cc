@@ -1,8 +1,9 @@
 #include <system_error>
 #include <socks6msg/socks6msg.hh>
 #include "proxifier.hh"
-#include "supplicationagent.hh"
 #include "../core/poller.hh"
+#include "../core/sockio.hh"
+#include "supplicationagent.hh"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ void SupplicationAgent::process(int fd, uint32_t events)
 	{
 	case S_SENDING_REQ:
 	{
+
 		ssize_t bytes = send(fd, buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
 		if (bytes == 0)
 			return;

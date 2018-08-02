@@ -9,7 +9,7 @@ SimpleProxyDownstreamer::SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, co
 {
 	buf.use(reply->pack(buf.getTail(), buf.availSize()));
 
-	dstFD.assign(dup(upstreamer->getSrcFD()));
+	dstFD.assign(dup(*upstreamer->getSrcFD()));
 	if (dstFD < 0)
 		throw system_error(errno, system_category());
 }

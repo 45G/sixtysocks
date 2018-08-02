@@ -34,14 +34,14 @@ public:
 	StreamReactor(Poller *poller, StreamState streamState = SS_WAITING_TO_RECV)
 		: Reactor(poller), streamState(streamState) {}
 	
-	int getSrcFD() const
+	UniqRecvFD *getSrcFD()
 	{
-		return srcFD;
+		return &srcFD;
 	}
 	
-	int getDstFD() const
+	UniqSendFD *getDstFD()
 	{
-		return dstFD;
+		return &dstFD;
 	}
 	
 	void process(int fd, uint32_t events);

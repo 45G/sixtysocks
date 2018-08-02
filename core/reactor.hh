@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/intrusive_ptr.hpp>
-#include "rescheddisposition.h"
+#include "rescheddisposition.hh"
 
 class Poller;
 
