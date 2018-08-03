@@ -22,7 +22,6 @@ public:
 	
 	void handleNewConnection(int fd);
 
-
 	PasswordChecker *getPasswordChecker() const
 	{
 		return passwordChecker.get();

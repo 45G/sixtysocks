@@ -31,7 +31,7 @@ Poller::Poller(int numThreads, int cpuOffset, size_t expectedFDs)
 //		int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
 //		if (rc > 0)
 //			throw system_error(rc, system_category());
-	//	}
+//	}
 }
 
 void Poller::assign(boost::intrusive_ptr<Reactor> reactor)
