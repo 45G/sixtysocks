@@ -1,6 +1,7 @@
 #include <system_error>
 #include <socks6util/socks6util.hh>
 #include "../core/poller.hh"
+#include "../core/sockio.hh"
 #include "proxy.hh"
 #include "authserver.hh"
 #include "connectproxydownstreamer.hh"
@@ -91,7 +92,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	{
 	case S_READING_REQ:
 	{
-		ssize_t bytes = fill(srcFD);
+		ssize_t bytes = sockFill(&srcFD, &buf);
 		if (bytes == 0)
 			return;
 
@@ -133,7 +134,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_READING_INIT_DATA:
 	{
-		ssize_t bytes = fill(srcFD);
+		ssize_t bytes = sockFill(&srcFD, &buf);
 		if (bytes == 0)
 		{
 			deactivate();

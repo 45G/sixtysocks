@@ -3,6 +3,7 @@
 #include <system_error>
 #include <fcntl.h>
 #include "../core/poller.hh"
+#include "../core/sockio.hh"
 #include "proxifier.hh"
 #include "proxifierdownstreamer.hh"
 #include "proxifierupstreamer.hh"
@@ -34,7 +35,7 @@ void ProxifierUpstreamer::start()
 	ssize_t bytes = 0;
 	try
 	{
-		bytes = fill(srcFD);
+		bytes = sockFill(&srcFD, &buf);
 	}
 	catch (ReschedDisposition) {}
 

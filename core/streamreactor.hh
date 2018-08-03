@@ -24,10 +24,6 @@ protected:
 
 	StreamState streamState;
 	
-	int fill(int fd);
-
-	int spill(int fd);
-
 	int spillTFO(int fd, S6U::SocketAddress dest);
 
 public:

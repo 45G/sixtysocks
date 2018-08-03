@@ -6,32 +6,6 @@
 
 using namespace std;
 
-int StreamReactor::fill(int fd)
-{
-	ssize_t bytes = recv(fd, buf.getTail(), buf.availSize(), MSG_NOSIGNAL);
-	if (bytes < 0)
-	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK) //TODO: maybe EINTR as well
-			throw ReschedDisposition(fd, Poller::IN_EVENTS);
-		throw system_error(errno, system_category());
-	}
-	buf.use(bytes);
-	return bytes;
-}
-
-int StreamReactor::spill(int fd)
-{
-	ssize_t bytes = send(fd, buf.getHead(), buf.usedSize(), MSG_NOSIGNAL);
-	if (bytes < 0)
-	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK) //TODO: maybe EINTR as well
-			throw ReschedDisposition(fd, Poller::OUT_EVENTS);
-		throw system_error(errno, system_category());
-	}
-	buf.unuseHead(bytes);
-	return bytes;
-}
-
 int StreamReactor::spillTFO(int fd, S6U::SocketAddress dest)
 {
 	ssize_t bytes = sendto(fd, buf.getHead(), buf.usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.sockAddress, dest.size());
@@ -48,7 +22,7 @@ void StreamReactor::process(int fd, uint32_t events)
 	{
 	case SS_RECEIVING:
 	{
-		ssize_t bytes = fill(srcFD);
+		ssize_t bytes = sockFill(&srcFD, &buf);
 		if (bytes == 0)
 		{
 			poller->remove(srcFD);
@@ -66,7 +40,7 @@ void StreamReactor::process(int fd, uint32_t events)
 	}
 	case SS_SENDING:
 	{
-		ssize_t bytes = spill(dstFD);
+		ssize_t bytes = sockSpill(&dstFD, &buf);
 		if (bytes == 0)
 		{
 			poller->remove(srcFD);
