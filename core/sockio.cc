@@ -33,3 +33,11 @@ size_t sockSpill(UniqFD *fd, StreamBuffer *buf)
 	buf->unuseHead(bytes);
 	return bytes;
 }
+
+ssize_t sockSpillTFO(UniqFD *fd, StreamBuffer *buf, S6U::SocketAddress dest)
+{
+	ssize_t bytes = sendto(*fd, buf->getHead(), buf->usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.sockAddress, dest.size());
+	if (bytes > 0)
+		buf->unuseHead(bytes);
+	return bytes;
+}

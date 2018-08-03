@@ -36,7 +36,7 @@ class ProxyUpstreamer: public StreamReactor
 	Spinlock honorLock;
 	
 	bool mustFail;
-
+	
 	void honorRequest();
 	
 public:

@@ -6,14 +6,6 @@
 
 using namespace std;
 
-int StreamReactor::spillTFO(int fd, S6U::SocketAddress dest)
-{
-	ssize_t bytes = sendto(fd, buf.getHead(), buf.usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.sockAddress, dest.size());
-	if (bytes > 0)
-		buf.unuseHead(bytes);
-	return bytes;
-}
-
 void StreamReactor::process(int fd, uint32_t events)
 {
 	(void)fd; (void)events;

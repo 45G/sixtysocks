@@ -74,7 +74,7 @@ void ProxifierUpstreamer::start()
 
 	/* connect */
 	if (S6U::TFOSafety::tfoSafe(polFlags))
-		bytes = spillTFO(dstFD, *proxifier->getProxyAddr());
+		bytes = sockSpillTFO(&dstFD, &buf, *proxifier->getProxyAddr());
 	else
 		bytes = connect(dstFD, &proxifier->getProxyAddr()->sockAddress, dest.size());
 	if (bytes < 0 && errno != EINPROGRESS)

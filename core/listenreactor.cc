@@ -23,8 +23,12 @@ ListenReactor::ListenReactor(Poller *poller, const S6U::SocketAddress &bindAddr)
 	int rc = bind(listenFD, &bindAddr.sockAddress, bindAddr.size());
 	if (rc < 0)
 		throw std::system_error(errno, std::system_category());
+	
+	const static int TFO_QLEN = 256; //TODO: configurable queue length?
+	setsockopt(listenFD, SOL_TCP, TCP_FASTOPEN, &TFO_QLEN, sizeof(TFO_QLEN)); // tolerable error
 
-	rc = listen(listenFD, 128); //TODO: configurable backlog?
+	const static int BACKLOG = 128; //TODO: configurable backlog?
+	rc = listen(listenFD, BACKLOG);
 	if (rc < 0)
 		throw std::system_error(errno, std::system_category());
 }

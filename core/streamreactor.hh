@@ -23,8 +23,6 @@ protected:
 	};
 
 	StreamState streamState;
-	
-	int spillTFO(int fd, S6U::SocketAddress dest);
 
 public:
 	StreamReactor(Poller *poller, StreamState streamState = SS_RECEIVING)

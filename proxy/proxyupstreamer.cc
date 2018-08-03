@@ -13,69 +13,76 @@ using namespace boost;
 
 void ProxyUpstreamer::honorRequest()
 {
-	if (mustFail)
+	try
+	{
+		if (mustFail)
+			throw SOCKS6_OPERATION_REPLY_FAILURE;
+		
+		switch (request->getCommandCode())
+		{
+		case SOCKS6_REQUEST_CONNECT:
+		{
+			//TODO: resolve
+			if (request->getAddress()->getType() == SOCKS6_ADDR_DOMAIN)
+				throw SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED;
+			
+			try
+			{
+				S6U::SocketAddress addr(*request->getAddress(), request->getPort());
+				dstFD.assign(socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
+				if (dstFD < 0)
+					throw system_error(errno, system_category());
+				
+				SOCKS6MPTCPScheduler clientProxySched = request->getOptionSet()->getClientProxySched();
+				if (S6U::Socket::setMPTCPSched(srcFD, clientProxySched) == 0)
+					replyOptions.setClientProxySched(clientProxySched);
+		
+				SOCKS6MPTCPScheduler proxyServerSched = request->getOptionSet()->getProxyServerSched();
+				if (S6U::Socket::setMPTCPSched(dstFD, proxyServerSched) == 0)
+					replyOptions.setProxyServerSched(proxyServerSched);
+				
+				if (request->getOptionSet()->getTFO())
+				{
+					ssize_t bytes = sockSpillTFO(&dstFD, &buf, addr);
+					if (bytes < 0)
+						throw system_error(errno, system_category());
+				}
+				else
+				{
+					int rc = connect(dstFD, &addr.sockAddress, addr.size());
+					if (rc < 0 && errno != EINPROGRESS)
+						throw system_error(errno, system_category());
+				}
+			}
+			catch (system_error &err)
+			{
+				throw S6U::Socket::connectErrnoToReplyCode(err.code().value());
+			}
+			poller->add(this, dstFD, Poller::OUT_EVENTS);
+			state = S_CONNECTING;
+			break;
+		}
+		case SOCKS6_REQUEST_NOOP:
+		{
+			throw SOCKS6_OPERATION_REPLY_SUCCESS;
+		}
+		default:
+		{
+			throw SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED;
+		}
+		}
+	}
+	catch (SOCKS6OperationReplyCode code)
+	{
+		S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
+		*reply.getOptionSet() = replyOptions;
+		poller->assign(new SimpleProxyDownstreamer(this, &reply));
+	}
+	catch (...)
 	{
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
 		*reply.getOptionSet() = replyOptions;
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
-		return;
-	}
-	
-	switch (request->getCommandCode())
-	{
-	case SOCKS6_REQUEST_CONNECT:
-	{
-		//TODO: resolve
-		if (request->getAddress()->getType() == SOCKS6_ADDR_DOMAIN)
-		{
-			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
-			*reply.getOptionSet() = replyOptions;
-			poller->assign(new SimpleProxyDownstreamer(this, &reply));
-		}
-		
-		S6U::SocketAddress addr(*request->getAddress(), request->getPort());
-		dstFD.assign(socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
-		if (dstFD < 0)
-			throw system_error(errno, system_category());
-		
-		SOCKS6MPTCPScheduler clientProxySched = request->getOptionSet()->getClientProxySched();
-		if (S6U::Socket::setMPTCPSched(srcFD, clientProxySched) == 0)
-			replyOptions.setClientProxySched(clientProxySched);
-
-		SOCKS6MPTCPScheduler proxyServerSched = request->getOptionSet()->getProxyServerSched();
-		if (S6U::Socket::setMPTCPSched(dstFD, proxyServerSched) == 0)
-			replyOptions.setProxyServerSched(proxyServerSched);
-		
-		if (request->getOptionSet()->getTFO())
-		{
-			ssize_t bytes = spillTFO(dstFD, addr);
-			if (bytes < 0 && errno != EINPROGRESS)
-				throw system_error(errno, system_category());
-		}
-		else
-		{
-			int rc = connect(dstFD, &addr.sockAddress, addr.size());
-			if (rc < 0 && errno != EINPROGRESS)
-				throw system_error(errno, system_category());
-		}
-		poller->add(this, dstFD, Poller::OUT_EVENTS);
-		state = S_CONNECTING;
-		break;
-	}
-	case SOCKS6_REQUEST_NOOP:
-	{
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
-		*reply.getOptionSet() = replyOptions;
-		poller->assign(new SimpleProxyDownstreamer(this, &reply));
-		break;
-	}
-	default:
-	{
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
-		*reply.getOptionSet() = replyOptions;
-		poller->assign(new SimpleProxyDownstreamer(this, &reply));
-		break;
-	}
 	}
 }
 
