@@ -12,9 +12,6 @@ TFOCookieSupplicationAgent::TFOCookieSupplicationAgent(Proxifier *proxifier)
 	sock.assign(socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (sock < 0)
 		throw system_error(errno, system_category());
-
-	S6M::Request req(SOCKS6_REQUEST_NOOP, S6U::Socket::QUAD_ZERO, 0, 0);
-	buf.use(req.pack(buf.getTail(), buf.availSize()));
 }
 
 void TFOCookieSupplicationAgent::start()
