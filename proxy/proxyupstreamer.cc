@@ -158,53 +158,43 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_CONNECTING:
 	{
-		if ((events & EPOLLOUT) || (events & EPOLLHUP))
+		SOCKS6OperationReplyCode code;
+
+		int err;
+		socklen_t errLen = sizeof(err);
+		int rc = getsockopt(dstFD, SOL_SOCKET, SO_ERROR, &err, &errLen);
+		if (rc < 0)
+			code = SOCKS6_OPERATION_REPLY_FAILURE;
+		else
+			code = S6U::Socket::connectErrnoToReplyCode(err);
+
+		if (code != SOCKS6_OPERATION_REPLY_SUCCESS)
 		{
-			S6U::SocketAddress bindAddr;
-			socklen_t addrLen = sizeof(bindAddr.storage);
-			int rc = getsockname(dstFD, &bindAddr.sockAddress, &addrLen);
-			if (rc < 0)
-				throw system_error(errno, system_category());
-			
-			if (S6U::Socket::hasMPTCP(dstFD) > 0)
-				replyOptions.setMPTCP();
-				
-					
-			S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort(), request->getInitialDataLen());
-			*reply.getOptionSet() = replyOptions;
-			poller->assign(new ConnectProxyDownstreamer(this, &reply));
-			
-			state = S_STREAM;
-		
-			if (buf.usedSize() > 0)
-			{
-				streamState = SS_SENDING;
-				poller->add(this, dstFD, Poller::OUT_EVENTS);
-			}
-			else
-			{
-				streamState = SS_RECEIVING;
-				poller->add(this, srcFD, Poller::IN_EVENTS);
-			}
-		}
-		else //EPOLLERR
-		{
-			int err;
-			socklen_t errLen = sizeof(err);
-			SOCKS6OperationReplyCode code;
-			
-			int rc = getsockopt(dstFD, SOL_SOCKET, SO_ERROR, &err, &errLen);
-			if (rc < 0)
-				code = SOCKS6_OPERATION_REPLY_FAILURE;
-			else
-				code = S6U::Socket::connectErrnoToReplyCode(err);
-			
 			S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
 			*reply.getOptionSet() = replyOptions;
 			poller->assign(new SimpleProxyDownstreamer(this, &reply));
+			return;
 		}
-		
-		break;
+
+		S6U::SocketAddress bindAddr;
+		socklen_t addrLen = sizeof(bindAddr.storage);
+		rc = getsockname(dstFD, &bindAddr.sockAddress, &addrLen);
+		if (rc < 0)
+			throw system_error(errno, system_category());
+
+		if (S6U::Socket::hasMPTCP(dstFD) > 0)
+			replyOptions.setMPTCP();
+
+		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort(), request->getInitialDataLen());
+		*reply.getOptionSet() = replyOptions;
+		poller->assign(new ConnectProxyDownstreamer(this, &reply));
+
+		state = S_STREAM;
+		if (buf.usedSize() > 0)
+			streamState = SS_SENDING;
+		else
+			streamState = SS_RECEIVING;
+		[[fallthrough]];
 	}
 	case S_STREAM:
 	{
