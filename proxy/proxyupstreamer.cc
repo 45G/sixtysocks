@@ -100,6 +100,12 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			request = boost::shared_ptr<S6M::Request>(new S6M::Request(&bb));
 			buf.unuseHead(bb.getUsed());
 		}
+		catch (S6M::BadVersionException &)
+		{
+			SOCKS6Version version = { SOCKS6_VERSION_MAJOR, SOCKS6_VERSION_MINOR };
+			poller->assign(new SimpleProxyDownstreamer(this, &version));
+			return;
+		}
 		catch (S6M::EndOfBufferException &)
 		{
 			poller->add(this, srcFD, Poller::IN_EVENTS);

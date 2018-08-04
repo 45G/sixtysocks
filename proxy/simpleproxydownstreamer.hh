@@ -11,6 +11,8 @@ class SimpleProxyDownstreamer: public StreamReactor
 {
 public:
 	SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, const S6M::OperationReply *reply);
+
+	SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, const SOCKS6Version *version);
 };
 
 #endif // SIMPLEPROXYDOWNSTREAMER_HH

@@ -13,3 +13,16 @@ SimpleProxyDownstreamer::SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, co
 	if (dstFD < 0)
 		throw system_error(errno, system_category());
 }
+
+SimpleProxyDownstreamer::SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, const SOCKS6Version *version)
+	: StreamReactor(upstreamer->getPoller(), SS_SENDING)
+{
+	if (buf.availSize() > sizeof(*version))
+		throw runtime_error("buffer too small");
+	memcpy(buf.getTail(), version, sizeof(*version));
+	buf.use(sizeof(*version));
+
+	dstFD.assign(dup(upstreamer->getSrcFD()));
+	if (dstFD < 0)
+		throw system_error(errno, system_category());
+}
