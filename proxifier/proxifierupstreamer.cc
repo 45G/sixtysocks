@@ -33,7 +33,7 @@ void ProxifierUpstreamer::start()
 	/* read initial data opportunistically */
 	try
 	{
-		tcpRecv(&srcFD, &buf);
+		tcpRecv(srcFD, &buf);
 	}
 	catch (RescheduleException &) {}
 
@@ -72,9 +72,9 @@ void ProxifierUpstreamer::start()
 
 	/* connect */
 	if (S6U::TFOSafety::tfoSafe(polFlags))
-		tcpSendTFO(&dstFD, &buf, *proxifier->getProxyAddr());
+		tcpSendTFO(dstFD, &buf, *proxifier->getProxyAddr());
 	else
-		tcpConnect(&dstFD, *proxifier->getProxyAddr());
+		tcpConnect(dstFD, *proxifier->getProxyAddr());
 
 	StreamReactor::start();
 }

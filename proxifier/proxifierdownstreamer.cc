@@ -9,11 +9,11 @@ using namespace std;
 ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
 	: StreamReactor(upstreamer->getPoller()), proxifier(upstreamer->getProxifier()), upstreamer(upstreamer), state(S_WAITING_FOR_AUTH_REP), supplicant(upstreamer->getSupplicant())
 {
-	srcFD.assign(dup(*upstreamer->getDstFD()));
+	srcFD.assign(dup(upstreamer->getDstFD()));
 	if (srcFD < 0)
 		throw system_error(errno, system_category());
 	
-	dstFD.assign(dup(*upstreamer->getSrcFD()));
+	dstFD.assign(dup(upstreamer->getSrcFD()));
 	if (dstFD < 0)
 		throw system_error(errno, system_category());
 }
@@ -24,7 +24,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 	{
 	case S_WAITING_FOR_AUTH_REP:
 	{
-		ssize_t bytes = tcpRecv(&srcFD, &buf);
+		ssize_t bytes = tcpRecv(srcFD, &buf);
 		if (bytes == 0)
 		{
 			deactivate();
@@ -67,7 +67,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 	}
 	case S_WAITING_FOR_OP_REP:
 	{
-		ssize_t bytes = tcpRecv(&srcFD, &buf);
+		ssize_t bytes = tcpRecv(srcFD, &buf);
 		if (bytes == 0)
 			return;
 		
@@ -91,7 +91,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 		state = S_STREAM;
 		if (buf.usedSize() > 0)
 		{
-			ssize_t bytes = tcpSend(&dstFD, &buf);
+			ssize_t bytes = tcpSend(dstFD, &buf);
 			if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
 				return;
 		}

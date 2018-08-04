@@ -41,9 +41,9 @@ void ProxyUpstreamer::honorRequest()
 					replyOptions.setProxyServerSched(proxyServerSched);
 				
 				if (request->getOptionSet()->getTFO())
-					tcpSendTFO(&dstFD, &buf, addr);
+					tcpSendTFO(dstFD, &buf, addr);
 				else
-					tcpConnect(&dstFD, addr);
+					tcpConnect(dstFD, addr);
 			}
 			catch (system_error &err)
 			{
@@ -90,7 +90,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	{
 	case S_READING_REQ:
 	{
-		ssize_t bytes = tcpRecv(&srcFD, &buf);
+		ssize_t bytes = tcpRecv(srcFD, &buf);
 		if (bytes == 0)
 			return;
 
@@ -132,7 +132,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_READING_INIT_DATA:
 	{
-		ssize_t bytes = tcpRecv(&srcFD, &buf);
+		ssize_t bytes = tcpRecv(srcFD, &buf);
 		if (bytes == 0)
 		{
 			deactivate();

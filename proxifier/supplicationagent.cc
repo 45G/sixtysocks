@@ -26,7 +26,7 @@ SupplicationAgent::SupplicationAgent(Proxifier *proxifier, boost::shared_ptr<Win
 
 void SupplicationAgent::start()
 {
-	tcpConnect(&sock, *proxifier->getProxyAddr());
+	tcpConnect(sock, *proxifier->getProxyAddr());
 
 	poller->add(this, sock, Poller::OUT_EVENTS);
 }
@@ -52,7 +52,7 @@ void SupplicationAgent::process(int fd, uint32_t events)
 	}
 	case S_SENDING_REQ:
 	{
-		ssize_t bytes = tcpSend(&sock, &buf);
+		ssize_t bytes = tcpSend(sock, &buf);
 		if (bytes == 0)
 			return;
 		
@@ -70,7 +70,7 @@ void SupplicationAgent::process(int fd, uint32_t events)
 		
 	case S_RECEIVING_AUTH_REP:
 	{
-		ssize_t bytes = tcpRecv(&sock, &buf);
+		ssize_t bytes = tcpRecv(sock, &buf);
 		if (bytes == 0)
 			return;
 		

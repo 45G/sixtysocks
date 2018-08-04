@@ -13,6 +13,8 @@ class AuthServer: public Reactor
 		S_DONE,
 	};
 	
+	UniqFD sock;
+	
 	boost::intrusive_ptr<ProxyUpstreamer> upstreamer;
 
 	State state;

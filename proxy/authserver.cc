@@ -12,6 +12,10 @@ using namespace std;
 AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	: Reactor(upstreamer->getPoller()), upstreamer(upstreamer), state(S_WRITING)
 {
+	sock.assign(dup(upstreamer->getSrcFD()));
+	if (sock < 0)
+		throw system_error(errno, system_category());
+	
 	SOCKS6AuthReplyCode code;
 	SOCKS6Method method;
 	boost::shared_ptr<S6M::Request> req = upstreamer->getRequest();
@@ -97,12 +101,12 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 
 void AuthServer::sendReply()
 {
-	int bytes = tcpSend(upstreamer->getSrcFD(), &buf);
+	int bytes = tcpSend(sock, &buf);
 	if (bytes == 0)
 		deactivate();
 
 	if (buf.usedSize() > 0)
-		poller->add(this, *upstreamer->getSrcFD(), Poller::OUT_EVENTS);
+		poller->add(this, sock, Poller::OUT_EVENTS);
 	else if (success)
 		((ProxyUpstreamer *)upstreamer.get())->authDone((SOCKS6TokenExpenditureCode)0);
 	else

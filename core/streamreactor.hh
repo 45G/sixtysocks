@@ -28,14 +28,14 @@ public:
 	StreamReactor(Poller *poller, StreamState streamState = SS_RECEIVING)
 		: Reactor(poller), streamState(streamState) {}
 	
-	UniqRecvFD *getSrcFD()
+	int getSrcFD()
 	{
-		return &srcFD;
+		return srcFD;
 	}
 	
-	UniqSendFD *getDstFD()
+	int getDstFD()
 	{
-		return &dstFD;
+		return dstFD;
 	}
 	
 	void process(int fd, uint32_t events);

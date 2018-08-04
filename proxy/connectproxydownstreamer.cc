@@ -10,11 +10,11 @@ ConnectProxyDownstreamer::ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer, 
 {
 	buf.use(reply->pack(buf.getTail(), buf.availSize()));
 	
-	srcFD.assign(dup(*upstreamer->getDstFD()));
+	srcFD.assign(dup(upstreamer->getDstFD()));
 	if (srcFD < 0)
 		throw system_error(errno, system_category());
 
-	dstFD.assign(dup(*upstreamer->getSrcFD()));
+	dstFD.assign(dup(upstreamer->getSrcFD()));
 	if (dstFD < 0)
 		throw system_error(errno, system_category());
 }
