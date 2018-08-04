@@ -20,11 +20,12 @@ SOURCES += \
     sixtysocks.cc \
     authentication/passwordchecker.cc \
     authentication/simplepasswordchecker.cc \
-    proxifier/supplicationagent.cc \
     proxifier/windowsupplicant.cc \
     core/streambuffer.cc \
     proxy/authserver.cc \
-    core/tlscontext.cc
+    core/tlscontext.cc \
+    proxifier/tfocookiesupplicationagent.cc \
+    proxifier/windowsupplicationagent.cc
 
 HEADERS += \
     core/poller.hh \
@@ -43,11 +44,12 @@ HEADERS += \
     authentication/simplepasswordchecker.hh \
     core/uniqfd.hh \
     core/streambuffer.hh \
-    proxifier/supplicationagent.hh \
     proxifier/windowsupplicant.hh \
     authentication/syncedtokenstuff.h \
     proxy/authserver.hh \
     core/tlscontext.hh \
-    core/rescheduleexception.hh
+    core/rescheduleexception.hh \
+    proxifier/tfocookiesupplicationagent.hh \
+    proxifier/windowsupplicationagent.hh
 
 LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lssl -lcrypto

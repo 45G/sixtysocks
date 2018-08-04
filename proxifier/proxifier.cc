@@ -9,7 +9,8 @@
 #include <system_error>
 #include "proxifier.hh"
 #include "../core/poller.hh"
-#include "supplicationagent.hh"
+#include "windowsupplicationagent.hh"
+#include "tfocookiesupplicationagent.hh"
 #include "proxifierupstreamer.hh"
 
 using namespace std;
@@ -30,10 +31,17 @@ void Proxifier::start()
 	{
 		try
 		{
-			poller->assign(new SupplicationAgent(this, boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(this))));
+			poller->assign(new WindowSupplicationAgent(this, boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(this))));
 		}
 		catch(...) {}
 	}
+
+	try
+	{
+		poller->assign(new TFOCookieSupplicationAgent(this));
+	}
+	catch(...) {}
+
 	ListenReactor::start();
 }
 

@@ -2,11 +2,11 @@
 #include <socks6msg/socks6msg.hh>
 #include "proxifier.hh"
 #include "../core/poller.hh"
-#include "supplicationagent.hh"
+#include "windowsupplicationagent.hh"
 
 using namespace std;
 
-SupplicationAgent::SupplicationAgent(Proxifier *proxifier, boost::shared_ptr<WindowSupplicant> supplicant)
+WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, boost::shared_ptr<WindowSupplicant> supplicant)
 	: Reactor(proxifier->getPoller()), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
@@ -24,14 +24,14 @@ SupplicationAgent::SupplicationAgent(Proxifier *proxifier, boost::shared_ptr<Win
 	buf.use(bb.getUsed());
 }
 
-void SupplicationAgent::start()
+void WindowSupplicationAgent::start()
 {
 	tcpConnect(sock, *proxifier->getProxyAddr());
 
 	poller->add(this, sock, Poller::OUT_EVENTS);
 }
 
-void SupplicationAgent::process(int fd, uint32_t events)
+void WindowSupplicationAgent::process(int fd, uint32_t events)
 {
 	(void)fd; (void)events;
 	
@@ -91,7 +91,7 @@ void SupplicationAgent::process(int fd, uint32_t events)
 	}
 }
 
-void SupplicationAgent::deactivate()
+void WindowSupplicationAgent::deactivate()
 {
 	Reactor::deactivate();
 	poller->remove(sock);

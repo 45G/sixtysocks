@@ -1,5 +1,5 @@
-#ifndef SUPPLICATIONAGENT_HH
-#define SUPPLICATIONAGENT_HH
+#ifndef WINDOWSUPPLICATIONAGENT_HH
+#define WINDOWSUPPLICATIONAGENT_HH
 
 #include "../core/reactor.hh"
 #include "../core/streambuffer.hh"
@@ -8,7 +8,7 @@
 
 class Proxifier;
 
-class SupplicationAgent: public Reactor
+class WindowSupplicationAgent: public Reactor
 {
 	enum State
 	{
@@ -28,7 +28,7 @@ class SupplicationAgent: public Reactor
 	boost::shared_ptr<WindowSupplicant> supplicant;
 	
 public:
-	SupplicationAgent(Proxifier *proxifier, boost::shared_ptr<WindowSupplicant> supplicant);
+	WindowSupplicationAgent(Proxifier *proxifier, boost::shared_ptr<WindowSupplicant> supplicant);
 	
 	void process(int fd, uint32_t events);
 	
@@ -37,4 +37,4 @@ public:
 	void start();
 };
 
-#endif // SUPPLICATIONAGENT_HH
+#endif // WINDOWSUPPLICATIONAGENT_HH

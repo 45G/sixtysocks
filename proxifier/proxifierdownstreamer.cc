@@ -20,6 +20,8 @@ ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
 
 void ProxifierDownstreamer::process(int fd, uint32_t events)
 {
+	bool fellThrough = false;
+
 	switch (state)
 	{
 	case S_WAITING_FOR_AUTH_REP:
@@ -56,20 +58,26 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 				if (wallet.get() != NULL)
 					wallet->updateWindow(authRep.getOptionSet());
 			}
-			
-			state = S_WAITING_FOR_OP_REP;
 		}
-		catch (S6M::EndOfBufferException &) {}
-		
-		poller->add(this, srcFD, Poller::IN_EVENTS);
-		
-		break;
+		catch (S6M::EndOfBufferException &)
+		{
+			poller->add(this, srcFD, Poller::IN_EVENTS);
+			return;
+		}
+
+		state = S_WAITING_FOR_OP_REP;
+		fellThrough = true;
+		[[fallthrough]];
+
 	}
 	case S_WAITING_FOR_OP_REP:
 	{
-		ssize_t bytes = tcpRecv(srcFD, &buf);
-		if (bytes == 0)
-			return;
+		if (!fellThrough)
+		{
+			ssize_t bytes = tcpRecv(srcFD, &buf);
+			if (bytes == 0)
+				return;
+		}
 		
 		S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
 		try
@@ -78,7 +86,6 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			if (opRep.getCode() != SOCKS6_OPERATION_REPLY_SUCCESS)
 				return;
 			buf.unuseHead(bb.getUsed());
-			state = S_WAITING_FOR_OP_REP;
 		}
 		catch (S6M::EndOfBufferException &)
 		{
