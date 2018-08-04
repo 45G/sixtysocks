@@ -60,6 +60,20 @@ public:
 	{
 		mustFail = true;
 	}
+	
+	class SimpleReplyException: public std::exception
+	{
+		SOCKS6OperationReplyCode code;
+		
+	public:
+		SimpleReplyException(SOCKS6OperationReplyCode code)
+			: code(code) {}
+		
+		SOCKS6OperationReplyCode getCode() const
+		{
+			return code;
+		}
+	};
 };
 
 #endif // PROXYUPSTREAMER_HH

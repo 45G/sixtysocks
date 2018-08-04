@@ -87,7 +87,7 @@ void SupplicationAgent::process(int fd, uint32_t events)
 			supplicant->process(&authRep);
 			
 		}
-		catch (S6M::EndOfBufferException)
+		catch (S6M::EndOfBufferException &)
 		{
 			poller->add(this, sock, Poller::IN_EVENTS);
 		}

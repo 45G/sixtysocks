@@ -16,7 +16,7 @@ void ProxyUpstreamer::honorRequest()
 	try
 	{
 		if (mustFail)
-			throw SOCKS6_OPERATION_REPLY_FAILURE;
+			throw SimpleReplyException(SOCKS6_OPERATION_REPLY_FAILURE);
 		
 		switch (request->getCommandCode())
 		{
@@ -24,7 +24,7 @@ void ProxyUpstreamer::honorRequest()
 		{
 			//TODO: resolve
 			if (request->getAddress()->getType() == SOCKS6_ADDR_DOMAIN)
-				throw SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED;
+				throw SimpleReplyException(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED);
 			
 			try
 			{
@@ -56,7 +56,7 @@ void ProxyUpstreamer::honorRequest()
 			}
 			catch (system_error &err)
 			{
-				throw S6U::Socket::connectErrnoToReplyCode(err.code().value());
+				throw SimpleReplyException(S6U::Socket::connectErrnoToReplyCode(err.code().value()));
 			}
 			poller->add(this, dstFD, Poller::OUT_EVENTS);
 			state = S_CONNECTING;
@@ -64,17 +64,17 @@ void ProxyUpstreamer::honorRequest()
 		}
 		case SOCKS6_REQUEST_NOOP:
 		{
-			throw SOCKS6_OPERATION_REPLY_SUCCESS;
+			throw SimpleReplyException(SOCKS6_OPERATION_REPLY_SUCCESS);
 		}
 		default:
 		{
-			throw SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED;
+			throw SimpleReplyException(SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED);
 		}
 		}
 	}
-	catch (SOCKS6OperationReplyCode code)
+	catch (SimpleReplyException &ex)
 	{
-		S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
+		S6M::OperationReply reply(ex.getCode(), S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
 		*reply.getOptionSet() = replyOptions;
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
@@ -109,7 +109,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			request = boost::shared_ptr<S6M::Request>(new S6M::Request(&bb));
 			buf.unuseHead(bb.getUsed());
 		}
-		catch (S6M::EndOfBufferException)
+		catch (S6M::EndOfBufferException &)
 		{
 			poller->add(this, srcFD, Poller::IN_EVENTS);
 			return;

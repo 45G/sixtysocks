@@ -37,7 +37,7 @@ void ProxifierUpstreamer::start()
 	{
 		bytes = sockFill(&srcFD, &buf);
 	}
-	catch (ReschedDisposition) {}
+	catch (ReschedDisposition &) {}
 
 	S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), 0);
 	if (S6U::Socket::tfoAttempted(srcFD))

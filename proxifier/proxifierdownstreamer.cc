@@ -60,7 +60,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			
 			state = S_WAITING_FOR_OP_REP;
 		}
-		catch (S6M::EndOfBufferException) {}
+		catch (S6M::EndOfBufferException &) {}
 		
 		poller->add(this, srcFD, Poller::IN_EVENTS);
 		
@@ -81,7 +81,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			buf.unuseHead(bb.getUsed());
 			state = S_WAITING_FOR_OP_REP;
 		}
-		catch (S6M::EndOfBufferException)
+		catch (S6M::EndOfBufferException &)
 		{
 			poller->add(this, srcFD, Poller::IN_EVENTS);
 			return;
