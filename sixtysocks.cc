@@ -34,7 +34,7 @@ void usage()
 			"[-l <listen port>] [-t <TLS listen port>]",
 			"[-U <username>] [-P <password>]",
 			"[-s <proxy IP>] [-p <proxy port>]",
-			"[-T] (use TLS)",
+			"[-K <key or certificate>]",
 		NULL,
 	};
 	
@@ -73,11 +73,12 @@ int main(int argc, char **argv)
 	string username;
 	string password;
 	boost::intrusive_ptr<SimplePasswordChecker> passwordChecker;
+	string keyfile;
 	
 	srand(time(NULL));
 
 	//TODO: fix this shit
-	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:T")) != -1)
+	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:K:")) != -1)
 	{
 		switch (c)
 		{
@@ -133,7 +134,8 @@ int main(int argc, char **argv)
 				usage();
 			break;
 
-		case 'T':
+		case 'K':
+			keyfile = string(optarg);
 			useTLS = true;
 			break;
 			
@@ -151,6 +153,11 @@ int main(int argc, char **argv)
 
 	if (mode == M_PROXY && username.length() > 0)
 		passwordChecker = new SimplePasswordChecker(username, password);
+
+	if (!useTLS)
+		tlsPort = 0;
+	if (mode == M_PROXY && port == 0 && tlsPort == 0)
+		usage();
 
 	
 //	if (cpuOffset + numThreads > (int)thread::hardware_concurrency())
