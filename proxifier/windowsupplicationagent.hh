@@ -1,14 +1,12 @@
 #ifndef WINDOWSUPPLICATIONAGENT_HH
 #define WINDOWSUPPLICATIONAGENT_HH
 
-#include "../core/reactor.hh"
-#include "../core/streambuffer.hh"
-#include "../core/uniqfd.hh"
+#include "../core/stickreactor.hh"
 #include "windowsupplicant.hh"
 
 class Proxifier;
 
-class WindowSupplicationAgent: public Reactor
+class WindowSupplicationAgent: public StickReactor
 {
 	enum State
 	{
@@ -19,10 +17,6 @@ class WindowSupplicationAgent: public Reactor
 	
 	boost::intrusive_ptr<Proxifier> proxifier;
 	
-	UniqFD sock;
-	
-	StreamBuffer buf;
-	
 	State state;
 	
 	boost::shared_ptr<WindowSupplicant> supplicant;
@@ -31,8 +25,6 @@ public:
 	WindowSupplicationAgent(Proxifier *proxifier, boost::shared_ptr<WindowSupplicant> supplicant);
 	
 	void process(int fd, uint32_t events);
-	
-	void deactivate();
 	
 	void start();
 };

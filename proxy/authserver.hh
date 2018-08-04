@@ -2,10 +2,11 @@
 #define AUTHSERVER_HH
 
 #include "../core/streamreactor.hh"
+#include "../core/stickreactor.hh"
 
 class ProxyUpstreamer;
 
-class AuthServer: public Reactor
+class AuthServer: public StickReactor
 {
 	enum State
 	{
@@ -13,13 +14,9 @@ class AuthServer: public Reactor
 		S_DONE,
 	};
 	
-	UniqFD sock;
-	
 	boost::intrusive_ptr<ProxyUpstreamer> upstreamer;
 
 	State state;
-
-	StreamBuffer buf;
 	
 	bool success;
 	

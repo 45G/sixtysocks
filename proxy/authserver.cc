@@ -10,7 +10,7 @@
 using namespace std;
 
 AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
-	: Reactor(upstreamer->getPoller()), upstreamer(upstreamer), state(S_WRITING)
+	: StickReactor(upstreamer->getPoller()), upstreamer(upstreamer), state(S_WRITING)
 {
 	sock.assign(dup(upstreamer->getSrcFD()));
 	if (sock < 0)
@@ -127,6 +127,6 @@ void AuthServer::start()
 
 void AuthServer::deactivate()
 {
-	Reactor::deactivate();
+	StickReactor::deactivate();
 	upstreamer->deactivate();
 }

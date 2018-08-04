@@ -97,23 +97,10 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 		
 		state = S_STREAM;
 		if (buf.usedSize() > 0)
-		{
-			ssize_t bytes = tcpSend(dstFD, &buf);
-			if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
-				return;
-		}
-		if (buf.usedSize() == 0)
-		{
-			streamState = SS_RECEIVING;
-			poller->add(this, srcFD, Poller::IN_EVENTS);
-		}
-		else
-		{
 			streamState = SS_SENDING;
-			poller->add(this, srcFD, Poller::OUT_EVENTS);
-		}
-		
-		break;
+		else
+			streamState = SS_RECEIVING;
+		[[fallthrough]];
 	}
 	case S_STREAM:
 		StreamReactor::process(fd, events);

@@ -25,7 +25,8 @@ SOURCES += \
     proxy/authserver.cc \
     core/tlscontext.cc \
     proxifier/tfocookiesupplicationagent.cc \
-    proxifier/windowsupplicationagent.cc
+    proxifier/windowsupplicationagent.cc \
+    core/stickreactor.cc
 
 HEADERS += \
     core/poller.hh \
@@ -50,6 +51,7 @@ HEADERS += \
     core/tlscontext.hh \
     core/rescheduleexception.hh \
     proxifier/tfocookiesupplicationagent.hh \
-    proxifier/windowsupplicationagent.hh
+    proxifier/windowsupplicationagent.hh \
+    core/stickreactor.hh
 
 LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lssl -lcrypto

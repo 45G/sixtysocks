@@ -7,7 +7,7 @@
 using namespace std;
 
 WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, boost::shared_ptr<WindowSupplicant> supplicant)
-	: Reactor(proxifier->getPoller()), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
+	: StickReactor(proxifier->getPoller()), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
 
@@ -89,10 +89,4 @@ void WindowSupplicationAgent::process(int fd, uint32_t events)
 		break;
 	}
 	}
-}
-
-void WindowSupplicationAgent::deactivate()
-{
-	Reactor::deactivate();
-	poller->remove(sock);
 }

@@ -5,7 +5,7 @@
 using namespace std;
 
 TFOCookieSupplicationAgent::TFOCookieSupplicationAgent(Proxifier *proxifier)
-	: Reactor(proxifier->getPoller()), proxifier(proxifier)
+	: StickReactor(proxifier->getPoller()), proxifier(proxifier)
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
 
@@ -23,10 +23,4 @@ void TFOCookieSupplicationAgent::start()
 void TFOCookieSupplicationAgent::process(int fd, uint32_t events)
 {
 	(void)fd; (void)events;
-}
-
-void TFOCookieSupplicationAgent::deactivate()
-{
-	Reactor::deactivate();
-	poller->remove(sock);
 }

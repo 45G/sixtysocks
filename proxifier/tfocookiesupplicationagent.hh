@@ -1,18 +1,13 @@
 #ifndef TFOCOOKIESUPPLICATIONAGENT_HH
 #define TFOCOOKIESUPPLICATIONAGENT_HH
 
-#include "../core/reactor.hh"
-#include "../core/uniqfd.hh"
+#include "../core/stickreactor.hh"
 
 class Proxifier;
 
-class TFOCookieSupplicationAgent: public Reactor
+class TFOCookieSupplicationAgent: public StickReactor
 {
 	boost::intrusive_ptr<Proxifier> proxifier;
-
-	UniqFD sock;
-
-	StreamBuffer buf;
 
 public:
 	TFOCookieSupplicationAgent(Proxifier *proxifier);
@@ -20,8 +15,6 @@ public:
 	void start();
 
 	void process(int fd, uint32_t events);
-
-	void deactivate();
 };
 
 #endif // TFOCOOKIESUPPLICATIONAGENT_HH

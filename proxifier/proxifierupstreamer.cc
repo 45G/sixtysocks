@@ -86,22 +86,15 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 	case S_CONNECTING:
 	{
 		poller->assign(new ProxifierDownstreamer(this));
+
 		state = S_STREAM;
-		
 		streamState = buf.usedSize() > 0 ? SS_SENDING : SS_RECEIVING;
 		
 		if (buf.usedSize() > 0)
-		{
 			streamState = SS_SENDING;
-			poller->add(this, dstFD, Poller::OUT_EVENTS);
-		}
 		else
-		{
 			streamState = SS_RECEIVING;
-			poller->add(this, srcFD, Poller::IN_EVENTS);
-		}
-			
-		break;
+		[[fallthrough]];
 	}
 		
 	case S_STREAM:
