@@ -9,7 +9,10 @@
 #include <errno.h>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/intrusive_ptr.hpp>
+#include <socks6util/socks6util.hh>
 #include "rescheduleexception.hh"
+#include "uniqfd.hh"
+#include "streambuffer.hh"
 
 class Poller;
 
@@ -18,6 +21,14 @@ class Reactor: public boost::intrusive_ref_counter<Reactor>
 protected:
 	Poller *poller;
 	volatile bool active;
+	
+	size_t tcpRecv(UniqFD *fd, StreamBuffer *buf);
+	
+	size_t tcpSend(UniqFD *fd, StreamBuffer *buf);
+	
+	size_t tcpSendTFO(UniqFD *fd, StreamBuffer *buf, S6U::SocketAddress dest);
+	
+	void tcpConnect(UniqFD *fd, S6U::SocketAddress dest);
 	
 public:
 	Reactor(Poller *poller)

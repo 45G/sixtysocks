@@ -5,7 +5,6 @@
 #include "../core/streamreactor.hh"
 #include "../proxy/proxyupstreamer.hh"
 #include "../proxy/proxy.hh"
-#include "../core/sockio.hh"
 #include "authserver.hh"
 
 using namespace std;
@@ -94,16 +93,11 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	}
 	
 	buf.use(rep.pack(buf.getTail(), buf.availSize()));
-
-	int x = 0;
-	x = 1;
 }
 
-void AuthServer::process(int fd, uint32_t events)
+void AuthServer::sendReply()
 {
-	(void)fd; (void)events;
-
-	int bytes = sockSpill(upstreamer->getSrcFD(), &buf);
+	int bytes = tcpSend(upstreamer->getSrcFD(), &buf);
 	if (bytes == 0)
 		deactivate();
 
@@ -115,9 +109,16 @@ void AuthServer::process(int fd, uint32_t events)
 		upstreamer->deactivate();
 }
 
+void AuthServer::process(int fd, uint32_t events)
+{
+	(void)fd; (void)events;
+
+	sendReply();
+}
+
 void AuthServer::start()
 {
-	poller->add(this, *upstreamer->getSrcFD(), Poller::OUT_EVENTS);
+	sendReply();
 }
 
 void AuthServer::deactivate()

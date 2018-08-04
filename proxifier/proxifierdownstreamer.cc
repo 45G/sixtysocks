@@ -1,7 +1,6 @@
 #include <system_error>
 #include <socks6msg/socks6msg.hh>
 #include "../core/poller.hh"
-#include "../core/sockio.hh"
 #include "proxifierupstreamer.hh"
 #include "proxifierdownstreamer.hh"
 
@@ -25,7 +24,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 	{
 	case S_WAITING_FOR_AUTH_REP:
 	{
-		ssize_t bytes = sockFill(&srcFD, &buf);
+		ssize_t bytes = tcpRecv(&srcFD, &buf);
 		if (bytes == 0)
 		{
 			deactivate();
@@ -68,7 +67,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 	}
 	case S_WAITING_FOR_OP_REP:
 	{
-		ssize_t bytes = sockFill(&srcFD, &buf);
+		ssize_t bytes = tcpRecv(&srcFD, &buf);
 		if (bytes == 0)
 			return;
 		
@@ -92,7 +91,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 		state = S_STREAM;
 		if (buf.usedSize() > 0)
 		{
-			ssize_t bytes = sockSpill(&dstFD, &buf);
+			ssize_t bytes = tcpSend(&dstFD, &buf);
 			if (bytes < 0 && errno != EWOULDBLOCK && errno != EAGAIN)
 				return;
 		}

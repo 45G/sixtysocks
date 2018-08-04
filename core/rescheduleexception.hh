@@ -4,14 +4,22 @@
 #include <stdint.h>
 #include <exception>
 
+class Reactor;
+
 class RescheduleException: public std::exception
 {
+	Reactor *reactor;
 	int fd;
 	uint32_t events;
 	
 public:
-	RescheduleException(int fd, uint32_t events)
-		: fd(fd), events(events) {}
+	RescheduleException(Reactor *reactor, int fd, uint32_t events)
+		: reactor(reactor), fd(fd), events(events) {}
+	
+	Reactor *getReactor() const
+	{
+		return reactor;
+	}
 	
 	int getFD() const
 	{

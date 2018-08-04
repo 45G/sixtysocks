@@ -6,6 +6,8 @@
 #include "poller.hh"
 #include "reactor.hh"
 
+#include <iostream>
+
 using namespace std;
 using namespace boost;
 
@@ -44,11 +46,12 @@ void Poller::assign(boost::intrusive_ptr<Reactor> reactor)
 		}
 		catch (RescheduleException &resched)
 		{
-			add(reactor, resched.getFD(), resched.getEvents());
+			add(resched.getReactor(), resched.getFD(), resched.getEvents());
 		}
 	}
-	catch(...)
+	catch(std::exception &ex)
 	{
+		cout << "caucht exception; killing reactor: " << ex.what() << endl;
 		reactor->deactivate();
 	}
 }
@@ -145,11 +148,12 @@ void Poller::threadFun(Poller *poller)
 			}
 			catch (RescheduleException &resched)
 			{
-				poller->add(reactor, resched.getFD(), resched.getEvents());
+				poller->add(resched.getReactor(), resched.getFD(), resched.getEvents());
 			}
 		}
-		catch (...)
+		catch (std::exception &ex)
 		{
+			cout << "caucht exception; killing reactor: " << ex.what() << endl;
 			reactor->deactivate();
 		}
 	}

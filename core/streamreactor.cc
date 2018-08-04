@@ -1,7 +1,6 @@
 #include <unistd.h>
 #include <system_error>
 #include "../core/poller.hh"
-#include "../core/sockio.hh"
 #include "streamreactor.hh"
 
 using namespace std;
@@ -14,7 +13,7 @@ void StreamReactor::process(int fd, uint32_t events)
 	{
 	case SS_RECEIVING:
 	{
-		ssize_t bytes = sockFill(&srcFD, &buf);
+		ssize_t bytes = tcpRecv(&srcFD, &buf);
 		if (bytes == 0)
 		{
 			poller->remove(srcFD);
@@ -32,7 +31,7 @@ void StreamReactor::process(int fd, uint32_t events)
 	}
 	case SS_SENDING:
 	{
-		ssize_t bytes = sockSpill(&dstFD, &buf);
+		ssize_t bytes = tcpSend(&dstFD, &buf);
 		if (bytes == 0)
 		{
 			poller->remove(srcFD);

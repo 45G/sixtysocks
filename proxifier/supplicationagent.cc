@@ -2,7 +2,6 @@
 #include <socks6msg/socks6msg.hh>
 #include "proxifier.hh"
 #include "../core/poller.hh"
-#include "../core/sockio.hh"
 #include "supplicationagent.hh"
 
 using namespace std;
@@ -27,11 +26,7 @@ SupplicationAgent::SupplicationAgent(Proxifier *proxifier, boost::shared_ptr<Win
 
 void SupplicationAgent::start()
 {
-	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
-
-	int rc = connect(sock, &proxyAddr->sockAddress, proxyAddr->size());
-	if (rc < 0 && errno != EINPROGRESS)
-		throw system_error(errno, system_category());
+	tcpConnect(&sock, *proxifier->getProxyAddr());
 
 	poller->add(this, sock, Poller::OUT_EVENTS);
 }
@@ -57,7 +52,7 @@ void SupplicationAgent::process(int fd, uint32_t events)
 	}
 	case S_SENDING_REQ:
 	{
-		ssize_t bytes = sockSpill(&sock, &buf);
+		ssize_t bytes = tcpSend(&sock, &buf);
 		if (bytes == 0)
 			return;
 		
@@ -75,7 +70,7 @@ void SupplicationAgent::process(int fd, uint32_t events)
 		
 	case S_RECEIVING_AUTH_REP:
 	{
-		ssize_t bytes = sockFill(&sock, &buf);
+		ssize_t bytes = tcpRecv(&sock, &buf);
 		if (bytes == 0)
 			return;
 		

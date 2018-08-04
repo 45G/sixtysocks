@@ -1,7 +1,6 @@
 #include <system_error>
 #include <socks6util/socks6util.hh>
 #include "../core/poller.hh"
-#include "../core/sockio.hh"
 #include "proxy.hh"
 #include "authserver.hh"
 #include "connectproxydownstreamer.hh"
@@ -42,17 +41,9 @@ void ProxyUpstreamer::honorRequest()
 					replyOptions.setProxyServerSched(proxyServerSched);
 				
 				if (request->getOptionSet()->getTFO())
-				{
-					ssize_t bytes = sockSpillTFO(&dstFD, &buf, addr);
-					if (bytes < 0)
-						throw system_error(errno, system_category());
-				}
+					tcpSendTFO(&dstFD, &buf, addr);
 				else
-				{
-					int rc = connect(dstFD, &addr.sockAddress, addr.size());
-					if (rc < 0 && errno != EINPROGRESS)
-						throw system_error(errno, system_category());
-				}
+					tcpConnect(&dstFD, addr);
 			}
 			catch (system_error &err)
 			{
@@ -99,7 +90,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	{
 	case S_READING_REQ:
 	{
-		ssize_t bytes = sockFill(&srcFD, &buf);
+		ssize_t bytes = tcpRecv(&srcFD, &buf);
 		if (bytes == 0)
 			return;
 
@@ -141,7 +132,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_READING_INIT_DATA:
 	{
-		ssize_t bytes = sockFill(&srcFD, &buf);
+		ssize_t bytes = tcpRecv(&srcFD, &buf);
 		if (bytes == 0)
 		{
 			deactivate();

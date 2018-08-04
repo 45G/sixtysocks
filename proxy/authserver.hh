@@ -20,6 +20,8 @@ class AuthServer: public Reactor
 	StreamBuffer buf;
 	
 	bool success;
+	
+	void sendReply();
 
 public:
 	AuthServer(ProxyUpstreamer *upstreamer);

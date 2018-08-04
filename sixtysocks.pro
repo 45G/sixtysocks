@@ -24,8 +24,7 @@ SOURCES += \
     proxifier/windowsupplicant.cc \
     core/streambuffer.cc \
     proxy/authserver.cc \
-    core/tlscontext.cc \
-    core/sockio.cc
+    core/tlscontext.cc
 
 HEADERS += \
     core/poller.hh \
@@ -49,7 +48,6 @@ HEADERS += \
     authentication/syncedtokenstuff.h \
     proxy/authserver.hh \
     core/tlscontext.hh \
-    core/sockio.hh \
     core/rescheduleexception.hh
 
 LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lssl -lcrypto

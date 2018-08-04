@@ -3,7 +3,6 @@
 #include <system_error>
 #include <fcntl.h>
 #include "../core/poller.hh"
-#include "../core/sockio.hh"
 #include "proxifier.hh"
 #include "proxifierdownstreamer.hh"
 #include "proxifierupstreamer.hh"
@@ -32,10 +31,9 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, boos
 void ProxifierUpstreamer::start()
 {
 	/* read initial data opportunistically */
-	ssize_t bytes = 0;
 	try
 	{
-		bytes = sockFill(&srcFD, &buf);
+		tcpRecv(&srcFD, &buf);
 	}
 	catch (RescheduleException &) {}
 
@@ -74,11 +72,9 @@ void ProxifierUpstreamer::start()
 
 	/* connect */
 	if (S6U::TFOSafety::tfoSafe(polFlags))
-		bytes = sockSpillTFO(&dstFD, &buf, *proxifier->getProxyAddr());
+		tcpSendTFO(&dstFD, &buf, *proxifier->getProxyAddr());
 	else
-		bytes = connect(dstFD, &proxifier->getProxyAddr()->sockAddress, dest.size());
-	if (bytes < 0 && errno != EINPROGRESS)
-		throw system_error(errno, system_category());
+		tcpConnect(&dstFD, *proxifier->getProxyAddr());
 
 	StreamReactor::start();
 }
