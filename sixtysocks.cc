@@ -23,6 +23,7 @@
 #include "proxifier/proxifier.hh"
 #include "proxy/proxy.hh"
 #include "authentication/simplepasswordchecker.hh"
+#include "core/sslexception.hh"
 
 using namespace std;
 
@@ -164,8 +165,14 @@ int main(int argc, char **argv)
 //		usage();
 
 	/* OpenSSL */
-	SSL_library_init();
-	SSL_load_error_strings();
+	if (useTLS)
+	{
+		SSL_library_init();
+		SSL_load_error_strings();
+		SSL_CTX *ctx = SSL_CTX_new(TLS_method());
+		if (ctx == NULL)
+			throw SSLException(ERR_get_error());
+	}
 
 	Poller poller(numThreads, cpuOffset);
 	//poller.start();

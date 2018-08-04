@@ -26,7 +26,8 @@ SOURCES += \
     core/tlscontext.cc \
     proxifier/tfocookiesupplicationagent.cc \
     proxifier/windowsupplicationagent.cc \
-    core/stickreactor.cc
+    core/stickreactor.cc \
+    core/sslexception.cc
 
 HEADERS += \
     core/poller.hh \
@@ -52,6 +53,9 @@ HEADERS += \
     core/rescheduleexception.hh \
     proxifier/tfocookiesupplicationagent.hh \
     proxifier/windowsupplicationagent.hh \
-    core/stickreactor.hh
+    core/stickreactor.hh \
+    core/sslexception.hh
 
-LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lssl -lcrypto
+INCLUDEPATH += /usr/local/ssl/include
+
+LIBS += -L/usr/local/ssl/lib -lsocks6msg -lsocks6util -lpthread -lboost_system -lssl -lcrypto
