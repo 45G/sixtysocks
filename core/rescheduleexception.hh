@@ -1,16 +1,16 @@
-#ifndef RESCHEDDISPOSITION_HH
-#define RESCHEDDISPOSITION_HH
+#ifndef RESCHEDULEEXCEPTION_HH
+#define RESCHEDULEEXCEPTION_HH
 
 #include <stdint.h>
 #include <exception>
 
-class ReschedDisposition: public std::exception
+class RescheduleException: public std::exception
 {
 	int fd;
 	uint32_t events;
 	
 public:
-	ReschedDisposition(int fd, uint32_t events)
+	RescheduleException(int fd, uint32_t events)
 		: fd(fd), events(events) {}
 	
 	int getFD() const
@@ -25,4 +25,4 @@ public:
 };
 
 
-#endif // RESCHEDDISPOSITION_HH
+#endif // RESCHEDULEEXCEPTION_HH

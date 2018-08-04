@@ -50,6 +50,6 @@ HEADERS += \
     proxy/authserver.hh \
     core/tlscontext.hh \
     core/sockio.hh \
-    core/rescheddisposition.hh
+    core/rescheduleexception.hh
 
 LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lssl -lcrypto
