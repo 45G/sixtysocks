@@ -169,20 +169,36 @@ int main(int argc, char **argv)
 
 	Poller poller(numThreads, cpuOffset);
 	//poller.start();
-
-	S6U::SocketAddress bindAddr;
-	bindAddr.ipv4.sin_family      = AF_INET;
-	bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
-	bindAddr.ipv4.sin_port        = htons(port);
 	
 	if (mode == M_PROXIFIER)
 	{
+		S6U::SocketAddress bindAddr;
+		bindAddr.ipv4.sin_family      = AF_INET;
+		bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
+		bindAddr.ipv4.sin_port        = htons(port);
+
 		poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, username, password));
 	}
 	else /* M_PROXY */
 	{
 		if (port != 0)
+		{
+			S6U::SocketAddress bindAddr;
+			bindAddr.ipv4.sin_family      = AF_INET;
+			bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
+			bindAddr.ipv4.sin_port        = htons(port);
+
 			poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get()));
+		}
+		if (tlsPort != 0)
+		{
+			S6U::SocketAddress bindAddr;
+			bindAddr.ipv4.sin_family      = AF_INET;
+			bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
+			bindAddr.ipv4.sin_port        = htons(tlsPort);
+
+			//TODO
+		}
 	}
 	
 //	sleep(1000);
