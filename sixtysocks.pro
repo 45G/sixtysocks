@@ -56,6 +56,6 @@ HEADERS += \
     core/stickreactor.hh \
     core/sslexception.hh
 
-INCLUDEPATH += /usr/local/ssl/include
+INCLUDEPATH += /usr/local/wolfssl/include
 
-LIBS += -L/usr/local/ssl/lib -lsocks6msg -lsocks6util -lpthread -lboost_system -lssl -lcrypto
+LIBS += -L/usr/local/wolfssl/lib64 -lsocks6msg -lsocks6util -lpthread -lboost_system -lwolfssl

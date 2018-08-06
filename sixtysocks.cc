@@ -16,8 +16,10 @@
 #include <sys/epoll.h>
 #include <socks6util/socks6util.hh>
 #include <algorithm>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
+#include <wolfssl/options.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/error-ssl.h>
+
 
 #include "core/poller.hh"
 #include "proxifier/proxifier.hh"
@@ -79,6 +81,7 @@ int main(int argc, char **argv)
 	string veriFile;
 	string certFile;
 	string keyFile;
+	WOLFSSL_CTX *ctx;
 	
 	srand(time(NULL));
 
@@ -178,41 +181,46 @@ int main(int argc, char **argv)
 //	if (cpuOffset + numThreads > (int)thread::hardware_concurrency())
 //		usage();
 
-	/* OpenSSL */
+	/* WolfSSL */
 	if (useTLS)
 	{
-		static const int CERT_VERIFY_DEPTH = 3;
+		//static const int CERT_VERIFY_DEPTH = 3;
 
 		int rc;
 
-		SSL_library_init();
-		SSL_load_error_strings();
-		SSL_CTX *ctx = SSL_CTX_new(TLS_method());
-		if (ctx == NULL)
-			throw SSLException(ERR_get_error());
+		wolfSSL_Init();
 
-		SSL_CTX_set_options(ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_ANTI_REPLAY | SSL_OP_NO_RENEGOTIATION);
-		SSL_CTX_set_verify_depth(ctx, CERT_VERIFY_DEPTH);
+		WOLFSSL_METHOD *method;
+		if (mode == M_PROXIFIER)
+			method = wolfTLSv1_3_client_method();
+		else /* M_PROXY */
+			method = wolfTLSv1_3_server_method();
+
+		ctx = wolfSSL_CTX_new(method);
+		if (ctx == NULL)
+			throw runtime_error("can't initialize wolfssl context");
+
+		//wolfSSL_set_verify_depth(ctx, CERT_VERIFY_DEPTH);
 
 		if (veriFile.length() > 0)
 		{
-			rc = SSL_CTX_load_verify_locations(ctx, veriFile.c_str(), NULL);
-			if (rc == 0)
-				throw SSLException(ERR_get_error());
+			rc = wolfSSL_CTX_load_verify_locations(ctx, veriFile.c_str(), NULL);
+			if (rc != SSL_SUCCESS)
+				throw SSLException(rc);
 		}
 
 		if (certFile.length() > 0)
 		{
-			rc = SSL_CTX_use_certificate_file(ctx, certFile.c_str(),  SSL_FILETYPE_PEM);
-			if (rc == 0)
-				throw SSLException(ERR_get_error());
+			rc = wolfSSL_CTX_use_certificate_file(ctx, certFile.c_str(),  SSL_FILETYPE_PEM);
+			if (rc != SSL_SUCCESS)
+				throw SSLException(rc);
 		}
 
 		if (keyFile.length() > 0)
 		{
-			rc = SSL_CTX_use_PrivateKey_file(ctx, keyFile.c_str(), SSL_FILETYPE_PEM);
+			rc = wolfSSL_CTX_use_PrivateKey_file(ctx, keyFile.c_str(), SSL_FILETYPE_PEM);
 			if (rc == 0)
-				throw SSLException(ERR_get_error());
+				throw SSLException(rc);
 		}
 	}
 
@@ -226,7 +234,7 @@ int main(int argc, char **argv)
 		bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
 		bindAddr.ipv4.sin_port        = htons(port);
 
-		poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, username, password));
+		poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, username, password, ctx));
 	}
 	else /* M_PROXY */
 	{
@@ -255,6 +263,12 @@ int main(int argc, char **argv)
 	
 	poller.stop();
 	poller.join();
+
+	if (useTLS)
+	{
+		wolfSSL_CTX_free(ctx);
+		wolfSSL_Cleanup();
+	}
 	
 	return 0;
 }
