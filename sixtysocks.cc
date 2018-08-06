@@ -35,7 +35,9 @@ void usage()
 			"[-l <listen port>] [-t <TLS listen port>]",
 			"[-U <username>] [-P <password>]",
 			"[-s <proxy IP>] [-p <proxy port>]",
-			"[-K <key or certificate>]",
+			"[-V <trusted certificate file>]"
+			"[-C <certificate file>]"
+			"[-K <key file>]",
 		NULL,
 	};
 	
@@ -74,12 +76,14 @@ int main(int argc, char **argv)
 	string username;
 	string password;
 	boost::intrusive_ptr<SimplePasswordChecker> passwordChecker;
-	string keyfile;
+	string veriFile;
+	string certFile;
+	string keyFile;
 	
 	srand(time(NULL));
 
 	//TODO: fix this shit
-	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:K:")) != -1)
+	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:V:C:K:")) != -1)
 	{
 		switch (c)
 		{
@@ -135,8 +139,18 @@ int main(int argc, char **argv)
 				usage();
 			break;
 
+		case 'V':
+			veriFile = string(optarg);
+			useTLS = true;
+			break;
+
+		case 'C':
+			certFile = string(optarg);
+			useTLS = true;
+			break;
+
 		case 'K':
-			keyfile = string(optarg);
+			keyFile = string(optarg);
 			useTLS = true;
 			break;
 			
@@ -167,11 +181,39 @@ int main(int argc, char **argv)
 	/* OpenSSL */
 	if (useTLS)
 	{
+		static const int CERT_VERIFY_DEPTH = 3;
+
+		int rc;
+
 		SSL_library_init();
 		SSL_load_error_strings();
 		SSL_CTX *ctx = SSL_CTX_new(TLS_method());
 		if (ctx == NULL)
 			throw SSLException(ERR_get_error());
+
+		SSL_CTX_set_options(ctx, SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_ANTI_REPLAY | SSL_OP_NO_RENEGOTIATION);
+		SSL_CTX_set_verify_depth(ctx, CERT_VERIFY_DEPTH);
+
+		if (veriFile.length() > 0)
+		{
+			rc = SSL_CTX_load_verify_locations(ctx, veriFile.c_str(), NULL);
+			if (rc == 0)
+				throw SSLException(ERR_get_error());
+		}
+
+		if (certFile.length() > 0)
+		{
+			rc = SSL_CTX_use_certificate_file(ctx, certFile.c_str(),  SSL_FILETYPE_PEM);
+			if (rc == 0)
+				throw SSLException(ERR_get_error());
+		}
+
+		if (keyFile.length() > 0)
+		{
+			rc = SSL_CTX_use_PrivateKey_file(ctx, keyFile.c_str(), SSL_FILETYPE_PEM);
+			if (rc == 0)
+				throw SSLException(ERR_get_error());
+		}
 	}
 
 	Poller poller(numThreads, cpuOffset);
