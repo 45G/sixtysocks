@@ -14,13 +14,14 @@ void Reactor::deactivate()
 
 Reactor::~Reactor() {}
 
+//TODO: divorce these from reactor
 size_t Reactor::tcpRecv(int fd, StreamBuffer *buf)
 {
 	ssize_t bytes = recv(fd, buf->getTail(), buf->availSize(), MSG_NOSIGNAL);
 	if (bytes < 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK) //TODO: maybe EINTR as well
-			throw RescheduleException(this, fd, Poller::IN_EVENTS);
+			throw RescheduleException(fd, Poller::IN_EVENTS);
 		throw std::system_error(errno, std::system_category());
 	}
 	buf->use(bytes);
@@ -33,7 +34,7 @@ size_t Reactor::tcpSend(int fd, StreamBuffer *buf)
 	if (bytes < 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK) //TODO: maybe EINTR as well
-			throw RescheduleException(this, fd, Poller::OUT_EVENTS);
+			throw RescheduleException(fd, Poller::OUT_EVENTS);
 		throw system_error(errno, system_category());
 	}
 	buf->unuseHead(bytes);

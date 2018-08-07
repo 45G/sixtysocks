@@ -106,11 +106,24 @@ void AuthServer::sendReply()
 		deactivate();
 
 	if (buf.usedSize() > 0)
+	{
 		poller->add(this, sock, Poller::OUT_EVENTS);
+	}
 	else if (success)
-		((ProxyUpstreamer *)upstreamer.get())->authDone((SOCKS6TokenExpenditureCode)0);
+	{
+		try
+		{
+			upstreamer->authDone((SOCKS6TokenExpenditureCode)0);
+		}
+		catch (RescheduleException &resched)
+		{
+			poller->add(upstreamer, resched.getFD(), resched.getEvents());
+		}
+	}
 	else
+	{
 		upstreamer->deactivate();
+	}
 }
 
 void AuthServer::process(int fd, uint32_t events)
