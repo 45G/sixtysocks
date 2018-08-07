@@ -54,8 +54,9 @@ HEADERS += \
     proxifier/tfocookiesupplicationagent.hh \
     proxifier/windowsupplicationagent.hh \
     core/stickreactor.hh \
-    core/sslexception.hh
+    core/sslexception.hh \
+    core/uniqtls.hh
 
 INCLUDEPATH += /usr/local/wolfssl/include
 
-LIBS += -L/usr/local/wolfssl/lib64 -lsocks6msg -lsocks6util -lpthread -lboost_system -lwolfssl
+LIBS += -L/usr/local/wolfssl/lib64 -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lwolfssl

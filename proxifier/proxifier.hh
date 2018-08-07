@@ -5,6 +5,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/atomic.hpp>
 #include <socks6util/socks6util.hh>
+#include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 #include "../authentication/syncedtokenstuff.h"
 #include "../core/listenreactor.hh"
@@ -23,10 +24,10 @@ class Proxifier: public ListenReactor
 	Spinlock walletLock;
 	Spinlock supplicationLock;
 
-	WOLFSSL_CTX *sslCtx;
+	WOLFSSL_CTX *tlsCtx;
 	
 public:
-	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, const std::string &username, const std::string &passwordd, WOLFSSL_CTX *sslCtx);
+	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, const std::string &username, const std::string &passwordd, WOLFSSL_CTX *tlsCtx);
 	
 	const S6U::SocketAddress *getProxyAddr() const
 	{

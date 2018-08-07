@@ -1,8 +1,8 @@
 #ifndef TLSCONTEXT_HH
 #define TLSCONTEXT_HH
 
-#include <openssl/ssl.h>
-#include <openssl/err.h>
+#include <wolfssl/options.h>
+#include <wolfssl/ssl.h>
 
 class TLSContext
 {
