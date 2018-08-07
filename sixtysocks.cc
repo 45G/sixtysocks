@@ -20,8 +20,6 @@
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/error-ssl.h>
-
-
 #include "core/poller.hh"
 #include "proxifier/proxifier.hh"
 #include "proxy/proxy.hh"
