@@ -53,6 +53,6 @@ public:
 		if (tls != NULL)
 			wolfSSL_free(tls);
 	}
-}
+};
 
 #endif // UNIQTLS_HH

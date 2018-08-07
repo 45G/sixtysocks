@@ -27,7 +27,8 @@ SOURCES += \
     proxifier/tfocookiesupplicationagent.cc \
     proxifier/windowsupplicationagent.cc \
     core/stickreactor.cc \
-    core/sslexception.cc
+    core/tls.cc \
+    core/tlsexception.cc
 
 HEADERS += \
     core/poller.hh \
@@ -54,8 +55,9 @@ HEADERS += \
     proxifier/tfocookiesupplicationagent.hh \
     proxifier/windowsupplicationagent.hh \
     core/stickreactor.hh \
-    core/sslexception.hh \
-    core/uniqtls.hh
+    core/uniqtls.hh \
+    core/tls.hh \
+    core/tlsexception.hh
 
 INCLUDEPATH += /usr/local/wolfssl/include
 

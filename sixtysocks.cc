@@ -26,7 +26,7 @@
 #include "proxifier/proxifier.hh"
 #include "proxy/proxy.hh"
 #include "authentication/simplepasswordchecker.hh"
-#include "core/sslexception.hh"
+#include "core/tlsexception.hh"
 
 using namespace std;
 
@@ -211,21 +211,21 @@ int main(int argc, char **argv)
 			else
 				rc = wolfSSL_CTX_load_verify_locations(tlsCtx, veriFile.c_str(), NULL);
 			if (rc != SSL_SUCCESS)
-				throw SSLException(rc);
+				throw TLSException(rc);
 		}
 
 		if (certFile.length() > 0)
 		{
 			rc = wolfSSL_CTX_use_certificate_file(tlsCtx, certFile.c_str(), SSL_FILETYPE_PEM);
 			if (rc != SSL_SUCCESS)
-				throw SSLException(rc);
+				throw TLSException(rc);
 		}
 
 		if (keyFile.length() > 0)
 		{
 			rc = wolfSSL_CTX_use_PrivateKey_file(tlsCtx, keyFile.c_str(), SSL_FILETYPE_PEM);
 			if (rc == 0)
-				throw SSLException(rc);
+				throw TLSException(rc);
 		}
 	}
 
