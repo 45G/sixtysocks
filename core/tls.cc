@@ -9,7 +9,7 @@ TLS::TLS(WOLFSSL_CTX *ctx, int fd)
 	readTLS.assign(wolfSSL_new(ctx));
 	if (readTLS == NULL)
 		throw runtime_error("Error creating context");
-	
+	wolfSSL_SetIOWriteFlags(readTLS, MSG_NOSIGNAL);
 }
 
 void TLS::tlsConnect(S6U::SocketAddress addr, StreamBuffer *buf, bool useEarlyData)
