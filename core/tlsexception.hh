@@ -7,9 +7,9 @@
 
 class TLSException: public std::exception
 {
-	unsigned long err;
+	int err;
 public:
-	TLSException(unsigned long err)
+	TLSException(int err)
 		: err(err) {}
 	
 	TLSException(WOLFSSL *tls, int result)

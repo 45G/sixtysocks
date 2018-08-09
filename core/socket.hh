@@ -72,6 +72,37 @@ struct Socket
 			; //TODO
 		return tcpSend(buf);
 	}
+	
+	void sockConnect(S6U::SocketAddress addr, StreamBuffer *buf, bool tfoIfTCP, bool earlyDataIfTLS)
+	{
+		if (tls == NULL)
+		{
+			if (tfoIfTCP)
+				tcpSendTFO(buf, addr);
+			else
+				tcpConnect(addr);
+		}
+		else
+		{
+			try
+			{
+				tls->tlsConnect(&addr, buf, earlyDataIfTLS);
+			}
+			catch (RescheduleException &) {}
+		}
+	}
+	
+	void clientHandshake()
+	{
+		if (tls == NULL)
+			return;
+		tls->tlsConnect(NULL, NULL, false);
+	}
+	
+	bool benefitsFromIdempotence()
+	{
+		return tls != NULL;
+	}
 };
 
 typedef Socket<UniqFD> RWSocket;

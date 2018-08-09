@@ -183,6 +183,7 @@ int main(int argc, char **argv)
 	/* WolfSSL */
 	if (useTLS)
 	{
+		wolfSSL_Debugging_ON();
 		//static const int CERT_VERIFY_DEPTH = 3;
 
 		int rc;

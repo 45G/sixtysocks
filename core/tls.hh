@@ -21,6 +21,8 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 public:
 	TLS(WOLFSSL_CTX *ctx, int fd);
 	
+	~TLS();
+	
 	void setReadFD(int fd)
 	{
 		rfd = fd;
@@ -31,13 +33,13 @@ public:
 		wfd = fd;
 	}
 	
-	void tlsConnect(S6U::SocketAddress addr, StreamBuffer *buf, bool useEarlyData);
+	void tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData);
 	
-	void tlsAccept();
+	void tlsAccept(StreamBuffer *buf);
 	
-	void tlsWrite(StreamBuffer *buf);
+	size_t tlsWrite(StreamBuffer *buf);
 	
-	void tlsRead(StreamBuffer *buf);
+	size_t tlsRead(StreamBuffer *buf);
 };
 
 #endif // TLS_HH
