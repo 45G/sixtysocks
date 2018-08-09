@@ -55,7 +55,6 @@ HEADERS += \
     proxifier/tfocookiesupplicationagent.hh \
     proxifier/windowsupplicationagent.hh \
     core/stickreactor.hh \
-    core/uniqtls.hh \
     core/tls.hh \
     core/tlsexception.hh \
     core/socket.hh

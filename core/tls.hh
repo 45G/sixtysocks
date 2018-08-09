@@ -6,7 +6,6 @@
 #include <wolfssl/ssl.h>
 #include <socks6util/socks6util.hh>
 #include "streambuffer.hh"
-#include "uniqtls.hh"
 
 class TLS: public boost::intrusive_ref_counter<TLS>
 {
