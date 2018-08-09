@@ -9,9 +9,7 @@ SimpleProxyDownstreamer::SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, co
 {
 	buf.use(reply->pack(buf.getTail(), buf.availSize()));
 
-	dstSock.fd.assign(dup(upstreamer->getSrcSock()->fd));
-	if (dstSock.fd < 0)
-		throw system_error(errno, system_category());
+	dstSock.duplicate(upstreamer->getSrcSock());
 }
 
 SimpleProxyDownstreamer::SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, const SOCKS6Version *version)
@@ -22,7 +20,5 @@ SimpleProxyDownstreamer::SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, co
 	memcpy(buf.getTail(), version, sizeof(*version));
 	buf.use(sizeof(*version));
 
-	dstSock.fd.assign(dup(upstreamer->getSrcSock()->fd));
-	if (dstSock.fd < 0)
-		throw system_error(errno, system_category());
+	dstSock.duplicate(upstreamer->getSrcSock());
 }

@@ -2,6 +2,7 @@
 #define SOCKET_HH
 
 #include <errno.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <system_error>
@@ -112,6 +113,26 @@ struct Socket
 	{
 		return tls != NULL;
 	}
+	
+	void duplicate(Socket<UniqSendFD> *ws)
+	{
+		fd.assign(dup(ws->fd));
+		if (fd < 0)
+			throw std::system_error(errno, std::system_category());
+		tls = ws->tls;
+		if (tls != NULL)
+			tls->setReadFD(fd);
+	}
+	
+	void duplicate(Socket<UniqRecvFD> *rs)
+	{
+		fd.assign(dup(rs->fd));
+		if (fd < 0)
+			throw std::system_error(errno, std::system_category());
+		tls = rs->tls;
+		if (tls != NULL)
+			tls->setWriteFD(fd);
+	}
 };
 
 typedef Socket<UniqFD> RWSocket;
@@ -119,5 +140,6 @@ typedef Socket<UniqFD> RWSocket;
 typedef Socket<UniqSendFD> WSocket;
 
 typedef Socket<UniqRecvFD> RSocket;
+
 
 #endif // SOCKET_HH

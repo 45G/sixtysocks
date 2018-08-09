@@ -9,13 +9,8 @@ using namespace std;
 ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
 	: StreamReactor(upstreamer->getPoller()), proxifier(upstreamer->getProxifier()), upstreamer(upstreamer), state(S_WAITING_FOR_AUTH_REP), supplicant(upstreamer->getSupplicant())
 {
-	srcSock.fd.assign(dup(upstreamer->getDstSock()->fd));
-	if (srcSock.fd < 0)
-		throw system_error(errno, system_category());
-	
-	dstSock.fd.assign(dup(upstreamer->getSrcSock()->fd));
-	if (dstSock.fd < 0)
-		throw system_error(errno, system_category());
+	srcSock.duplicate(upstreamer->getDstSock());
+	dstSock.duplicate(upstreamer->getSrcSock());
 }
 
 void ProxifierDownstreamer::process(int fd, uint32_t events)

@@ -12,9 +12,7 @@ using namespace std;
 AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	: StickReactor(upstreamer->getPoller()), upstreamer(upstreamer), state(S_WRITING)
 {
-	sock.fd.assign(dup(upstreamer->getSrcSock()->fd));
-	if (sock.fd < 0)
-		throw system_error(errno, system_category());
+	sock.duplicate(upstreamer->getSrcSock());
 	
 	SOCKS6AuthReplyCode code;
 	SOCKS6Method method;

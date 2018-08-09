@@ -10,13 +10,8 @@ ConnectProxyDownstreamer::ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer, 
 {
 	buf.use(reply->pack(buf.getTail(), buf.availSize()));
 	
-	srcSock.fd.assign(dup(upstreamer->getDstSock()->fd));
-	if (srcSock.fd < 0)
-		throw system_error(errno, system_category());
-
-	dstSock.fd.assign(dup(upstreamer->getSrcSock()->fd));
-	if (dstSock.fd < 0)
-		throw system_error(errno, system_category());
+	srcSock.duplicate(upstreamer->getDstSock());
+	dstSock.duplicate(upstreamer->getSrcSock());
 }
 
 void ConnectProxyDownstreamer::deactivate()
