@@ -8,30 +8,7 @@
 
 class TLSContext: public boost::intrusive_ref_counter<TLSContext>
 {
-	class Ctx
-	{
-		WOLFSSL_CTX *ctx;
-		
-	public:
-		Ctx()
-			: ctx(NULL) {}
-		~Ctx()
-		{
-			wolfSSL_CTX_free(ctx);
-		}
-		
-		operator WOLFSSL_CTX *()
-		{
-			return ctx;
-		}
-		
-		void operator =(WOLFSSL_CTX *otherCtx)
-		{
-			ctx = otherCtx;
-		}
-	};
-	
-	Ctx ctx;
+	WOLFSSL_CTX *ctx;
 	
 	bool server;
 	
