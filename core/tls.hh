@@ -2,9 +2,8 @@
 #define TLS_HH
 
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
 #include <socks6util/socks6util.hh>
+#include "tlscontext.hh"
 #include "streambuffer.hh"
 
 class TLS: public boost::intrusive_ref_counter<TLS>
@@ -18,7 +17,7 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	bool connected;
 	
 public:
-	TLS(WOLFSSL_CTX *ctx, int fd);
+	TLS(TLSContext *ctx, int fd);
 	
 	~TLS();
 	

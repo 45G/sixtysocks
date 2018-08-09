@@ -57,7 +57,8 @@ HEADERS += \
     core/stickreactor.hh \
     core/tls.hh \
     core/tlsexception.hh \
-    core/socket.hh
+    core/socket.hh \
+    core/tlslibrary.hh
 
 INCLUDEPATH += /usr/local/wolfssl/include
 

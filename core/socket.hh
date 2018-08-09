@@ -62,14 +62,14 @@ struct Socket
 	size_t sockRecv(StreamBuffer *buf)
 	{
 		if (tls)
-			; //TODO
+			tls->tlsRead(buf);
 		return tcpRecv(buf);
 	}
 	
 	size_t sockSend(StreamBuffer *buf)
 	{
 		if (tls)
-			; //TODO
+			tls->tlsWrite(buf);
 		return tcpSend(buf);
 	}
 	

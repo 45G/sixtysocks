@@ -6,15 +6,19 @@
 
 using namespace std;
 
-TLS::TLS(WOLFSSL_CTX *ctx, int fd)
+TLS::TLS(TLSContext *ctx, int fd)
 	: rfd(fd), wfd(fd)
 {
-	readTLS = wolfSSL_new(ctx);
+	readTLS = wolfSSL_new(ctx->get());
 	if (readTLS == NULL)
 		throw runtime_error("Error creating context");
 	writeTLS = readTLS;
 		
 	wolfSSL_SetIOWriteFlags(readTLS, MSG_NOSIGNAL);
+	
+	static const int CERT_VERIFY_DEPTH = 3;
+	if (ctx->isClient())
+		wolfSSL_set_verify_depth(readTLS, CERT_VERIFY_DEPTH);
 }
 
 TLS::~TLS()

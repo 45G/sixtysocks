@@ -15,16 +15,13 @@
 #include <system_error>
 #include <sys/epoll.h>
 #include <algorithm>
-#include <boost/filesystem.hpp>
 #include <socks6util/socks6util.hh>
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/error-ssl.h>
 #include "core/poller.hh"
 #include "proxifier/proxifier.hh"
 #include "proxy/proxy.hh"
 #include "authentication/simplepasswordchecker.hh"
-#include "core/tlsexception.hh"
+#include "core/tlslibrary.hh"
+#include "core/tlscontext.hh"
 
 using namespace std;
 
@@ -80,7 +77,9 @@ int main(int argc, char **argv)
 	string veriFile;
 	string certFile;
 	string keyFile;
-	WOLFSSL_CTX *tlsCtx = NULL;
+	boost::intrusive_ptr<TLSLibrary> tlsLibrary;
+	boost::intrusive_ptr<TLSContext> clientCtx;
+	boost::intrusive_ptr<TLSContext> serverCtx;
 	
 	srand(time(NULL));
 
@@ -183,49 +182,15 @@ int main(int argc, char **argv)
 	/* WolfSSL */
 	if (useTLS)
 	{
+		tlsLibrary = new TLSLibrary();
+		
 		wolfSSL_Debugging_ON();
 		//static const int CERT_VERIFY_DEPTH = 3;
 
-		int rc;
-
-		wolfSSL_Init();
-
-		WOLFSSL_METHOD *method;
 		if (mode == M_PROXIFIER)
-			method = wolfTLSv1_3_client_method();
+			clientCtx = new TLSContext(veriFile);
 		else /* M_PROXY */
-			method = wolfTLSv1_3_server_method();
-
-		tlsCtx = wolfSSL_CTX_new(method);
-		if (tlsCtx == NULL)
-			throw runtime_error("Can't initialize WolfSSL context");
-
-		//wolfSSL_set_verify_depth(ctx, CERT_VERIFY_DEPTH);
-
-		if (veriFile.length() > 0)
-		{
-			boost::filesystem::path resolved = boost::filesystem::canonical(veriFile);
-			if (boost::filesystem::is_directory(resolved))
-				rc = wolfSSL_CTX_load_verify_locations(tlsCtx, NULL, veriFile.c_str());
-			else
-				rc = wolfSSL_CTX_load_verify_locations(tlsCtx, veriFile.c_str(), NULL);
-			if (rc != SSL_SUCCESS)
-				throw TLSException(rc);
-		}
-
-		if (certFile.length() > 0)
-		{
-			rc = wolfSSL_CTX_use_certificate_file(tlsCtx, certFile.c_str(), SSL_FILETYPE_PEM);
-			if (rc != SSL_SUCCESS)
-				throw TLSException(rc);
-		}
-
-		if (keyFile.length() > 0)
-		{
-			rc = wolfSSL_CTX_use_PrivateKey_file(tlsCtx, keyFile.c_str(), SSL_FILETYPE_PEM);
-			if (rc == 0)
-				throw TLSException(rc);
-		}
+			serverCtx = new TLSContext(certFile, keyFile);
 	}
 
 	Poller poller(numThreads, cpuOffset);
@@ -238,7 +203,7 @@ int main(int argc, char **argv)
 		bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
 		bindAddr.ipv4.sin_port        = htons(port);
 
-		poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, username, password, tlsCtx));
+		poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, username, password, clientCtx.get()));
 	}
 	else /* M_PROXY */
 	{
@@ -258,7 +223,7 @@ int main(int argc, char **argv)
 			bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
 			bindAddr.ipv4.sin_port        = htons(tlsPort);
 
-			poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), tlsCtx));
+			poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), serverCtx.get()));
 		}
 	}
 	
@@ -267,12 +232,6 @@ int main(int argc, char **argv)
 	
 	poller.stop();
 	poller.join();
-
-	if (useTLS)
-	{
-		wolfSSL_CTX_free(tlsCtx);
-		wolfSSL_Cleanup();
-	}
 	
 	return 0;
 }

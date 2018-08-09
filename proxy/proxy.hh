@@ -5,8 +5,7 @@
 #include <unordered_map>
 #include <string>
 #include <socks6util/socks6util.hh>
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
+#include "core/tlscontext.hh"
 #include "../core/listenreactor.hh"
 #include "../authentication/passwordchecker.hh"
 #include "../authentication/syncedtokenstuff.h"
@@ -18,10 +17,10 @@ class Proxy: public ListenReactor
 	std::unordered_map<std::string, std::unique_ptr<SyncedTokenBank> > banks;
 	Spinlock bankLock;
 	
-	WOLFSSL_CTX *tlsCtx;
+	TLSContext *tlsCtx;
 
 public:
-	Proxy(Poller *poller, const S6U::SocketAddress &bindAddr, PasswordChecker *passwordChecker, WOLFSSL_CTX *tlsCtx)
+	Proxy(Poller *poller, const S6U::SocketAddress &bindAddr, PasswordChecker *passwordChecker, TLSContext *tlsCtx)
 		: ListenReactor(poller, bindAddr), passwordChecker(passwordChecker), tlsCtx(tlsCtx) {}
 	
 	void handleNewConnection(int fd);
