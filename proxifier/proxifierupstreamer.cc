@@ -16,14 +16,14 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, boos
 {
 	buf.makeHeadroom(HEADROOM);
 
-	srcFD.assign(*pSrcFD);
+	srcSock.fd.assign(*pSrcFD);
 	*pSrcFD = -1;
 	
-	dstFD.assign(socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
-	if (dstFD < 0)
+	dstSock.fd.assign(socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
+	if (dstSock.fd < 0)
 		throw system_error(errno, system_category());
 	
-	int rc = S6U::Socket::getOriginalDestination(srcFD, &dest.storage);
+	int rc = S6U::Socket::getOriginalDestination(srcSock.fd, &dest.storage);
 	if (rc < 0)
 		throw system_error(errno, system_category());
 }
@@ -33,12 +33,12 @@ void ProxifierUpstreamer::start()
 	/* read initial data opportunistically */
 	try
 	{
-		tcpRecv(srcFD, &buf);
+		srcSock.tcpRecv(&buf);
 	}
 	catch (RescheduleException &) {}
 
 	S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), 0);
-	if (S6U::Socket::tfoAttempted(srcFD))
+	if (S6U::Socket::tfoAttempted(srcSock.fd))
 		req.getOptionSet()->setTFO();
 
 	if (proxifier->getUsername()->length() > 0)
@@ -72,9 +72,9 @@ void ProxifierUpstreamer::start()
 
 	/* connect */
 	if (S6U::TFOSafety::tfoSafe(polFlags))
-		tcpSendTFO(dstFD, &buf, *proxifier->getProxyAddr());
+		dstSock.tcpSendTFO(&buf, *proxifier->getProxyAddr());
 	else
-		tcpConnect(dstFD, *proxifier->getProxyAddr());
+		dstSock.tcpConnect(*proxifier->getProxyAddr());
 
 	StreamReactor::start();
 }

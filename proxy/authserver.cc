@@ -12,8 +12,8 @@ using namespace std;
 AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	: StickReactor(upstreamer->getPoller()), upstreamer(upstreamer), state(S_WRITING)
 {
-	sock.assign(dup(upstreamer->getSrcFD()));
-	if (sock < 0)
+	sock.fd.assign(dup(upstreamer->getSrcSock()->fd));
+	if (sock.fd < 0)
 		throw system_error(errno, system_category());
 	
 	SOCKS6AuthReplyCode code;
@@ -101,13 +101,13 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 
 void AuthServer::sendReply()
 {
-	int bytes = tcpSend(sock, &buf);
+	int bytes = sock.tcpSend(&buf);
 	if (bytes == 0)
 		deactivate();
 
 	if (buf.usedSize() > 0)
 	{
-		poller->add(this, sock, Poller::OUT_EVENTS);
+		poller->add(this, sock.fd, Poller::OUT_EVENTS);
 	}
 	else if (success)
 	{

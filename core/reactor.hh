@@ -22,14 +22,6 @@ protected:
 	Poller *poller;
 	volatile bool active;
 	
-	size_t tcpRecv(int fd, StreamBuffer *buf);
-	
-	size_t tcpSend(int fd, StreamBuffer *buf);
-	
-	size_t tcpSendTFO(int fd, StreamBuffer *buf, S6U::SocketAddress dest);
-	
-	void tcpConnect(int fd, S6U::SocketAddress dest);
-	
 public:
 	Reactor(Poller *poller)
 		: poller(poller), active(true) {}

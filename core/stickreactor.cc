@@ -5,7 +5,7 @@ StickReactor::~StickReactor()
 {
 	try
 	{
-		poller->remove(sock);
+		poller->remove(sock.fd);
 	}
 	catch(...) {}
 }
@@ -13,5 +13,5 @@ StickReactor::~StickReactor()
 void StickReactor::deactivate()
 {
 	Reactor::deactivate();
-	poller->remove(sock);
+	poller->remove(sock.fd);
 }

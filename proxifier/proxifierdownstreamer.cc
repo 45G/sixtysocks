@@ -9,12 +9,12 @@ using namespace std;
 ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
 	: StreamReactor(upstreamer->getPoller()), proxifier(upstreamer->getProxifier()), upstreamer(upstreamer), state(S_WAITING_FOR_AUTH_REP), supplicant(upstreamer->getSupplicant())
 {
-	srcFD.assign(dup(upstreamer->getDstFD()));
-	if (srcFD < 0)
+	srcSock.fd.assign(dup(upstreamer->getDstSock()->fd));
+	if (srcSock.fd < 0)
 		throw system_error(errno, system_category());
 	
-	dstFD.assign(dup(upstreamer->getSrcFD()));
-	if (dstFD < 0)
+	dstSock.fd.assign(dup(upstreamer->getSrcSock()->fd));
+	if (dstSock.fd < 0)
 		throw system_error(errno, system_category());
 }
 
@@ -26,7 +26,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 	{
 	case S_WAITING_FOR_AUTH_REP:
 	{
-		ssize_t bytes = tcpRecv(srcFD, &buf);
+		ssize_t bytes = srcSock.tcpRecv(&buf);
 		if (bytes == 0)
 		{
 			deactivate();
@@ -61,7 +61,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 		}
 		catch (S6M::EndOfBufferException &)
 		{
-			poller->add(this, srcFD, Poller::IN_EVENTS);
+			poller->add(this, srcSock.fd, Poller::IN_EVENTS);
 			return;
 		}
 
@@ -74,7 +74,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 	{
 		if (!fellThrough)
 		{
-			ssize_t bytes = tcpRecv(srcFD, &buf);
+			ssize_t bytes = srcSock.tcpRecv(&buf);
 			if (bytes == 0)
 				return;
 		}
@@ -89,7 +89,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 		}
 		catch (S6M::EndOfBufferException &)
 		{
-			poller->add(this, srcFD, Poller::IN_EVENTS);
+			poller->add(this, srcSock.fd, Poller::IN_EVENTS);
 			return;
 		}
 		

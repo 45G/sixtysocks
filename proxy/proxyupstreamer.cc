@@ -28,28 +28,28 @@ void ProxyUpstreamer::honorRequest()
 			try
 			{
 				S6U::SocketAddress addr(*request->getAddress(), request->getPort());
-				dstFD.assign(socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
-				if (dstFD < 0)
+				dstSock.fd.assign(socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
+				if (dstSock.fd < 0)
 					throw system_error(errno, system_category());
 				
 				SOCKS6MPTCPScheduler clientProxySched = request->getOptionSet()->getClientProxySched();
-				if (S6U::Socket::setMPTCPSched(srcFD, clientProxySched) == 0)
+				if (S6U::Socket::setMPTCPSched(srcSock.fd, clientProxySched) == 0)
 					replyOptions.setClientProxySched(clientProxySched);
 		
 				SOCKS6MPTCPScheduler proxyServerSched = request->getOptionSet()->getProxyServerSched();
-				if (S6U::Socket::setMPTCPSched(dstFD, proxyServerSched) == 0)
+				if (S6U::Socket::setMPTCPSched(dstSock.fd, proxyServerSched) == 0)
 					replyOptions.setProxyServerSched(proxyServerSched);
 				
 				if (request->getOptionSet()->getTFO())
-					tcpSendTFO(dstFD, &buf, addr);
+					dstSock.tcpSendTFO(&buf, addr);
 				else
-					tcpConnect(dstFD, addr);
+					dstSock.tcpConnect(addr);
 			}
 			catch (system_error &err)
 			{
 				throw SimpleReplyException(S6U::Socket::connectErrnoToReplyCode(err.code().value()));
 			}
-			poller->add(this, dstFD, Poller::OUT_EVENTS);
+			poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
 			state = S_CONNECTING;
 			break;
 		}
@@ -80,7 +80,7 @@ void ProxyUpstreamer::honorRequest()
 ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int *pSrcFD)
 	: StreamReactor(proxy->getPoller()), proxy(proxy), state(S_READING_REQ), authenticated(false), replyOptions(S6M::OptionSet::M_OP_REP), authServer(NULL), mustFail(false)
 {
-	srcFD.assign(*pSrcFD);
+	srcSock.fd.assign(*pSrcFD);
 	*pSrcFD = -1;
 }
 
@@ -90,7 +90,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	{
 	case S_READING_REQ:
 	{
-		ssize_t bytes = tcpRecv(srcFD, &buf);
+		ssize_t bytes = srcSock.tcpRecv(&buf);
 		if (bytes == 0)
 			return;
 
@@ -108,7 +108,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		}
 		catch (S6M::EndOfBufferException &)
 		{
-			poller->add(this, srcFD, Poller::IN_EVENTS);
+			poller->add(this, srcSock.fd, Poller::IN_EVENTS);
 			return;
 		}
 
@@ -117,7 +117,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		if (buf.usedSize() < request->getInitialDataLen())
 		{
 			state = S_READING_INIT_DATA;
-			poller->add(this, srcFD, Poller::IN_EVENTS);
+			poller->add(this, srcSock.fd, Poller::IN_EVENTS);
 		}
 		else
 		{
@@ -138,7 +138,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_READING_INIT_DATA:
 	{
-		ssize_t bytes = tcpRecv(srcFD, &buf);
+		ssize_t bytes = srcSock.tcpRecv(&buf);
 		if (bytes == 0)
 		{
 			deactivate();
@@ -162,7 +162,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 
 		int err;
 		socklen_t errLen = sizeof(err);
-		int rc = getsockopt(dstFD, SOL_SOCKET, SO_ERROR, &err, &errLen);
+		int rc = getsockopt(dstSock.fd, SOL_SOCKET, SO_ERROR, &err, &errLen);
 		if (rc < 0)
 			code = SOCKS6_OPERATION_REPLY_FAILURE;
 		else
@@ -178,11 +178,11 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 
 		S6U::SocketAddress bindAddr;
 		socklen_t addrLen = sizeof(bindAddr.storage);
-		rc = getsockname(dstFD, &bindAddr.sockAddress, &addrLen);
+		rc = getsockname(dstSock.fd, &bindAddr.sockAddress, &addrLen);
 		if (rc < 0)
 			throw system_error(errno, system_category());
 
-		if (S6U::Socket::hasMPTCP(dstFD) > 0)
+		if (S6U::Socket::hasMPTCP(dstSock.fd) > 0)
 			replyOptions.setMPTCP();
 
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort(), request->getInitialDataLen());

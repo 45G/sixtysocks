@@ -11,8 +11,8 @@ WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, boost::sh
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
 
-	sock.assign(socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
-	if (sock < 0)
+	sock.fd.assign(socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
+	if (sock.fd < 0)
 		throw system_error(errno, system_category());
 	
 	S6M::Request req(SOCKS6_REQUEST_NOOP, S6U::Socket::QUAD_ZERO, 0, 0);
@@ -26,9 +26,9 @@ WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, boost::sh
 
 void WindowSupplicationAgent::start()
 {
-	tcpConnect(sock, *proxifier->getProxyAddr());
+	sock.tcpConnect(*proxifier->getProxyAddr());
 
-	poller->add(this, sock, Poller::OUT_EVENTS);
+	poller->add(this, sock.fd, Poller::OUT_EVENTS);
 }
 
 void WindowSupplicationAgent::process(int fd, uint32_t events)
@@ -42,7 +42,7 @@ void WindowSupplicationAgent::process(int fd, uint32_t events)
 		int err;
 		socklen_t errLen = sizeof(err);
 
-		int rc = getsockopt(sock, SOL_SOCKET, SO_ERROR, &err, &errLen);
+		int rc = getsockopt(sock.fd, SOL_SOCKET, SO_ERROR, &err, &errLen);
 		if (rc < 0)
 			throw system_error(errno, system_category());
 		if (err != 0)
@@ -52,25 +52,25 @@ void WindowSupplicationAgent::process(int fd, uint32_t events)
 	}
 	case S_SENDING_REQ:
 	{
-		ssize_t bytes = tcpSend(sock, &buf);
+		ssize_t bytes = sock.tcpSend(&buf);
 		if (bytes == 0)
 			return;
 		
 		if (buf.usedSize() > 0)
 		{
-			poller->add(this, sock, Poller::OUT_EVENTS);
+			poller->add(this, sock.fd, Poller::OUT_EVENTS);
 		}
 		else
 		{
 			state = S_RECEIVING_AUTH_REP;
-			poller->add(this, sock, Poller::IN_EVENTS);
+			poller->add(this, sock.fd, Poller::IN_EVENTS);
 		}
 		break;
 	}
 		
 	case S_RECEIVING_AUTH_REP:
 	{
-		ssize_t bytes = tcpRecv(sock, &buf);
+		ssize_t bytes = sock.tcpRecv(&buf);
 		if (bytes == 0)
 			return;
 		
@@ -84,7 +84,7 @@ void WindowSupplicationAgent::process(int fd, uint32_t events)
 		}
 		catch (S6M::EndOfBufferException &)
 		{
-			poller->add(this, sock, Poller::IN_EVENTS);
+			poller->add(this, sock.fd, Poller::IN_EVENTS);
 		}
 		break;
 	}

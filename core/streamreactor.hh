@@ -3,7 +3,7 @@
 
 #include <socks6util/socks6util_socketaddress.hh>
 #include "streambuffer.hh"
-#include "uniqfd.hh"
+#include "socket.hh"
 #include "reactor.hh"
 
 class AuthenticationReactor;
@@ -11,8 +11,8 @@ class AuthenticationReactor;
 class StreamReactor: public Reactor
 {
 protected:
-	UniqRecvFD srcFD;
-	UniqSendFD dstFD;
+	RSocket srcSock;
+	WSocket dstSock;
 	
 	StreamBuffer buf;
 	
@@ -28,14 +28,14 @@ public:
 	StreamReactor(Poller *poller, StreamState streamState = SS_RECEIVING)
 		: Reactor(poller), streamState(streamState) {}
 	
-	int getSrcFD()
+	RSocket *getSrcSock()
 	{
-		return srcFD;
+		return &srcSock;
 	}
 	
-	int getDstFD()
+	WSocket *getDstSock()
 	{
-		return dstFD;
+		return &dstSock;
 	}
 	
 	void process(int fd, uint32_t events);

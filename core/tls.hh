@@ -16,6 +16,8 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	UniqTLS readTLS;
 	UniqTLS writeTLS;
 	
+	bool connected;
+	
 public:
 	TLS(WOLFSSL_CTX *ctx, int fd);
 	

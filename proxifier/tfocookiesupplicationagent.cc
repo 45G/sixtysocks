@@ -9,15 +9,15 @@ TFOCookieSupplicationAgent::TFOCookieSupplicationAgent(Proxifier *proxifier)
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
 
-	sock.assign(socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
-	if (sock < 0)
+	sock.fd.assign(socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
+	if (sock.fd < 0)
 		throw system_error(errno, system_category());
 }
 
 void TFOCookieSupplicationAgent::start()
 {
-	tcpSendTFO(sock, &buf, *proxifier->getProxyAddr());
-	poller->add(this, sock, Poller::OUT_EVENTS);
+	sock.tcpSendTFO(&buf, *proxifier->getProxyAddr());
+	poller->add(this, sock.fd, Poller::OUT_EVENTS);
 }
 
 void TFOCookieSupplicationAgent::process(int fd, uint32_t events)

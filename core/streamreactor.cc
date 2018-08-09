@@ -13,15 +13,15 @@ void StreamReactor::process(int fd, uint32_t events)
 	{
 	case SS_RECEIVING:
 	{
-		ssize_t bytes = tcpRecv(srcFD, &buf);
+		ssize_t bytes = srcSock.tcpRecv(&buf);
 		if (bytes == 0)
 		{
-			poller->remove(srcFD);
-			srcFD.reset();
+			poller->remove(srcSock.fd);
+			srcSock.fd.reset();
 			if (buf.usedSize() == 0)
 			{
-				poller->remove(dstFD);
-				dstFD.reset();
+				poller->remove(dstSock.fd);
+				dstSock.fd.reset();
 				return;
 			}
 		}
@@ -31,24 +31,24 @@ void StreamReactor::process(int fd, uint32_t events)
 	}
 	case SS_SENDING:
 	{
-		ssize_t bytes = tcpSend(dstFD, &buf);
+		ssize_t bytes = dstSock.tcpSend(&buf);
 		if (bytes == 0)
 		{
-			poller->remove(srcFD);
-			srcFD.reset();
-			poller->remove(dstFD);
-			dstFD.reset();
+			poller->remove(srcSock.fd);
+			srcSock.fd.reset();
+			poller->remove(dstSock.fd);
+			dstSock.fd.reset();
 			return;
 		}
 
 		if (buf.usedSize() == 0)
 		{
 			streamState = SS_RECEIVING;
-			poller->add(this, srcFD, Poller::IN_EVENTS);
+			poller->add(this, srcSock.fd, Poller::IN_EVENTS);
 		}
 		else
 		{
-			poller->add(this, dstFD, Poller::OUT_EVENTS);
+			poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
 		}
 
 		break;
@@ -60,8 +60,8 @@ void StreamReactor::deactivate()
 {
 	Reactor::deactivate();
 	
-	poller->remove(srcFD);
-	poller->remove(dstFD);
+	poller->remove(srcSock.fd);
+	poller->remove(dstSock.fd);
 }
 
 void StreamReactor::start()
@@ -69,11 +69,11 @@ void StreamReactor::start()
 	switch (streamState)
 	{
 	case SS_RECEIVING:
-		poller->add(this, srcFD, Poller::IN_EVENTS);
+		poller->add(this, srcSock.fd, Poller::IN_EVENTS);
 		break;
 
 	case SS_SENDING:
-		poller->add(this, dstFD, Poller::OUT_EVENTS);
+		poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
 		break;
 	}
 }
@@ -82,8 +82,8 @@ StreamReactor::~StreamReactor()
 {
 	try
 	{
-		poller->remove(srcFD);
-		poller->remove(dstFD);
+		poller->remove(srcSock.fd);
+		poller->remove(dstSock.fd);
 	}
 	catch(...) {}
 }

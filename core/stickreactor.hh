@@ -2,11 +2,12 @@
 #define STICKREACTOR_HH
 
 #include "reactor.hh"
+#include "socket.hh"
 
 class StickReactor: public Reactor
 {
 protected:
-	UniqFD sock;
+	RWSocket sock;
 
 	StreamBuffer buf;
 
