@@ -6,6 +6,16 @@
 
 using namespace std;
 
+#define TLS_HANDLE(tls, rc, fd) \
+{ \
+	int err = wolfSSL_get_error((tls), (rc)); \
+	if (err == WOLFSSL_ERROR_WANT_READ) \
+		throw RescheduleException((fd), Poller::IN_EVENTS); \
+	if (err == WOLFSSL_ERROR_WANT_WRITE) \
+		throw RescheduleException((fd), Poller::OUT_EVENTS); \
+	throw TLSException(err); \
+}
+
 TLS::TLS(TLSContext *ctx, int fd)
 	: rfd(fd), wfd(fd)
 {
@@ -67,38 +77,30 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 	else
 		rc = wolfSSL_connect(readTLS);
 	if (rc < 0)
-	{
-		int err = wolfSSL_get_error(writeTLS, rc);
-		if (err == WOLFSSL_ERROR_WANT_READ)
-			throw RescheduleException(wfd, Poller::IN_EVENTS);
-		if (err == WOLFSSL_ERROR_WANT_WRITE)
-			throw RescheduleException(wfd, Poller::OUT_EVENTS);
-		throw TLSException(err);
-	}
+		TLS_HANDLE(readTLS, rc, rfd);
 	
 	if (useEarlyData)
-		buf->unuseHead(earlyDataWritten);
+		buf->unuse(earlyDataWritten);
 		
 }
 
 void TLS::tlsAccept(StreamBuffer *buf)
 {
+	int earlyDataRead = 0;
+	int rc = wolfSSL_read_early_data(readTLS, buf->getTail(), buf->usedSize(), &earlyDataRead);
+	if (rc < 0)
+		TLS_HANDLE(writeTLS, rc, rfd);
 	
+	buf->use(earlyDataRead);
 }
 
 size_t TLS::tlsWrite(StreamBuffer *buf)
 {
 	int bytes = wolfSSL_write(writeTLS, buf->getHead(), buf->usedSize());
 	if (bytes < 0)
-	{
-		int err = wolfSSL_get_error(writeTLS, bytes);
-		if (err == WOLFSSL_ERROR_WANT_WRITE)
-			throw RescheduleException(wfd, Poller::OUT_EVENTS);
-		if (err == WOLFSSL_ERROR_WANT_READ)
-			throw RescheduleException(wfd, Poller::IN_EVENTS);
-		throw TLSException(err);
-	}
-	buf->unuseHead(bytes);
+		TLS_HANDLE(writeTLS, bytes, wfd);
+	
+	buf->unuse(bytes);
 	return bytes;
 }
 
@@ -106,14 +108,8 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 {
 	int bytes = wolfSSL_read(readTLS, buf->getTail(), buf->availSize());
 	if (bytes < 0)
-	{
-		int err = wolfSSL_get_error(writeTLS, bytes);
-		if (err == WOLFSSL_ERROR_WANT_READ)
-			throw RescheduleException(wfd, Poller::IN_EVENTS);
-		if (err == WOLFSSL_ERROR_WANT_WRITE)
-			throw RescheduleException(wfd, Poller::OUT_EVENTS);
-		throw TLSException(err);
-	}
-	buf->unuseHead(bytes);
+		TLS_HANDLE(readTLS, bytes, rfd);
+	
+	buf->unuse(bytes);
 	return bytes;
 }

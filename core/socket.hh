@@ -38,7 +38,7 @@ struct Socket
 				throw RescheduleException(fd, Poller::OUT_EVENTS);
 			throw std::system_error(errno, std::system_category());
 		}
-		buf->unuseHead(bytes);
+		buf->unuse(bytes);
 		return bytes;
 	}
 	
@@ -48,7 +48,7 @@ struct Socket
 		if (bytes < 0 && errno != EINPROGRESS)
 			throw std::system_error(errno, std::system_category());
 		if (bytes > 0)
-			buf->unuseHead(bytes);
+			buf->unuse(bytes);
 		return bytes;
 	}
 	
@@ -97,6 +97,14 @@ struct Socket
 		if (tls == NULL)
 			return;
 		tls->tlsConnect(NULL, NULL, false);
+	}
+	
+	void serverHandshake(StreamBuffer *buf)
+	{
+		if (tls == NULL)
+			return;
+		
+		tls->tlsAccept(buf);
 	}
 	
 	bool benefitsFromIdempotence()

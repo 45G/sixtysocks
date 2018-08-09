@@ -98,7 +98,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		try
 		{
 			request = boost::shared_ptr<S6M::Request>(new S6M::Request(&bb));
-			buf.unuseHead(bb.getUsed());
+			buf.unuse(bb.getUsed());
 		}
 		catch (S6M::BadVersionException &)
 		{

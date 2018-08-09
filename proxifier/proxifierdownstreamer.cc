@@ -42,7 +42,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 				deactivate();
 				return;
 			}
-			buf.unuseHead(bb.getUsed());
+			buf.unuse(bb.getUsed());
 			
 			SOCKS6TokenExpenditureCode expenditureCode = authRep.getOptionSet()->getExpenditureReply();
 			if (upstreamer->getWallet().get() != NULL && (expenditureCode == (SOCKS6TokenExpenditureCode)0 || expenditureCode == SOCKS6_TOK_EXPEND_NO_WND))
@@ -85,7 +85,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			S6M::OperationReply opRep(&bb);
 			if (opRep.getCode() != SOCKS6_OPERATION_REPLY_SUCCESS)
 				return;
-			buf.unuseHead(bb.getUsed());
+			buf.unuse(bb.getUsed());
 		}
 		catch (S6M::EndOfBufferException &)
 		{
