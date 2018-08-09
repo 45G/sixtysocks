@@ -96,6 +96,7 @@ struct Socket
 	{
 		if (tls == NULL)
 			return;
+		
 		tls->tlsConnect(NULL, NULL, false);
 	}
 	
