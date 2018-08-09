@@ -71,12 +71,9 @@ void ProxifierUpstreamer::start()
 	buf.prepend(bb.getBuf(), bb.getUsed());
 
 	/* connect */
-	if (S6U::TFOSafety::tfoSafe(polFlags))
-		dstSock.tcpSendTFO(&buf, *proxifier->getProxyAddr());
-	else
-		dstSock.tcpConnect(*proxifier->getProxyAddr());
+	dstSock.sockConnect(*proxifier->getProxyAddr(), &buf, S6U::TFOSafety::tfoSafe(polFlags), polFlags & S6U::TFOSafety::TFOS_SPEND_TOKEN);
 
-	StreamReactor::start();
+	poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
 }
 
 void ProxifierUpstreamer::process(int fd, uint32_t events)
@@ -84,6 +81,12 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 	switch (state)
 	{
 	case S_CONNECTING:
+	{
+		state = S_HANDSHAKING;
+		dstSock.clientHandshake();
+		[[fallthrough]];
+	}
+	case S_HANDSHAKING:
 	{
 		poller->assign(new ProxifierDownstreamer(this));
 

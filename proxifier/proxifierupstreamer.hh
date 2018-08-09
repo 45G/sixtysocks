@@ -14,6 +14,7 @@ class ProxifierUpstreamer: public StreamReactor
 	enum State
 	{
 		S_CONNECTING,
+		S_HANDSHAKING,
 		S_STREAM,
 	};
 	
