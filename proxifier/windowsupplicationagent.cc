@@ -52,7 +52,7 @@ void WindowSupplicationAgent::process(int fd, uint32_t events)
 	}
 	case S_SENDING_REQ:
 	{
-		ssize_t bytes = sock.tcpSend(&buf);
+		ssize_t bytes = sock.sockSend(&buf);
 		if (bytes == 0)
 			return;
 		
@@ -70,7 +70,7 @@ void WindowSupplicationAgent::process(int fd, uint32_t events)
 		
 	case S_RECEIVING_AUTH_REP:
 	{
-		ssize_t bytes = sock.tcpRecv(&buf);
+		ssize_t bytes = sock.sockRecv(&buf);
 		if (bytes == 0)
 			return;
 		

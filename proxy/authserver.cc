@@ -101,7 +101,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 
 void AuthServer::sendReply()
 {
-	int bytes = sock.tcpSend(&buf);
+	int bytes = sock.sockSend(&buf);
 	if (bytes == 0)
 		deactivate();
 

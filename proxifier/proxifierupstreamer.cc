@@ -33,7 +33,7 @@ void ProxifierUpstreamer::start()
 	/* read initial data opportunistically */
 	try
 	{
-		srcSock.tcpRecv(&buf);
+		srcSock.sockRecv(&buf);
 	}
 	catch (RescheduleException &) {}
 

@@ -13,7 +13,7 @@ void StreamReactor::process(int fd, uint32_t events)
 	{
 	case SS_RECEIVING:
 	{
-		ssize_t bytes = srcSock.tcpRecv(&buf);
+		ssize_t bytes = srcSock.sockRecv(&buf);
 		if (bytes == 0)
 		{
 			poller->remove(srcSock.fd);
@@ -31,7 +31,7 @@ void StreamReactor::process(int fd, uint32_t events)
 	}
 	case SS_SENDING:
 	{
-		ssize_t bytes = dstSock.tcpSend(&buf);
+		ssize_t bytes = dstSock.sockSend(&buf);
 		if (bytes == 0)
 		{
 			poller->remove(srcSock.fd);

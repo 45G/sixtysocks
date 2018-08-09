@@ -26,7 +26,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 	{
 	case S_WAITING_FOR_AUTH_REP:
 	{
-		ssize_t bytes = srcSock.tcpRecv(&buf);
+		ssize_t bytes = srcSock.sockRecv(&buf);
 		if (bytes == 0)
 		{
 			deactivate();
@@ -74,7 +74,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 	{
 		if (!fellThrough)
 		{
-			ssize_t bytes = srcSock.tcpRecv(&buf);
+			ssize_t bytes = srcSock.sockRecv(&buf);
 			if (bytes == 0)
 				return;
 		}

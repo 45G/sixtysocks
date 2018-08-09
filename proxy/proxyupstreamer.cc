@@ -90,7 +90,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	{
 	case S_READING_REQ:
 	{
-		ssize_t bytes = srcSock.tcpRecv(&buf);
+		ssize_t bytes = srcSock.sockRecv(&buf);
 		if (bytes == 0)
 			return;
 
@@ -138,7 +138,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_READING_INIT_DATA:
 	{
-		ssize_t bytes = srcSock.tcpRecv(&buf);
+		ssize_t bytes = srcSock.sockRecv(&buf);
 		if (bytes == 0)
 		{
 			deactivate();
