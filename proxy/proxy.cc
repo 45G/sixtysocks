@@ -9,7 +9,7 @@ void Proxy::handleNewConnection(int fd)
 {
 	try
 	{
-		poller->assign(new ProxyUpstreamer(this, &fd));
+		poller->assign(new ProxyUpstreamer(this, &fd, serverCtx));
 	}
 	catch (...)
 	{

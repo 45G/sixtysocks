@@ -41,7 +41,7 @@ class ProxyUpstreamer: public StreamReactor
 	void honorRequest();
 	
 public:
-	ProxyUpstreamer(Proxy *proxy, int *pSrcFD);
+	ProxyUpstreamer(Proxy *proxy, int *pSrcFD, TLSContext *serverCtx);
 	
 	void start();
 	

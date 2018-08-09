@@ -23,10 +23,10 @@ class Proxifier: public ListenReactor
 	Spinlock walletLock;
 	Spinlock supplicationLock;
 
-	TLSContext *tlsCtx;
+	TLSContext *clientCtx;
 	
 public:
-	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, const std::string &username, const std::string &passwordd, TLSContext *tlsCtx);
+	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, const std::string &username, const std::string &passwordd, TLSContext *clientCtx);
 	
 	const S6U::SocketAddress *getProxyAddr() const
 	{

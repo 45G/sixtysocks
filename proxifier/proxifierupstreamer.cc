@@ -11,7 +11,7 @@ using namespace std;
 
 static const size_t HEADROOM = 512; //more than enough for any request
 
-ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, boost::shared_ptr<WindowSupplicant> supplicant)
+ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, boost::shared_ptr<WindowSupplicant> supplicant)
 	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
 {
 	buf.makeHeadroom(HEADROOM);
@@ -22,6 +22,8 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, boos
 	dstSock.fd.assign(socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (dstSock.fd < 0)
 		throw system_error(errno, system_category());
+	if (clientCtx != NULL)
+		dstSock.tls = new TLS(clientCtx, dstSock.fd);
 	
 	int rc = S6U::Socket::getOriginalDestination(srcSock.fd, &dest.storage);
 	if (rc < 0)

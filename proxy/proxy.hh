@@ -17,11 +17,11 @@ class Proxy: public ListenReactor
 	std::unordered_map<std::string, std::unique_ptr<SyncedTokenBank> > banks;
 	Spinlock bankLock;
 	
-	TLSContext *tlsCtx;
+	TLSContext *serverCtx;
 
 public:
-	Proxy(Poller *poller, const S6U::SocketAddress &bindAddr, PasswordChecker *passwordChecker, TLSContext *tlsCtx)
-		: ListenReactor(poller, bindAddr), passwordChecker(passwordChecker), tlsCtx(tlsCtx) {}
+	Proxy(Poller *poller, const S6U::SocketAddress &bindAddr, PasswordChecker *passwordChecker, TLSContext *serverCtx)
+		: ListenReactor(poller, bindAddr), passwordChecker(passwordChecker), serverCtx(serverCtx) {}
 	
 	void handleNewConnection(int fd);
 
