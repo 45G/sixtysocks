@@ -9,16 +9,43 @@ using namespace std;
 TLS::TLS(WOLFSSL_CTX *ctx, int fd)
 	: rfd(fd), wfd(fd)
 {
-	readTLS.assign(wolfSSL_new(ctx));
+	readTLS = wolfSSL_new(ctx);
 	if (readTLS == NULL)
 		throw runtime_error("Error creating context");
+	writeTLS = readTLS;
+		
 	wolfSSL_SetIOWriteFlags(readTLS, MSG_NOSIGNAL);
 }
 
 TLS::~TLS()
 {
+	if (readTLS == writeTLS)
+		writeTLS = NULL;
+	
 	wolfSSL_free(writeTLS);
 	wolfSSL_free(readTLS);
+}
+
+void TLS::setReadFD(int fd)
+{
+	if (readTLS == writeTLS)
+	{
+		writeTLS = wolfSSL_write_dup(readTLS);
+		if (writeTLS == NULL)
+			throw runtime_error("Error duplicating WOLFSSL");
+	}
+	rfd = fd;
+}
+
+void TLS::setWriteFD(int fd)
+{
+	if (readTLS == writeTLS)
+	{
+		writeTLS = wolfSSL_write_dup(readTLS);
+		if (writeTLS == NULL)
+			throw runtime_error("Error duplicating WOLFSSL");
+	}
+	wfd = fd;
 }
 
 void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData)

@@ -13,8 +13,8 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	int rfd;
 	int wfd;
 	
-	UniqTLS readTLS;
-	UniqTLS writeTLS;
+	WOLFSSL *readTLS;
+	WOLFSSL *writeTLS;
 	
 	bool connected;
 	
@@ -23,15 +23,9 @@ public:
 	
 	~TLS();
 	
-	void setReadFD(int fd)
-	{
-		rfd = fd;
-	}
+	void setReadFD(int fd);
 	
-	void setWriteFD(int fd)
-	{
-		wfd = fd;
-	}
+	void setWriteFD(int fd);
 	
 	void tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData);
 	
