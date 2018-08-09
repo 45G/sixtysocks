@@ -40,10 +40,15 @@ void ProxyUpstreamer::honorRequest()
 				if (S6U::Socket::setMPTCPSched(dstSock.fd, proxyServerSched) == 0)
 					replyOptions.setProxyServerSched(proxyServerSched);
 				
-				if (request->getOptionSet()->getTFO())
-					dstSock.tcpSendTFO(&buf, addr);
-				else
-					dstSock.tcpConnect(addr);
+				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFO(), false);
+				try
+				{
+					dstSock.clientHandshake();
+				}
+				catch (std::exception &)
+				{
+					throw runtime_error("Unexpected exception in null handshake");
+				}
 			}
 			catch (system_error &err)
 			{
@@ -84,15 +89,34 @@ ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int *pSrcFD)
 	*pSrcFD = -1;
 }
 
+void ProxyUpstreamer::start()
+{
+	process(-1, 0);
+}
+
 void ProxyUpstreamer::process(int fd, uint32_t events)
 {
+	bool fellThrough = false;
+	
 	switch (state)
 	{
+	case S_HANDSHAKE:
+	{
+		srcSock.serverHandshake(&buf);
+		
+		state = S_READING_REQ;
+		fellThrough = true;
+		[[fallthrough]];
+	}
+		
 	case S_READING_REQ:
 	{
-		ssize_t bytes = srcSock.sockRecv(&buf);
-		if (bytes == 0)
-			return;
+		if (!fellThrough || buf.usedSize() == 0)
+		{
+			ssize_t bytes = srcSock.sockRecv(&buf);
+			if (bytes == 0)
+				return;
+		}
 
 		S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
 		try

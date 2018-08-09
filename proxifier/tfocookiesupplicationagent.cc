@@ -16,7 +16,7 @@ TFOCookieSupplicationAgent::TFOCookieSupplicationAgent(Proxifier *proxifier)
 
 void TFOCookieSupplicationAgent::start()
 {
-	sock.tcpSendTFO(&buf, *proxifier->getProxyAddr());
+	sock.sockConnect(*proxifier->getProxyAddr(), &buf, true, true);
 	poller->add(this, sock.fd, Poller::OUT_EVENTS);
 }
 

@@ -15,6 +15,7 @@ class ProxyUpstreamer: public StreamReactor
 {
 	enum State
 	{
+		S_HANDSHAKE,
 		S_READING_REQ,
 		S_READING_INIT_DATA,
 		S_AWAITING_AUTH,
@@ -41,6 +42,8 @@ class ProxyUpstreamer: public StreamReactor
 	
 public:
 	ProxyUpstreamer(Proxy *proxy, int *pSrcFD);
+	
+	void start();
 	
 	void process(int fd, uint32_t events);
 	

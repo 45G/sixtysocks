@@ -16,6 +16,8 @@ using namespace std;
 	throw TLSException(err); \
 }
 
+//TODO: set fd
+
 TLS::TLS(TLSContext *ctx, int fd)
 	: rfd(fd), wfd(fd)
 {
@@ -29,6 +31,19 @@ TLS::TLS(TLSContext *ctx, int fd)
 	static const int CERT_VERIFY_DEPTH = 3;
 	if (ctx->isClient())
 		wolfSSL_set_verify_depth(readTLS, CERT_VERIFY_DEPTH);
+		
+	try
+	{
+		int rc = wolfSSL_set_fd(readTLS, fd);
+		if (rc != SSL_SUCCESS)
+			throw TLSException(readTLS, rc);
+	}
+	catch (std::exception &ex)
+	{
+		wolfSSL_free(readTLS);
+		throw ex;
+	}
+	
 }
 
 TLS::~TLS()
@@ -49,6 +64,9 @@ void TLS::setReadFD(int fd)
 			throw runtime_error("Error duplicating WOLFSSL");
 	}
 	rfd = fd;
+	int rc = wolfSSL_set_read_fd(readTLS, fd);
+	if (rc != SSL_SUCCESS)
+		throw TLSException(readTLS, rc);
 }
 
 void TLS::setWriteFD(int fd)
@@ -60,6 +78,9 @@ void TLS::setWriteFD(int fd)
 			throw runtime_error("Error duplicating WOLFSSL");
 	}
 	wfd = fd;
+	int rc = wolfSSL_set_write_fd(writeTLS, fd);
+	if (rc != SSL_SUCCESS)
+		throw TLSException(writeTLS, rc);
 }
 
 void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData)
