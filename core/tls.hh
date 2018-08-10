@@ -16,7 +16,7 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	WOLFSSL *readTLS;
 	WOLFSSL *writeTLS;
 
-	bool connected;
+	bool connectCalled;
 	
 public:
 	TLS(TLSContext *ctx, int fd);

@@ -88,7 +88,6 @@ void WindowSupplicationAgent::process(int fd, uint32_t events)
 			S6M::AuthenticationReply authRep(&bb);
 			
 			supplicant->process(&authRep);
-			
 		}
 		catch (S6M::EndOfBufferException &)
 		{
