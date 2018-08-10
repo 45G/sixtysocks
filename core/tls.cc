@@ -131,6 +131,6 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 	if (bytes < 0)
 		TLS_HANDLE(readTLS, bytes, rfd);
 	
-	buf->unuse(bytes);
+	buf->use(bytes);
 	return bytes;
 }
