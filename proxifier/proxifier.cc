@@ -27,6 +27,8 @@ Proxifier::Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const 
 
 void Proxifier::start()
 {
+	bool supplicateTFO = true;
+
 	supplicationLock.acquire();
 	if (username->length() > 0)
 	{
@@ -34,15 +36,21 @@ void Proxifier::start()
 		{
 			boost::shared_ptr<WindowSupplicant> windowSupplicant (new WindowSupplicant(this));
 			poller->assign(new WindowSupplicationAgent(this, windowSupplicant, clientCtx));
+
+			if (clientCtx != NULL) /* TLS uses TFO */
+				supplicateTFO = false;
 		}
 		catch(...) {}
 	}
 
-	try
+	if (supplicateTFO)
 	{
-		poller->assign(new TFOCookieSupplicationAgent(this));
+		try
+		{
+			poller->assign(new TFOCookieSupplicationAgent(this));
+		}
+		catch(...) {}
 	}
-	catch(...) {}
 
 	ListenReactor::start();
 }
