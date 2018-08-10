@@ -10,8 +10,10 @@ class TLSContext: public boost::intrusive_ref_counter<TLSContext>
 {
 	WOLFSSL_CTX *ctx;
 	
+	WOLFSSL_SESSION *session;
+
 	bool server;
-	
+
 public:
 	/* client context */
 	TLSContext(const std::string &veriFile);
@@ -37,6 +39,16 @@ public:
 	bool isClient() const
 	{
 		return !server;
+	}
+
+	void setSession(WOLFSSL_SESSION *session)
+	{
+		this->session = session;
+	}
+
+	WOLFSSL_SESSION *getSession()
+	{
+		return session;
 	}
 };
 

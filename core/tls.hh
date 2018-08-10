@@ -8,12 +8,14 @@
 
 class TLS: public boost::intrusive_ref_counter<TLS>
 {
+	TLSContext *ctx;
+
 	int rfd;
 	int wfd;
-	
+
 	WOLFSSL *readTLS;
 	WOLFSSL *writeTLS;
-	
+
 	bool connected;
 	
 public:

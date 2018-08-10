@@ -6,7 +6,7 @@
 using namespace std;
 
 TLSContext::TLSContext(const std::string &veriFile)
-	: server(false)
+	: session(NULL), server(false)
 {
 	ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
 	if (ctx == NULL)
@@ -32,7 +32,7 @@ TLSContext::TLSContext(const std::string &veriFile)
 }
 
 TLSContext::TLSContext(const string &certFile, const string keyFile)
-	: server(true)
+	: session(NULL), server(true)
 {
 	ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method());
 	if (ctx == NULL)

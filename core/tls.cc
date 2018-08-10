@@ -4,6 +4,8 @@
 #include "poller.hh"
 #include "tls.hh"
 
+#include <iostream>
+
 using namespace std;
 
 #define TLS_HANDLE(tls, rc, fd) \
@@ -16,10 +18,8 @@ using namespace std;
 	throw TLSException(err); \
 }
 
-//TODO: set fd
-
 TLS::TLS(TLSContext *ctx, int fd)
-	: rfd(fd), wfd(fd)
+	: ctx(ctx), rfd(fd), wfd(fd)
 {
 	readTLS = wolfSSL_new(ctx->get());
 	if (readTLS == NULL)
@@ -44,6 +44,7 @@ TLS::TLS(TLSContext *ctx, int fd)
 		throw ex;
 	}
 	
+	//wolfSSL_set_session(readTLS, ctx->getSession()); //tolerable error
 }
 
 TLS::~TLS()
@@ -92,7 +93,7 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 	
 	if (addr != NULL)
 		wolfSSL_SetTFOAddr(readTLS, &addr->storage, addr->size());
-	
+
 	if (useEarlyData && buf->usedSize() > 0)
 		rc = wolfSSL_write_early_data(readTLS, buf->getHead(), buf->usedSize(), &earlyDataWritten);
 	else
@@ -102,7 +103,9 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 	
 	if (useEarlyData)
 		buf->unuse(earlyDataWritten);
-		
+
+	if (!wolfSSL_session_reused(readTLS))
+		ctx->setSession(wolfSSL_get_session(readTLS));
 }
 
 void TLS::tlsAccept(StreamBuffer *buf)

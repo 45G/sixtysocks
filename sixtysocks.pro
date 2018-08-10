@@ -28,7 +28,8 @@ SOURCES += \
     proxifier/windowsupplicationagent.cc \
     core/stickreactor.cc \
     core/tls.cc \
-    core/tlsexception.cc
+    core/tlsexception.cc \
+    core/strikecounter.cc
 
 HEADERS += \
     core/poller.hh \
@@ -58,7 +59,8 @@ HEADERS += \
     core/tls.hh \
     core/tlsexception.hh \
     core/socket.hh \
-    core/tlslibrary.hh
+    core/tlslibrary.hh \
+    core/strikecounter.hh
 
 INCLUDEPATH += /usr/local/wolfssl/include
 
