@@ -59,6 +59,11 @@ enum Mode
 	M_PROXY,
 };
 
+void log(const int logLevel, const char *const logMessage)
+{
+	cout << logMessage << endl;
+}
+
 int main(int argc, char **argv)
 {
 	char c;
@@ -185,7 +190,7 @@ int main(int argc, char **argv)
 		tlsLibrary = new TLSLibrary();
 		
 		wolfSSL_Debugging_ON();
-		//static const int CERT_VERIFY_DEPTH = 3;
+		wolfSSL_SetLoggingCb(log);
 
 		if (mode == M_PROXIFIER)
 			clientCtx = new TLSContext(veriFile);

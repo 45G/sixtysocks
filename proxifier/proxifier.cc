@@ -32,7 +32,8 @@ void Proxifier::start()
 	{
 		try
 		{
-			poller->assign(new WindowSupplicationAgent(this, boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(this))));
+			boost::shared_ptr<WindowSupplicant> windowSupplicant (new WindowSupplicant(this));
+			poller->assign(new WindowSupplicationAgent(this, windowSupplicant, clientCtx));
 		}
 		catch(...) {}
 	}
