@@ -27,7 +27,7 @@ WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, boost::sh
 
 void WindowSupplicationAgent::start()
 {
-	sock.sockConnect(*proxifier->getProxyAddr(), &buf, false, false);
+	sock.sockConnect(*proxifier->getProxyAddr(), &buf, false, false, proxifier->getSession());
 
 	poller->add(this, sock.fd, Poller::OUT_EVENTS);
 }
@@ -54,7 +54,7 @@ void WindowSupplicationAgent::process(int fd, uint32_t events)
 	}
 	case S_HANDSHAKING:
 	{
-		sock.clientHandshake();
+		sock.clientHandshake(proxifier->getSession());
 		state = S_SENDING_REQ;
 		[[fallthrough]];
 	}

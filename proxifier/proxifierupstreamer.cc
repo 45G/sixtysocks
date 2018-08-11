@@ -82,7 +82,7 @@ void ProxifierUpstreamer::start()
 	buf.prepend(bb.getBuf(), bb.getUsed());
 
 	/* connect */
-	dstSock.sockConnect(*proxifier->getProxyAddr(), &buf, S6U::TFOSafety::tfoSafe(polFlags), polFlags & S6U::TFOSafety::TFOS_SPEND_TOKEN);
+	dstSock.sockConnect(*proxifier->getProxyAddr(), &buf, S6U::TFOSafety::tfoSafe(polFlags), polFlags & S6U::TFOSafety::TFOS_SPEND_TOKEN, proxifier->getSession());
 
 	poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
 }
@@ -98,7 +98,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_HANDSHAKING:
 	{
-		dstSock.clientHandshake();
+		dstSock.clientHandshake(proxifier->getSession());
 
 		poller->assign(new ProxifierDownstreamer(this));
 

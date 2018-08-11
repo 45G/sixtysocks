@@ -60,8 +60,9 @@ HEADERS += \
     core/tlsexception.hh \
     core/socket.hh \
     core/tlslibrary.hh \
-    core/strikecounter.hh
+    core/strikecounter.hh \
+    core/tlssession.hh
 
 INCLUDEPATH += /usr/local/wolfssl/include
 
-LIBS += -L/usr/local/wolfssl/lib64 -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lwolfssl
+LIBS += -L/usr/local/wolfssl/lib64 -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lboost_thread -lwolfssl

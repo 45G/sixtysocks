@@ -4,12 +4,13 @@
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <socks6util/socks6util.hh>
 #include "tlscontext.hh"
+#include "tlssession.hh"
 #include "streambuffer.hh"
+
+class Proxifier;
 
 class TLS: public boost::intrusive_ref_counter<TLS>
 {
-	TLSContext *ctx;
-
 	int rfd;
 	int wfd;
 
@@ -27,7 +28,7 @@ public:
 	
 	void setWriteFD(int fd);
 	
-	void tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData);
+	void tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData, TLSSession *session);
 	
 	void tlsAccept(StreamBuffer *buf);
 	

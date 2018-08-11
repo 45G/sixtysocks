@@ -40,10 +40,10 @@ void ProxyUpstreamer::honorRequest()
 				if (S6U::Socket::setMPTCPSched(dstSock.fd, proxyServerSched) == 0)
 					replyOptions.setProxyServerSched(proxyServerSched);
 				
-				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFO(), false);
+				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFO(), false, NULL);
 				try
 				{
-					dstSock.clientHandshake();
+					dstSock.clientHandshake(NULL);
 				}
 				catch (std::exception &)
 				{

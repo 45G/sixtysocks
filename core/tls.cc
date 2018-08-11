@@ -19,7 +19,7 @@ using namespace std;
 }
 
 TLS::TLS(TLSContext *ctx, int fd)
-	: ctx(ctx), rfd(fd), wfd(fd), connectCalled(false)
+	: rfd(fd), wfd(fd), connectCalled(false)
 {
 	readTLS = wolfSSL_new(ctx->get());
 	if (readTLS == NULL)
@@ -43,8 +43,6 @@ TLS::TLS(TLSContext *ctx, int fd)
 		wolfSSL_free(readTLS);
 		throw ex;
 	}
-	
-	wolfSSL_set_session(readTLS, ctx->getSession()); //tolerable error
 }
 
 TLS::~TLS()
@@ -84,7 +82,7 @@ void TLS::setWriteFD(int fd)
 		throw TLSException(writeTLS, rc);
 }
 
-void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData)
+void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData, TLSSession *session)
 {
 	int rc;
 	int earlyDataWritten = 0;
@@ -95,7 +93,10 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 	connectCalled = true;
 
 	if (firstConnnect && addr != NULL)
+	{
 		wolfSSL_SetTFOAddr(readTLS, &addr->storage, addr->size());
+		wolfSSL_set_session(readTLS, session->get()); //tolerable error
+	}
 
 	if (firstConnnect && useEarlyData && buf->usedSize() > 0)
 		rc = wolfSSL_write_early_data(readTLS, buf->getHead(), buf->usedSize(), &earlyDataWritten);
@@ -108,7 +109,7 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 		buf->unuse(earlyDataWritten);
 
 	if (!wolfSSL_session_reused(readTLS))
-		ctx->setSession(wolfSSL_get_session(readTLS));
+		session->set(wolfSSL_get_session(readTLS));
 }
 
 void TLS::tlsAccept(StreamBuffer *buf)
