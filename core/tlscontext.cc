@@ -122,7 +122,8 @@ int TLSContext::ticketEncryptCallback(WOLFSSL *ssl, byte keyName[WOLFSSL_TICKET_
 		if (rc != 0)
 			return WOLFSSL_TICKET_RET_REJECT;
 
-		*outLen = 0;
+		*outLen = inLen;
+		ticket[0] += 1;
 
 		HMAC_CTX_init(&hCtx);
 		HMAC_Init_ex(&hCtx, tlsContext->ticketCtx.hmacKey, WOLFSSL_TICKET_MAC_SZ, EVP_sha256(), NULL);
@@ -137,6 +138,8 @@ int TLSContext::ticketEncryptCallback(WOLFSSL *ssl, byte keyName[WOLFSSL_TICKET_
 
 		if (memcmp(tlsContext->ticketCtx.keyName, keyName, WOLFSSL_TICKET_NAME_SZ))
 			return WOLFSSL_TICKET_RET_FATAL;
+
+		ticket[0] -= 1;
 
 		HMAC_CTX_init(&hCtx);
 		HMAC_Init_ex(&hCtx, tlsContext->ticketCtx.hmacKey, WOLFSSL_TICKET_MAC_SZ, EVP_sha256(), NULL);
