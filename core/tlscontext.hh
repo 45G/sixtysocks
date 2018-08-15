@@ -6,7 +6,6 @@
 #include <boost/thread/tss.hpp>
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
-#include <wolfssl/wolfcrypt/chacha20_poly1305.h>
 
 class TLSContext: public boost::intrusive_ref_counter<TLSContext>
 {

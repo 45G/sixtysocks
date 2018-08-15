@@ -2,7 +2,6 @@
 #include "tlsexception.hh"
 #include "tlscontext.hh"
 #include <boost/filesystem.hpp>
-#include <wolfssl/test.h>
 
 using namespace std;
 

@@ -95,7 +95,7 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 	if (firstConnnect && addr != NULL)
 	{
 		wolfSSL_SetTFOAddr(readTLS, &addr->storage, addr->size());
-		wolfSSL_set_session(readTLS, session->get()); //tolerable error
+		session->apply(readTLS);
 	}
 
 	if (firstConnnect && useEarlyData && buf->usedSize() > 0)
@@ -109,7 +109,7 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 		buf->unuse(earlyDataWritten);
 
 	if (!wolfSSL_session_reused(readTLS))
-		session->set(wolfSSL_get_session(readTLS));
+		session->update(readTLS);
 }
 
 void TLS::tlsAccept(StreamBuffer *buf)
