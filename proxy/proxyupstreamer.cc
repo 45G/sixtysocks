@@ -40,10 +40,10 @@ void ProxyUpstreamer::honorRequest()
 				if (S6U::Socket::setMPTCPSched(dstSock.fd, proxyServerSched) == 0)
 					replyOptions.setProxyServerSched(proxyServerSched);
 				
-				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFO(), false, NULL);
+				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFO(), false);
 				try
 				{
-					dstSock.clientHandshake(NULL);
+					dstSock.clientHandshake();
 				}
 				catch (std::exception &)
 				{
@@ -89,7 +89,7 @@ ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int *pSrcFD, TLSContext *serverCt
 	*pSrcFD = -1;
 	
 	if (serverCtx != NULL)
-		srcSock.tls = new TLS(serverCtx, srcSock.fd);
+		srcSock.tls = new TLS(serverCtx, srcSock.fd, NULL);
 }
 
 void ProxyUpstreamer::start()

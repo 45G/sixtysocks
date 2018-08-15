@@ -14,7 +14,7 @@ WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, boost::sh
 	sock.fd.assign(socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (sock.fd < 0)
 		throw system_error(errno, system_category());
-	sock.tls = new TLS(clientCtx, sock.fd);
+	sock.tls = new TLS(clientCtx, sock.fd, proxifier->getSession());
 	
 	S6M::Request req(SOCKS6_REQUEST_NOOP, S6U::Socket::QUAD_ZERO, 0, 0);
 	req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());
@@ -27,7 +27,7 @@ WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, boost::sh
 
 void WindowSupplicationAgent::start()
 {
-	sock.sockConnect(*proxifier->getProxyAddr(), &buf, false, false, proxifier->getSession());
+	sock.sockConnect(*proxifier->getProxyAddr(), &buf, false, false);
 
 	poller->add(this, sock.fd, Poller::OUT_EVENTS);
 }
@@ -54,7 +54,7 @@ void WindowSupplicationAgent::process(int fd, uint32_t events)
 	}
 	case S_HANDSHAKING:
 	{
-		sock.clientHandshake(proxifier->getSession());
+		sock.clientHandshake();
 		state = S_SENDING_REQ;
 		[[fallthrough]];
 	}

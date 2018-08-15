@@ -19,8 +19,10 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 
 	bool connectCalled;
 	
+	static int sessionTicketCallback(WOLFSSL* ssl, const unsigned char* ticket, int ticketSz, void* ctx);
+
 public:
-	TLS(TLSContext *ctx, int fd);
+	TLS(TLSContext *ctx, int fd, TLSSession *session);
 	
 	~TLS();
 	
@@ -28,7 +30,7 @@ public:
 	
 	void setWriteFD(int fd);
 	
-	void tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData, TLSSession *session);
+	void tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData);
 	
 	void tlsAccept(StreamBuffer *buf);
 	

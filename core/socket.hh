@@ -74,7 +74,7 @@ struct Socket
 		return tcpSend(buf);
 	}
 	
-	void sockConnect(S6U::SocketAddress addr, StreamBuffer *buf, bool tfoIfTCP, bool earlyDataIfTLS, TLSSession *session)
+	void sockConnect(S6U::SocketAddress addr, StreamBuffer *buf, bool tfoIfTCP, bool earlyDataIfTLS)
 	{
 		if (tls == NULL)
 		{
@@ -87,18 +87,18 @@ struct Socket
 		{
 			try
 			{
-				tls->tlsConnect(&addr, buf, earlyDataIfTLS, session);
+				tls->tlsConnect(&addr, buf, earlyDataIfTLS);
 			}
 			catch (RescheduleException &) {}
 		}
 	}
 	
-	void clientHandshake(TLSSession *session)
+	void clientHandshake()
 	{
 		if (tls == NULL)
 			return;
 		
-		tls->tlsConnect(NULL, NULL, false, session);
+		tls->tlsConnect(NULL, NULL, false);
 	}
 	
 	void serverHandshake(StreamBuffer *buf)

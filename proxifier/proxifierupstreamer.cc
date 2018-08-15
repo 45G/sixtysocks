@@ -23,7 +23,7 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSC
 	if (dstSock.fd < 0)
 		throw system_error(errno, system_category());
 	if (clientCtx != NULL)
-		dstSock.tls = new TLS(clientCtx, dstSock.fd);
+		dstSock.tls = new TLS(clientCtx, dstSock.fd, proxifier->getSession());
 	
 	int rc = S6U::Socket::getOriginalDestination(srcSock.fd, &dest.storage);
 	if (rc < 0)
@@ -82,7 +82,7 @@ void ProxifierUpstreamer::start()
 	buf.prepend(bb.getBuf(), bb.getUsed());
 
 	/* connect */
-	dstSock.sockConnect(*proxifier->getProxyAddr(), &buf, S6U::TFOSafety::tfoSafe(polFlags), polFlags & S6U::TFOSafety::TFOS_SPEND_TOKEN, proxifier->getSession());
+	dstSock.sockConnect(*proxifier->getProxyAddr(), &buf, S6U::TFOSafety::tfoSafe(polFlags), polFlags & S6U::TFOSafety::TFOS_SPEND_TOKEN);
 
 	poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
 }
@@ -98,7 +98,7 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_HANDSHAKING:
 	{
-		dstSock.clientHandshake(proxifier->getSession());
+		dstSock.clientHandshake();
 
 		poller->assign(new ProxifierDownstreamer(this));
 
