@@ -102,7 +102,7 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 		rc = wolfSSL_write_early_data(readTLS, buf->getHead(), buf->usedSize(), &earlyDataWritten);
 	else
 		rc = wolfSSL_connect(readTLS);
-	if (rc < 0)
+	if (rc != SSL_SUCCESS)
 		TLS_HANDLE(readTLS, rc, rfd);
 	
 	if (useEarlyData)
