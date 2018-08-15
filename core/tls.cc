@@ -23,7 +23,7 @@ int TLS::sessionTicketCallback(WOLFSSL *ssl, const unsigned char *ticket, int ti
 	(void)ticket; (void)ticketSz;
 
 	TLSSession *session = reinterpret_cast<TLSSession *>(ctx);
-	session->update(ssl);
+	session->update(ssl); //TODO: maybe session hasn't changed; need to memcpy new ticket
 
 	return 0;
 }
