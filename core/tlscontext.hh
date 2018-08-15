@@ -9,17 +9,27 @@
 
 class TLSContext: public boost::intrusive_ref_counter<TLSContext>
 {
+	struct TicketCtx
+	{
+		static const int AES_KEY_SIZE  = 16;
+		static const int HMAC_KEY_SIZE = 16;
+
+		byte keyName[WOLFSSL_TICKET_NAME_SZ];
+		byte aesKey[AES_KEY_SIZE];
+		byte hmacKey[HMAC_KEY_SIZE];
+
+		TicketCtx();
+
+		int encrypt(unsigned char *ticket, int size, unsigned char *iv);
+
+		int decrypt(unsigned char *ticket, int size, unsigned char *iv);
+
+		int hmac(const unsigned char *name, const unsigned char *iv, const unsigned char *ticket, int ticketLen, unsigned char *hash);
+	};
+
 	WOLFSSL_CTX *ctx;
 
 	bool server;
-
-	struct TicketCtx
-	{
-		byte keyName[WOLFSSL_TICKET_NAME_SZ];
-		byte hmacKey[16];
-
-		TicketCtx();
-	};
 
 	TicketCtx ticketCtx;
 

@@ -74,6 +74,10 @@ TLSContext::TicketCtx::TicketCtx()
 	if (rc < 0)
 		throw runtime_error("Error doing RAND_bytes");
 
+	rc = RAND_bytes(aesKey, sizeof(aesKey));
+	if (rc < 0)
+		throw runtime_error("Error doing RAND_bytes");
+
 	rc = RAND_bytes(hmacKey, sizeof(hmacKey));
 	if (rc < 0)
 		throw runtime_error("Error doing RAND_bytes");
@@ -91,6 +95,108 @@ TLSContext::Random::~Random()
 	wc_FreeRng(&rng);
 }
 
+int TLSContext::TicketCtx::encrypt(unsigned char *ticket, int size, unsigned char *iv)
+{
+	int ret = -1;
+	int len;
+	int outLen = 0;
+	int rc;
+
+	EVP_CIPHER_CTX *aesCtx = EVP_CIPHER_CTX_new();
+	if (aesCtx == NULL)
+		return -1;
+
+	rc = EVP_EncryptInit_ex(aesCtx, EVP_aes_128_cbc(), NULL, aesKey, iv);
+	if (rc != 1)
+		goto done;
+
+	rc = EVP_EncryptUpdate(aesCtx, ticket, &len, ticket, size);
+	if (rc != 1)
+		goto done;
+	outLen += len;
+
+	rc = EVP_EncryptFinal_ex(aesCtx, ticket + outLen, &len);
+	if (rc != 1)
+		goto done;
+	outLen += len;
+
+	ret = outLen;
+
+done:
+	EVP_CIPHER_CTX_free(aesCtx);
+	return ret;
+}
+
+int TLSContext::TicketCtx::decrypt(unsigned char *ticket, int size, unsigned char *iv)
+{
+	int ret = -1;
+	int len;
+	int outLen = 0;
+	int rc;
+
+	EVP_CIPHER_CTX *aesCtx = EVP_CIPHER_CTX_new();
+	if (aesCtx == NULL)
+		return -1;
+
+	rc = EVP_DecryptInit_ex(aesCtx, EVP_aes_128_cbc(), NULL, aesKey, iv);
+	if (rc != 1)
+		goto done;
+
+	rc = EVP_DecryptUpdate(aesCtx, ticket, &len, ticket, size);
+	if (rc != 1)
+		goto done;
+	outLen += len;
+
+	rc = EVP_DecryptFinal_ex(aesCtx, ticket + outLen, &len);
+	if (rc != 1)
+		goto done;
+	outLen += len;
+
+	ret = outLen;
+
+done:
+	EVP_CIPHER_CTX_free(aesCtx);
+	return ret;
+}
+
+int TLSContext::TicketCtx::hmac(const unsigned char *name, const unsigned char *iv, const unsigned char *ticket, int ticketLen, unsigned char *hash)
+{
+	HMAC_CTX hCtx;
+	unsigned int hmacLen;
+	int rc;
+	int ret = -1;
+
+	rc = HMAC_CTX_init(&hCtx);
+	if (rc != 1)
+		return -1;
+
+	rc = HMAC_Init_ex(&hCtx, hmacKey, TLSContext::TicketCtx::HMAC_KEY_SIZE, EVP_sha256(), NULL);
+	if (rc != 1)
+		goto done;
+
+	rc = HMAC_Update(&hCtx, name, WOLFSSL_TICKET_NAME_SZ);
+	if (rc != 1)
+		goto done;
+
+	rc = HMAC_Update(&hCtx, iv, WOLFSSL_TICKET_IV_SZ);
+	if (rc != 1)
+		goto done;
+
+	rc = HMAC_Update(&hCtx, ticket, ticketLen);
+	if (rc != 1)
+		goto done;
+
+	rc = HMAC_Final(&hCtx, hash, &hmacLen);
+	if (rc != 1)
+		goto done;
+
+	ret = hmacLen;
+
+done:
+	HMAC_CTX_cleanup(&hCtx);
+	return ret;
+}
+
 int TLSContext::ticketEncryptCallback(WOLFSSL *ssl, byte keyName[WOLFSSL_TICKET_NAME_SZ],
 	byte iv[WOLFSSL_TICKET_IV_SZ], byte mac[WOLFSSL_TICKET_MAC_SZ],
 	int enc, byte *ticket, int inLen, int *outLen, void *userCtx)
@@ -99,15 +205,14 @@ int TLSContext::ticketEncryptCallback(WOLFSSL *ssl, byte keyName[WOLFSSL_TICKET_
 
 	int rc;
 
-	unsigned hmacLen = WOLFSSL_TICKET_MAC_SZ;
-	HMAC_CTX hCtx;
-
 	TLSContext *tlsContext = reinterpret_cast<TLSContext *>(userCtx);
 
 	if (enc)
 	{
+		/* name */
 		memcpy(keyName, tlsContext->ticketCtx.keyName, WOLFSSL_TICKET_NAME_SZ);
 
+		/* iv */
 		try
 		{
 			if (tlsContext->random.get() == NULL)
@@ -121,36 +226,32 @@ int TLSContext::ticketEncryptCallback(WOLFSSL *ssl, byte keyName[WOLFSSL_TICKET_
 		if (rc != 0)
 			return WOLFSSL_TICKET_RET_REJECT;
 
-		*outLen = inLen;
-		ticket[0] += 1;
+		/* ticket */
+		*outLen = tlsContext->ticketCtx.encrypt(ticket, inLen, iv);
+		if (*outLen == -1)
+			return WOLFSSL_TICKET_RET_REJECT;
 
-		HMAC_CTX_init(&hCtx);
-		HMAC_Init_ex(&hCtx, tlsContext->ticketCtx.hmacKey, WOLFSSL_TICKET_MAC_SZ, EVP_sha256(), NULL);
-		HMAC_Update(&hCtx, keyName, WOLFSSL_TICKET_NAME_SZ);
-		HMAC_Update(&hCtx, iv, WOLFSSL_TICKET_IV_SZ);
-		HMAC_Final(&hCtx, mac, &hmacLen);
-		HMAC_CTX_cleanup(&hCtx);
+		/* hmac */
+		rc = tlsContext->ticketCtx.hmac(keyName, iv, ticket, *outLen, mac);
+		if (rc == -1)
+			return WOLFSSL_TICKET_RET_REJECT;
 	}
 	else
 	{
-		byte compMac[WOLFSSL_TICKET_MAC_SZ];
-
+		/* name */
 		if (memcmp(tlsContext->ticketCtx.keyName, keyName, WOLFSSL_TICKET_NAME_SZ))
 			return WOLFSSL_TICKET_RET_FATAL;
 
-		ticket[0] -= 1;
-
-		HMAC_CTX_init(&hCtx);
-		HMAC_Init_ex(&hCtx, tlsContext->ticketCtx.hmacKey, WOLFSSL_TICKET_MAC_SZ, EVP_sha256(), NULL);
-		HMAC_Update(&hCtx, keyName, WOLFSSL_TICKET_NAME_SZ);
-		HMAC_Update(&hCtx, iv, WOLFSSL_TICKET_IV_SZ);
-		HMAC_Final(&hCtx, compMac, &hmacLen);
-		HMAC_CTX_cleanup(&hCtx);
-
+		/* hmac */
+		byte compMac[WOLFSSL_TICKET_MAC_SZ];
+		rc = tlsContext->ticketCtx.hmac(keyName, iv, ticket, inLen, compMac);
 		if (memcmp(compMac, mac, WOLFSSL_TICKET_MAC_SZ))
 			return WOLFSSL_TICKET_RET_FATAL;
 
-		*outLen = inLen;
+		/* ticket */
+		*outLen = tlsContext->ticketCtx.decrypt(ticket, inLen, iv);
+		if (*outLen == -1)
+			return WOLFSSL_TICKET_RET_REJECT;
 	}
 
 	return WOLFSSL_TICKET_RET_OK;
