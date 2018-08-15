@@ -220,38 +220,40 @@ int TLSContext::ticketEncryptCallback(WOLFSSL *ssl, byte keyName[WOLFSSL_TICKET_
 		}
 		catch (exception &)
 		{
-			return WOLFSSL_TICKET_RET_REJECT;
+			return WOLFSSL_TICKET_RET_FATAL;
 		}
 		rc = wc_RNG_GenerateBlock(&tlsContext->random->rng, iv, WOLFSSL_TICKET_IV_SZ);
 		if (rc != 0)
-			return WOLFSSL_TICKET_RET_REJECT;
+			return WOLFSSL_TICKET_RET_FATAL;
 
 		/* ticket */
 		*outLen = tlsContext->ticketCtx.encrypt(ticket, inLen, iv);
 		if (*outLen == -1)
-			return WOLFSSL_TICKET_RET_REJECT;
+			return WOLFSSL_TICKET_RET_FATAL;
 
 		/* hmac */
 		rc = tlsContext->ticketCtx.hmac(keyName, iv, ticket, *outLen, mac);
 		if (rc == -1)
-			return WOLFSSL_TICKET_RET_REJECT;
+			return WOLFSSL_TICKET_RET_FATAL;
 	}
 	else
 	{
 		/* name */
 		if (memcmp(tlsContext->ticketCtx.keyName, keyName, WOLFSSL_TICKET_NAME_SZ))
-			return WOLFSSL_TICKET_RET_FATAL;
+			return WOLFSSL_TICKET_RET_REJECT;
 
 		/* hmac */
 		byte compMac[WOLFSSL_TICKET_MAC_SZ];
 		rc = tlsContext->ticketCtx.hmac(keyName, iv, ticket, inLen, compMac);
-		if (memcmp(compMac, mac, WOLFSSL_TICKET_MAC_SZ))
+		if (rc == -1)
 			return WOLFSSL_TICKET_RET_FATAL;
+		if (memcmp(compMac, mac, WOLFSSL_TICKET_MAC_SZ))
+			return WOLFSSL_TICKET_RET_REJECT;
 
 		/* ticket */
 		*outLen = tlsContext->ticketCtx.decrypt(ticket, inLen, iv);
 		if (*outLen == -1)
-			return WOLFSSL_TICKET_RET_REJECT;
+			return WOLFSSL_TICKET_RET_FATAL;
 	}
 
 	return WOLFSSL_TICKET_RET_OK;

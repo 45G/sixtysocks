@@ -40,7 +40,10 @@ TLS::TLS(TLSContext *ctx, int fd, TLSSession *session)
 	
 	static const int CERT_VERIFY_DEPTH = 3;
 	if (ctx->isClient())
+	{
 		wolfSSL_set_verify_depth(readTLS, CERT_VERIFY_DEPTH);
+		session->apply(readTLS);
+	}
 		
 	try
 	{
