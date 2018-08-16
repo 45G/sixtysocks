@@ -116,11 +116,17 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 		wolfSSL_SetTFOAddr(readTLS, &addr->storage, addr->size());
 
 	if (firstConnnect && useEarlyData && buf->usedSize() > 0)
+	{
 		rc = wolfSSL_write_early_data(readTLS, buf->getHead(), buf->usedSize(), &earlyDataWritten);
+		if (rc < 0)
+			TLS_HANDLE_ERR(readTLS, rc, rfd);
+	}
 	else
+	{
 		rc = wolfSSL_connect(readTLS);
-	if (rc != SSL_SUCCESS)
-		TLS_HANDLE_ERR(readTLS, rc, rfd);
+		if (rc != SSL_SUCCESS)
+			TLS_HANDLE_ERR(readTLS, rc, rfd);
+	}
 	
 	if (useEarlyData)
 		buf->unuse(earlyDataWritten);
