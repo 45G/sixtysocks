@@ -49,9 +49,9 @@ void Poller::assign(boost::intrusive_ptr<Reactor> reactor)
 			add(reactor, resched.getFD(), resched.getEvents());
 		}
 	}
-	catch(std::exception &)
+	catch(std::exception &ex)
 	{
-//		cout << "caucht exception; killing reactor: " << ex.what() << endl;
+		cerr << "Caught exception; killing reactor: " << ex.what() << endl;
 		reactor->deactivate();
 	}
 }
@@ -151,9 +151,9 @@ void Poller::threadFun(Poller *poller)
 				poller->add(reactor, resched.getFD(), resched.getEvents());
 			}
 		}
-		catch (std::exception &)
+		catch (std::exception &ex)
 		{
-//			cout << "caucht exception; killing reactor: " << ex.what() << endl;
+			cerr << "Caught exception; killing reactor: " << ex.what() << endl;
 			reactor->deactivate();
 		}
 	}

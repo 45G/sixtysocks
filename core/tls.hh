@@ -21,6 +21,8 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	
 	static int sessionTicketCallback(WOLFSSL* ssl, const unsigned char* ticket, int ticketSz, void* ctx);
 
+	TLSSession *session;
+
 public:
 	TLS(TLSContext *ctx, int fd, TLSSession *session);
 	

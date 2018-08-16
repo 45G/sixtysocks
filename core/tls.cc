@@ -4,8 +4,6 @@
 #include "poller.hh"
 #include "tls.hh"
 
-#include <iostream>
-
 using namespace std;
 
 #define TLS_HANDLE_ERR(tls, rc, fd) \
@@ -29,7 +27,7 @@ int TLS::sessionTicketCallback(WOLFSSL *ssl, const unsigned char *ticket, int ti
 }
 
 TLS::TLS(TLSContext *ctx, int fd, TLSSession *session)
-	: rfd(fd), wfd(fd), connectCalled(false)
+	: rfd(fd), wfd(fd), connectCalled(false), session(session)
 {
 	readTLS = wolfSSL_new(ctx->get());
 	if (readTLS == NULL)
@@ -51,12 +49,12 @@ TLS::TLS(TLSContext *ctx, int fd, TLSSession *session)
 		if (rc != SSL_SUCCESS)
 			throw TLSException(readTLS, rc);
 
-		if (ctx->isClient())
-		{
-			rc = wolfSSL_set_SessionTicket_cb(readTLS, sessionTicketCallback, session);
-			if (rc != SSL_SUCCESS)
-				throw TLSException(readTLS, rc);
-		}
+//		if (ctx->isClient())
+//		{
+//			rc = wolfSSL_set_SessionTicket_cb(readTLS, sessionTicketCallback, session);
+//			if (rc != SSL_SUCCESS)
+//				throw TLSException(readTLS, rc);
+//		}
 	}
 	catch (std::exception &ex)
 	{
@@ -157,6 +155,10 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 	int bytes = wolfSSL_read(readTLS, buf->getTail(), buf->availSize());
 	if (bytes < 0)
 		TLS_HANDLE_ERR(readTLS, bytes, rfd);
+
+	if (session && !wolfSSL_session_reused(readTLS))
+		session->update(readTLS);
+	session = NULL;
 	
 	buf->use(bytes);
 	return bytes;

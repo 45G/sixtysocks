@@ -21,7 +21,7 @@ class TLSSession
 		SessionData()
 			: session(NULL), ticketLen(0) {}
 	};
-	
+
 	boost::intrusive_ptr<SessionData> sessionData;
 
 public:
