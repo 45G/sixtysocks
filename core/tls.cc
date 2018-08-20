@@ -6,14 +6,14 @@
 
 using namespace std;
 
-#define TLS_HANDLE_ERR(tls, rc, fd) \
-{ \
-	int err = wolfSSL_get_error((tls), (rc)); \
-	if (err == WOLFSSL_ERROR_WANT_READ) \
-		throw RescheduleException((fd), Poller::IN_EVENTS); \
-	if (err == WOLFSSL_ERROR_WANT_WRITE) \
-		throw RescheduleException((fd), Poller::OUT_EVENTS); \
-	throw TLSException(err); \
+static inline void TLS_HANDLE_ERR(WOLFSSL *tls, int rc, int fd)
+{
+	int err = wolfSSL_get_error((tls), (rc));
+	if (err == WOLFSSL_ERROR_WANT_READ)
+		throw RescheduleException((fd), Poller::IN_EVENTS);
+	if (err == WOLFSSL_ERROR_WANT_WRITE)
+		throw RescheduleException((fd), Poller::OUT_EVENTS);
+	throw TLSException(err);
 }
 
 int TLS::sessionTicketCallback(WOLFSSL *ssl, const unsigned char *ticket, int ticketSz, void *ctx)
