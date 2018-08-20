@@ -6,7 +6,7 @@
 
 using namespace std;
 
-static inline void TLS_HANDLE_ERR(WOLFSSL *tls, int rc, int fd)
+static void tlsHandleErr(WOLFSSL *tls, int rc, int fd)
 {
 	int err = wolfSSL_get_error((tls), (rc));
 	if (err == WOLFSSL_ERROR_WANT_READ)
@@ -117,13 +117,13 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 	{
 		rc = wolfSSL_write_early_data(readTLS, buf->getHead(), buf->usedSize(), &earlyDataWritten);
 		if (rc < 0)
-			TLS_HANDLE_ERR(readTLS, rc, rfd);
+			tlsHandleErr(readTLS, rc, rfd);
 	}
 	else
 	{
 		rc = wolfSSL_connect(readTLS);
 		if (rc != SSL_SUCCESS)
-			TLS_HANDLE_ERR(readTLS, rc, rfd);
+			tlsHandleErr(readTLS, rc, rfd);
 	}
 	
 	if (useEarlyData)
@@ -135,7 +135,7 @@ void TLS::tlsAccept(StreamBuffer *buf)
 	int earlyDataRead = 0;
 	int rc = wolfSSL_read_early_data(readTLS, buf->getTail(), buf->availSize(), &earlyDataRead);
 	if (rc < 0)
-		TLS_HANDLE_ERR(writeTLS, rc, rfd);
+		tlsHandleErr(writeTLS, rc, rfd);
 	
 	buf->use(earlyDataRead);
 }
@@ -144,7 +144,7 @@ size_t TLS::tlsWrite(StreamBuffer *buf)
 {
 	int bytes = wolfSSL_write(writeTLS, buf->getHead(), buf->usedSize());
 	if (bytes < 0)
-		TLS_HANDLE_ERR(writeTLS, bytes, wfd);
+		tlsHandleErr(writeTLS, bytes, wfd);
 	
 	buf->unuse(bytes);
 	return bytes;
@@ -154,7 +154,7 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 {
 	int bytes = wolfSSL_read(readTLS, buf->getTail(), buf->availSize());
 	if (bytes < 0)
-		TLS_HANDLE_ERR(readTLS, bytes, rfd);
+		tlsHandleErr(readTLS, bytes, rfd);
 
 	if (session && !wolfSSL_session_reused(readTLS))
 		session->update(readTLS);
