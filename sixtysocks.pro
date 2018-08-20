@@ -29,7 +29,8 @@ SOURCES += \
     core/stickreactor.cc \
     core/tls.cc \
     core/tlsexception.cc \
-    core/strikecounter.cc
+    core/strikecounter.cc \
+    core/readabledeferreactor.cc
 
 HEADERS += \
     core/poller.hh \
@@ -61,7 +62,8 @@ HEADERS += \
     core/socket.hh \
     core/tlslibrary.hh \
     core/strikecounter.hh \
-    core/tlssession.hh
+    core/tlssession.hh \
+    core/readabledeferreactor.hh
 
 INCLUDEPATH += /usr/local/wolfssl/include
 

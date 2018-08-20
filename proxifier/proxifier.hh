@@ -15,6 +15,8 @@ class Proxifier: public ListenReactor
 {
 	S6U::SocketAddress proxyAddr;
 
+	bool defer;
+
 	const boost::shared_ptr<std::string> username;
 	const boost::shared_ptr<std::string> password;
 	
@@ -28,7 +30,7 @@ class Proxifier: public ListenReactor
 	TLSSession session;
 	
 public:
-	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, const std::string &username, const std::string &passwordd, TLSContext *clientCtx);
+	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, bool defer, const std::string &username, const std::string &passwordd, TLSContext *clientCtx);
 	
 	const S6U::SocketAddress *getProxyAddr() const
 	{

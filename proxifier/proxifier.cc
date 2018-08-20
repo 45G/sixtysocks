@@ -9,14 +9,15 @@
 #include <system_error>
 #include "proxifier.hh"
 #include "../core/poller.hh"
+#include "../core/readabledeferreactor.hh"
 #include "windowsupplicationagent.hh"
 #include "tfocookiesupplicationagent.hh"
 #include "proxifierupstreamer.hh"
 
 using namespace std;
 
-Proxifier::Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, const string &username, const string &password, TLSContext *clientCtx)
-	: ListenReactor(poller, bindAddr), proxyAddr(proxyAddr),
+Proxifier::Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, bool defer, const string &username, const string &password, TLSContext *clientCtx)
+	: ListenReactor(poller, bindAddr), proxyAddr(proxyAddr), defer(defer),
 	  username(new std::string(username)), password(new std::string(password)),
 	  wallet(new SyncedTokenWallet()),
 	  clientCtx(clientCtx)
@@ -67,12 +68,18 @@ void Proxifier::handleNewConnection(int fd)
 			supplicationLock.release();
 	}
 
+	int closeFD = fd;
 	try
 	{
-		poller->assign(new ProxifierUpstreamer(this, &fd, clientCtx, supplicant));
+
+		ProxifierUpstreamer *upstreamer = new ProxifierUpstreamer(this, &closeFD, clientCtx, supplicant);
+		if (defer)
+			poller->assign(new ReadableDeferReactor(poller, fd, upstreamer));
+		else
+			poller->assign(upstreamer);
 	}
 	catch (...)
 	{
-		close(fd); // tolerable error
+		close(closeFD); // tolerable error
 	}
 }

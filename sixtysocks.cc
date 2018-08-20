@@ -36,6 +36,7 @@ void usage()
 			"[-V <trusted certificate file>]"
 			"[-C <certificate file>]"
 			"[-K <key file>]",
+			"[-D] (defer request until socket is readable)",
 		NULL,
 	};
 	
@@ -74,6 +75,7 @@ int main(int argc, char **argv)
 	string username;
 	string password;
 	boost::intrusive_ptr<SimplePasswordChecker> passwordChecker;
+	bool defer = false;
 	string veriFile;
 	string certFile;
 	string keyFile;
@@ -84,7 +86,7 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 
 	//TODO: fix this shit
-	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:V:C:K:")) != -1)
+	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:V:C:K:D")) != -1)
 	{
 		switch (c)
 		{
@@ -154,6 +156,10 @@ int main(int argc, char **argv)
 			keyFile = string(optarg);
 			useTLS = true;
 			break;
+
+		case 'D':
+			defer = true;
+			break;
 			
 		default:
 			usage();
@@ -202,7 +208,7 @@ int main(int argc, char **argv)
 		bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
 		bindAddr.ipv4.sin_port        = htons(port);
 
-		poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, username, password, clientCtx.get()));
+		poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, defer, username, password, clientCtx.get()));
 	}
 	else /* M_PROXY */
 	{
