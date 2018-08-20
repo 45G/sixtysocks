@@ -133,7 +133,7 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 void TLS::tlsAccept(StreamBuffer *buf)
 {
 	int earlyDataRead = 0;
-	int rc = wolfSSL_read_early_data(readTLS, buf->getTail(), buf->usedSize(), &earlyDataRead);
+	int rc = wolfSSL_read_early_data(readTLS, buf->getTail(), buf->availSize(), &earlyDataRead);
 	if (rc < 0)
 		TLS_HANDLE_ERR(writeTLS, rc, rfd);
 	
