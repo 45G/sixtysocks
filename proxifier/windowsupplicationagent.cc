@@ -14,7 +14,8 @@ WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, boost::sh
 	sock.fd.assign(socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (sock.fd < 0)
 		throw system_error(errno, system_category());
-	sock.tls = new TLS(clientCtx, sock.fd, proxifier->getSession());
+	if (clientCtx != NULL)
+		sock.tls = new TLS(clientCtx, sock.fd, proxifier->getSession());
 	
 	S6M::Request req(SOCKS6_REQUEST_NOOP, S6U::Socket::QUAD_ZERO, 0, 0);
 	req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());
