@@ -156,8 +156,8 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 	if (bytes < 0)
 		tlsHandleErr(readTLS, bytes, rfd);
 
-	if (session && !wolfSSL_session_reused(readTLS))
-		session->update(readTLS);
+//	if (session && !wolfSSL_session_reused(readTLS))
+//		session->update(readTLS);
 	session = NULL;
 	
 	buf->use(bytes);
