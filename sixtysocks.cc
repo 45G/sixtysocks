@@ -215,9 +215,9 @@ int main(int argc, char **argv)
 		if (port != 0)
 		{
 			S6U::SocketAddress bindAddr;
-			bindAddr.ipv4.sin_family      = AF_INET;
-			bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
-			bindAddr.ipv4.sin_port        = htons(port);
+			bindAddr.ipv6.sin6_family      = AF_INET6;
+			bindAddr.ipv6.sin6_addr = in6addr_any;
+			bindAddr.ipv6.sin6_port        = htons(port);
 
 			poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), NULL));
 		}

@@ -13,7 +13,7 @@ ListenReactor::ListenReactor(Poller *poller, const S6U::SocketAddress &bindAddr)
 {
 	static const int ONE = 1;
 
-	listenFD.assign(socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0));
+	listenFD.assign(socket(AF_INET6, SOCK_STREAM | SOCK_NONBLOCK, 0));
 	if (listenFD < 0)
 		throw std::system_error(errno, std::system_category());
 
