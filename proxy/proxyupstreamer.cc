@@ -39,6 +39,16 @@ void ProxyUpstreamer::honorRequest()
 				SOCKS6MPTCPScheduler proxyServerSched = request->getOptionSet()->getProxyServerSched();
 				if (S6U::Socket::setMPTCPSched(dstSock.fd, proxyServerSched) == 0)
 					replyOptions.setProxyServerSched(proxyServerSched);
+
+				//TODO: check resolved addresses, too
+				if (request->getAddress()->getType() == SOCKS6_ADDR_IPV6)
+				{
+					const vector<in6_addr> *forwardSegments = request->getOptionSet()->getForwardSegments();
+					const vector<in6_addr> *returnSegments  = request->getOptionSet()->getReturnSegments();
+
+					if (forwardSegments->size() + returnSegments->size() > 0)
+						S6U::Socket::setSegments(dstSock.fd, *forwardSegments, *returnSegments);
+				}
 				
 				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFO(), false);
 				try
