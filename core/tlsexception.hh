@@ -1,19 +1,18 @@
 #ifndef TLSEXCEPTION_HH
 #define TLSEXCEPTION_HH
 
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
 #include <exception>
+#include <nspr.h>
 
 class TLSException: public std::exception
 {
-	int err;
+	PRErrorCode err;
 public:
-	TLSException(int err)
+	TLSException(PRErrorCode err)
 		: err(err) {}
 	
-	TLSException(WOLFSSL *tls, int result)
-		: err(wolfSSL_get_error(tls, result)) {}
+	TLSException()
+		: err(PR_GetError()) {}
 
 	const char *what() const throw();
 };

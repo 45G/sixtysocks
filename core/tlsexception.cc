@@ -1,9 +1,9 @@
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/error-ssl.h>
 #include "tlsexception.hh"
 
 const char *TLSException::what() const throw()
 {
-	return wc_GetErrorString(err);
+	const char *str = PR_ErrorToName(err);
+	if (str == NULL)
+		str = "Unknown error";
+	return str;
 }

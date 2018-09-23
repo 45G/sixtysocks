@@ -30,7 +30,8 @@ SOURCES += \
     core/tls.cc \
     core/tlsexception.cc \
     core/strikecounter.cc \
-    core/readabledeferreactor.cc
+    core/readabledeferreactor.cc \
+    core/tlslibrary.cc
 
 HEADERS += \
     core/poller.hh \
@@ -65,6 +66,33 @@ HEADERS += \
     core/tlssession.hh \
     core/readabledeferreactor.hh
 
-INCLUDEPATH += /usr/local/wolfssl/include
+NSS_ROOT  = /home/vlad/Work/45G/nss-bundle/nss/
+NSPR_ROOT = /home/vlad/Work/45G/nss-bundle/nspr/
 
-LIBS += -L/usr/local/wolfssl/lib64 -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lboost_thread -lwolfssl
+INCLUDEPATH += $$NSS_ROOT/lib/base
+INCLUDEPATH += $$NSS_ROOT/lib/certdb
+INCLUDEPATH += $$NSS_ROOT/lib/certhigh
+INCLUDEPATH += $$NSS_ROOT/lib/ckfw
+INCLUDEPATH += $$NSS_ROOT/lib/crmf
+INCLUDEPATH += $$NSS_ROOT/lib/cryptohi
+INCLUDEPATH += $$NSS_ROOT/lib/dbm
+INCLUDEPATH += $$NSS_ROOT/lib/dev
+INCLUDEPATH += $$NSS_ROOT/lib/freebl
+INCLUDEPATH += $$NSS_ROOT/lib/jar
+INCLUDEPATH += $$NSS_ROOT/lib/libpkix
+INCLUDEPATH += $$NSS_ROOT/lib/nss
+INCLUDEPATH += $$NSS_ROOT/lib/pk11wrap
+INCLUDEPATH += $$NSS_ROOT/lib/pkcs12
+INCLUDEPATH += $$NSS_ROOT/lib/pkcs7
+INCLUDEPATH += $$NSS_ROOT/lib/pki
+INCLUDEPATH += $$NSS_ROOT/lib/smime
+INCLUDEPATH += $$NSS_ROOT/lib/softoken
+INCLUDEPATH += $$NSS_ROOT/lib/sqlite
+INCLUDEPATH += $$NSS_ROOT/lib/ssl
+INCLUDEPATH += $$NSS_ROOT/lib/sysinit
+INCLUDEPATH += $$NSS_ROOT/lib/util
+INCLUDEPATH += $$NSS_ROOT/lib/zlib
+
+INCLUDEPATH += $$NSPR_ROOT/Debug/dist/include/nspr
+
+LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lboost_thread
