@@ -26,8 +26,8 @@ int TLS::sessionTicketCallback(WOLFSSL *ssl, const unsigned char *ticket, int ti
 	return 0;
 }
 
-TLS::TLS(TLSContext *ctx, int fd, TLSSession *session)
-	: rfd(fd), wfd(fd), connectCalled(false), session(session)
+TLS::TLS(TLSContext *ctx, int fd)
+	: rfd(fd), wfd(fd)
 {
 	readTLS = wolfSSL_new(ctx->get());
 	if (readTLS == NULL)
@@ -132,6 +132,8 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 
 void TLS::tlsAccept(StreamBuffer *buf)
 {
+	//SECStatusCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA, PR_TRUE)); //TODO: move to TLSConnect
+	
 	int earlyDataRead = 0;
 	int rc = wolfSSL_read_early_data(readTLS, buf->getTail(), buf->availSize(), &earlyDataRead);
 	if (rc < 0)
@@ -162,4 +164,23 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 	
 	buf->use(bytes);
 	return bytes;
+}
+
+TLS::Descriptor::Descriptor(int fd)
+{
+	fileDescriptor = PR_ImportTCPSocket(fd);
+	if (!fileDescriptor)
+		throw TLSException();
+	PRFileDesc *newDesc = SSL_ImportFD(NULL, fileDescriptor);
+	if (!newDesc)
+	{
+		PR_Close(fileDescriptor); //might return error
+		throw TLSException();
+	}
+	fileDescriptor = newDesc;
+}
+
+TLS::Descriptor::~Descriptor()
+{
+	PR_Close(fileDescriptor); //might return error
 }

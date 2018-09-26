@@ -4,11 +4,12 @@
 #include <string>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/thread/tss.hpp>
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
+#include <ssl.h>
 
 class TLSContext: public boost::intrusive_ref_counter<TLSContext>
 {
+	CERTCertDBHandle certDB;
+	
 	struct TicketCtx
 	{
 		static const int AES_KEY_SIZE  = 16;

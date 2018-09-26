@@ -14,22 +14,21 @@ class TLSLibrary: public boost::intrusive_ref_counter<TLSLibrary>
 	struct NSSLibrary
 	{
 		NSSLibrary();
+		
+		NSSLibrary(const std::string &configDir);
 
 		~NSSLibrary();
 	};
 
-	struct Config
-	{
-		Config();
-	};
-
-	NSPRLibrary nspr;
-	NSSLibrary nss;
-	Config cfg;
+	NSPRLibrary nsprLibrary;
+	NSSLibrary nssLibrary;
+	
+	void init();
 
 public:
-	TLSLibrary()
-		: nss() {}
+	TLSLibrary();
+	
+	TLSLibrary(const std::string &configDir);
 };
 
 #endif // TLSLIBRARY_HH

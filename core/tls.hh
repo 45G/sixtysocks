@@ -3,6 +3,9 @@
 
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <socks6util/socks6util.hh>
+#include <ssl.h>
+#include <prio.h>
+#include <private/pprio.h>
 #include "tlscontext.hh"
 #include "tlssession.hh"
 #include "streambuffer.hh"
@@ -13,18 +16,25 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 {
 	int rfd;
 	int wfd;
-
-	WOLFSSL *readTLS;
-	WOLFSSL *writeTLS;
-
-	bool connectCalled;
 	
-	static int sessionTicketCallback(WOLFSSL* ssl, const unsigned char* ticket, int ticketSz, void* ctx);
-
-	TLSSession *session;
+	struct Descriptor
+	{
+		PRFileDesc *fileDescriptor;
+		
+		Descriptor(int fd);
+		
+		~Descriptor();
+		
+		operator PRFileDesc *()
+		{
+			fileDescriptor;
+		}
+	};
+	
+	Descriptor descriptor;
 
 public:
-	TLS(TLSContext *ctx, int fd, TLSSession *session);
+	TLS(TLSContext *ctx, int fd);
 	
 	~TLS();
 	
