@@ -188,8 +188,6 @@ int main(int argc, char **argv)
 	/* WolfSSL */
 	if (useTLS)
 	{
-		wolfSSL_Debugging_ON();
-
 		tlsLibrary = new TLSLibrary();
 
 		if (mode == M_PROXIFIER)

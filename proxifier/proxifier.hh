@@ -9,7 +9,6 @@
 #include "../authentication/syncedtokenstuff.h"
 #include "../core/listenreactor.hh"
 #include "../core/spinlock.hh"
-#include "../core/tlssession.hh"
 
 class Proxifier: public ListenReactor
 {
@@ -27,7 +26,6 @@ class Proxifier: public ListenReactor
 	Spinlock supplicationLock;
 
 	TLSContext *clientCtx;
-	TLSSession session;
 	
 public:
 	Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, bool defer, const std::string &username, const std::string &passwordd, TLSContext *clientCtx);
@@ -76,11 +74,6 @@ public:
 	void supplicantDone()
 	{
 		supplicationLock.release();
-	}
-	
-	TLSSession *getSession()
-	{
-		return &session;
 	}
 };
 

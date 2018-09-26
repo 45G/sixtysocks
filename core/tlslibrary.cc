@@ -35,7 +35,7 @@ static void SECStatusCheck(SECStatus status)
 		throw TLSException();
 }
 
-void TLSLibrary::init()
+static void init()
 {
 	SECStatusCheck(SSL_OptionSetDefault(SSL_ENABLE_FDX, PR_TRUE));
 	SECStatusCheck(SSL_OptionSetDefault(SSL_ENABLE_SESSION_TICKETS, PR_TRUE));

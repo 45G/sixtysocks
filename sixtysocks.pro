@@ -63,11 +63,10 @@ HEADERS += \
     core/socket.hh \
     core/tlslibrary.hh \
     core/strikecounter.hh \
-    core/tlssession.hh \
     core/readabledeferreactor.hh
 
-NSS_ROOT  = /home/vlad/Work/45G/nss-bundle/nss/
-NSPR_ROOT = /home/vlad/Work/45G/nss-bundle/nspr/
+NSS_ROOT  = /home/vlad/nss-bundle/nss/
+NSPR_ROOT = /home/vlad/nss-bundle/nspr/
 
 INCLUDEPATH += $$NSS_ROOT/lib/base
 INCLUDEPATH += $$NSS_ROOT/lib/certdb

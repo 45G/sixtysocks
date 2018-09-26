@@ -23,7 +23,7 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSC
 	if (dstSock.fd < 0)
 		throw system_error(errno, system_category());
 	if (clientCtx != NULL)
-		dstSock.tls = new TLS(clientCtx, dstSock.fd, proxifier->getSession());
+		dstSock.tls = new TLS(clientCtx, dstSock.fd);
 	
 	int rc = S6U::Socket::getOriginalDestination(srcSock.fd, &dest.storage);
 	if (rc < 0)

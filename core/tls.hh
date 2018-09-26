@@ -7,7 +7,6 @@
 #include <prio.h>
 #include <private/pprio.h>
 #include "tlscontext.hh"
-#include "tlssession.hh"
 #include "streambuffer.hh"
 
 class Proxifier;
@@ -27,7 +26,7 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 		
 		operator PRFileDesc *()
 		{
-			fileDescriptor;
+			return fileDescriptor;
 		}
 	};
 	
