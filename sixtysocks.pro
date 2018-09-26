@@ -65,8 +65,11 @@ HEADERS += \
     core/strikecounter.hh \
     core/readabledeferreactor.hh
 
-NSS_ROOT  = /home/vlad/nss-bundle/nss/
-NSPR_ROOT = /home/vlad/nss-bundle/nspr/
+# EDIT ME!
+NSS_BUNDLE_ROOT = /home/vlad/nss-bundle/
+
+NSS_ROOT        = $$NSS_BUNDLE_ROOT/nss/
+NSPR_ROOT       = $$NSS_BUNDLE_ROOT/nspr/
 
 INCLUDEPATH += $$NSS_ROOT/lib/base
 INCLUDEPATH += $$NSS_ROOT/lib/certdb
@@ -95,4 +98,5 @@ INCLUDEPATH += $$NSS_ROOT/lib/zlib
 INCLUDEPATH += $$NSPR_ROOT/Debug/dist/include/nspr
 INCLUDEPATH += $$NSPR_ROOT/pr/include/nspr
 
-LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lboost_thread
+LIBS += -L$$NSS_ROOT/lib64/ -L-L$$NSS_ROOT/lib/
+LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lboost_thread -lnspr4 -lnss3 -lssl3

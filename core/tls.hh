@@ -15,6 +15,9 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 {
 	int rfd;
 	int wfd;
+
+	bool connectCalled;
+	bool handshakeFinished;
 	
 	struct Descriptor
 	{
@@ -31,6 +34,10 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	};
 	
 	Descriptor descriptor;
+
+	static void handshakeCallback(PRFileDesc *fd, void *clientData);
+
+	static SECStatus canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalseStart);
 
 public:
 	TLS(TLSContext *ctx, int fd);

@@ -25,10 +25,36 @@ static void tlsHandleErr(BlockDirection bd, int fd)
 	throw TLSException(err);
 }
 
-TLS::TLS(TLSContext *ctx, int fd)
-	: rfd(fd), wfd(fd), descriptor(fd)
+void TLS::handshakeCallback(PRFileDesc *fd, void *clientData)
 {
-	//static const int CERT_VERIFY_DEPTH = 3;
+	(void)fd;
+
+	TLS *tls = reinterpret_cast<TLS *>(clientData);
+
+	tls->handshakeFinished = true;
+}
+
+SECStatus TLS::canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalseStart)
+{
+	(void)fd; (void)arg;
+
+	*canFalseStart = PR_TRUE;
+	return SECSuccess;
+}
+
+TLS::TLS(TLSContext *ctx, int fd)
+	: rfd(fd), wfd(fd), connectCalled(false), handshakeFinished(false), descriptor(fd)
+{
+	//static const int CERT_VERIFY_DEPTH = 3; //TODO: do something with this?
+	SECStatus rc = SSL_ResetHandshake(descriptor, ctx->isServer());
+	if (rc != SECSuccess)
+		throw TLSException();
+
+	rc = SSL_HandshakeCallback(descriptor, handshakeCallback, this);
+
+	rc = SSL_SetCanFalseStartCallback(descriptor, canFalseStartCallback, NULL);
+	if (rc != SECSuccess)
+		throw TLSException();
 }
 
 TLS::~TLS()
@@ -49,49 +75,51 @@ void TLS::setWriteFD(int fd)
 
 void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData)
 {
-	int rc;
-	int earlyDataWritten = 0;
-	
+	SECStatus rc;
 	useEarlyData = useEarlyData && addr != NULL && buf != NULL;
-	
-	bool firstConnnect = !connectCalled;
-	connectCalled = true;
 
-	if (firstConnnect && addr != NULL)
-		wolfSSL_SetTFOAddr(readTLS, &addr->storage, addr->size());
-
-	if (firstConnnect && useEarlyData && buf->usedSize() > 0)
+	if (!connectCalled && useEarlyData && buf->usedSize() > 0)
 	{
-		rc = wolfSSL_write_early_data(readTLS, buf->getHead(), buf->usedSize(), &earlyDataWritten);
-		if (rc < 0)
-			tlsHandleErr(readTLS, rc, rfd);
+		connectCalled = true;
+
+		PRInt32 earlyDataWritten = PR_SendTo(descriptor, buf->getHead(), buf->usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL,
+			reinterpret_cast<const PRNetAddr *>(addr), PR_INTERVAL_NO_TIMEOUT);
+		if (earlyDataWritten < 0)
+			tlsHandleErr(BD_OUT, wfd);
+
+		buf->unuse(earlyDataWritten);
 	}
 	else
 	{
-		rc = wolfSSL_connect(readTLS);
-		if (rc != SSL_SUCCESS)
-			tlsHandleErr(readTLS, rc, rfd);
+		rc = SSL_ForceHandshake(descriptor);
+		if (rc != SECSuccess)
+			tlsHandleErr(BD_IN, rfd);
 	}
-	
-	if (useEarlyData)
-		buf->unuse(earlyDataWritten);
 }
 
 void TLS::tlsAccept(StreamBuffer *buf)
 {
-	//SECStatusCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA, PR_TRUE)); //TODO: move to TLSConnect
-	
-	int earlyDataRead = 0;
-	int rc = wolfSSL_read_early_data(readTLS, buf->getTail(), buf->availSize(), &earlyDataRead);
-	if (rc < 0)
-		tlsHandleErr(writeTLS, rc, rfd);
-	
-	buf->use(earlyDataRead);
+	do
+	{
+		SECStatus rc = SSL_ForceHandshake(descriptor);
+		if (rc != SECSuccess)
+			tlsHandleErr(BD_IN, rfd);
+
+		if (handshakeFinished)
+			return;
+
+		PRInt32 dataRead = PR_Recv(descriptor, buf->getTail(), buf->availSize(), MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
+		if (dataRead < 0)
+			tlsHandleErr(BD_IN, rfd);
+
+		buf->use(dataRead);
+	}
+	while (true);
 }
 
 size_t TLS::tlsWrite(StreamBuffer *buf)
 {
-	int bytes = PR_Write(descriptor, buf->getHead(), buf->usedSize());
+	PRInt32 bytes = PR_Send(descriptor, buf->getHead(), buf->usedSize(), MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
 	if (bytes < 0)
 		tlsHandleErr(BD_OUT, wfd);
 	
@@ -101,7 +129,7 @@ size_t TLS::tlsWrite(StreamBuffer *buf)
 
 size_t TLS::tlsRead(StreamBuffer *buf)
 {
-	int bytes = PR_Read(descriptor, buf->getTail(), buf->availSize());
+	PRInt32 bytes = PR_Recv(descriptor, buf->getTail(), buf->availSize(), MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
 	if (bytes < 0)
 		tlsHandleErr(BD_IN, rfd);
 	

@@ -29,7 +29,7 @@ TLSLibrary::NSSLibrary::~NSSLibrary()
 	NSS_Shutdown(); // might return error
 }
 
-static void SECStatusCheck(SECStatus status)
+static void tlsCheck(SECStatus status)
 {
 	if (status != SECSuccess)
 		throw TLSException();
@@ -37,9 +37,10 @@ static void SECStatusCheck(SECStatus status)
 
 static void init()
 {
-	SECStatusCheck(SSL_OptionSetDefault(SSL_ENABLE_FDX, PR_TRUE));
-	SECStatusCheck(SSL_OptionSetDefault(SSL_ENABLE_SESSION_TICKETS, PR_TRUE));
-	SECStatusCheck(SSL_OptionSetDefault(SSL_ENABLE_FALSE_START, PR_TRUE));
+	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FDX, PR_TRUE));
+	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_SESSION_TICKETS, PR_TRUE));
+	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FALSE_START, PR_TRUE));
+	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA, PR_TRUE));
 }
 
 TLSLibrary::TLSLibrary()
@@ -48,7 +49,7 @@ TLSLibrary::TLSLibrary()
 }
 
 TLSLibrary::TLSLibrary(const std::string &configDir)
-	: NSSLibrary(configDir)
+	: nssLibrary(configDir)
 {
 	init();
 }
