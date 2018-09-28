@@ -5,21 +5,29 @@
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/thread/tss.hpp>
 #include <ssl.h>
+#include <boost/intrusive_ptr.hpp>
+#include "tlslibrary.hh"
 
 class TLSContext: public boost::intrusive_ref_counter<TLSContext>
 {
+	boost::intrusive_ptr<TLSLibrary> tlsLibrary;
 	//CERTCertDBHandle certDB;
 
 	bool server;
 
 public:
 	/* client context */
-	TLSContext(const std::string &veriFile);
+	TLSContext(boost::intrusive_ptr<TLSLibrary> tlsLibrary, const std::string &veriFile);
 
 	/* server context */
-	TLSContext(const std::string &certFile, const std::string keyFile);
+	TLSContext(boost::intrusive_ptr<TLSLibrary> tlsLibrary, const std::string &certFile, const std::string keyFile);
 
 	~TLSContext();
+	
+	TLSLibrary *getTLSLibrary()
+	{
+		return tlsLibrary.get();
+	}
 	
 	bool isServer() const
 	{

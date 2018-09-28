@@ -6,8 +6,8 @@
 using namespace std;
 
 /* client */
-TLSContext::TLSContext(const std::string &veriFile)
-	: server(false)
+TLSContext::TLSContext(boost::intrusive_ptr<TLSLibrary> tlsLibrary, const std::string &veriFile)
+	: tlsLibrary(tlsLibrary), server(false)
 {
 	//TODO
 //	boost::filesystem::path resolved = boost::filesystem::canonical(veriFile);
@@ -18,8 +18,8 @@ TLSContext::TLSContext(const std::string &veriFile)
 }
 
 /* server */
-TLSContext::TLSContext(const string &certFile, const string keyFile)
-	: server(true)
+TLSContext::TLSContext(boost::intrusive_ptr<TLSLibrary> tlsLibrary, const string &certFile, const string keyFile)
+	: tlsLibrary(tlsLibrary), server(true)
 {
 	//TODO
 }

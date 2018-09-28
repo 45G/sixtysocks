@@ -191,9 +191,9 @@ int main(int argc, char **argv)
 		tlsLibrary = new TLSLibrary();
 
 		if (mode == M_PROXIFIER)
-			clientCtx = new TLSContext(veriFile);
+			clientCtx = new TLSContext(tlsLibrary, veriFile);
 		else /* M_PROXY */
-			serverCtx = new TLSContext(certFile, keyFile);
+			serverCtx = new TLSContext(tlsLibrary, certFile, keyFile);
 	}
 
 	Poller poller(numThreads, cpuOffset);

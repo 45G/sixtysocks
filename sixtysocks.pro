@@ -66,7 +66,7 @@ HEADERS += \
     core/readabledeferreactor.hh
 
 # EDIT ME!
-NSS_BUNDLE_ROOT = /home/vlad/nss-bundle/
+NSS_BUNDLE_ROOT = /home/vlad/Work/45G/nss-bundle/
 
 NSS_ROOT        = $$NSS_BUNDLE_ROOT/nss/
 NSPR_ROOT       = $$NSS_BUNDLE_ROOT/nspr/
