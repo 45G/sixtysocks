@@ -4,6 +4,11 @@
 #include "tlsexception.hh"
 #include "tlslibrary.hh"
 
+TLSLibrary::NSPRLibrary::NSPRLibrary()
+{
+	PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
+}
+
 TLSLibrary::NSPRLibrary::~NSPRLibrary()
 {
 	SSL_ClearSessionCache(); // might return error

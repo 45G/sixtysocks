@@ -8,6 +8,8 @@ class TLSLibrary: public boost::intrusive_ref_counter<TLSLibrary>
 {
 	struct NSPRLibrary
 	{
+		NSPRLibrary();
+		
 		~NSPRLibrary();
 	};
 

@@ -1,10 +1,76 @@
 #include <stdexcept>
+#include <socks6util/socks6util.hh>
 #include "rescheduleexception.hh"
 #include "tlsexception.hh"
 #include "poller.hh"
 #include "tls.hh"
 
 using namespace std;
+
+static PRIOMethods tcpMethods = {
+	PR_DESC_SOCKET_TCP,
+	SocketClose,
+	SocketRead,
+	SocketWrite,
+	SocketAvailable,
+	SocketAvailable64,
+	SocketSync,
+	(PRSeekFN)_PR_InvalidInt,
+	(PRSeek64FN)_PR_InvalidInt64,
+	(PRFileInfoFN)_PR_InvalidStatus,
+	(PRFileInfo64FN)_PR_InvalidStatus,
+	SocketWritev,
+	SocketConnect,
+	SocketAccept,
+	SocketBind,
+	SocketListen,
+	SocketShutdown,
+	SocketRecv,
+	SocketSend,
+	(PRRecvfromFN)_PR_InvalidInt,
+	#if defined(_WIN64) && defined(WIN95)
+	SocketTCPSendTo, /* This is for fast open. We imitate Linux interface. */
+	#else
+	(PRSendtoFN)_PR_InvalidInt,
+	#endif
+	SocketPoll,
+	SocketAcceptRead,
+	SocketTransmitFile,
+	SocketGetName,
+	SocketGetPeerName,
+	(PRReservedFN)_PR_InvalidInt,
+	(PRReservedFN)_PR_InvalidInt,
+	_PR_SocketGetSocketOption,
+	_PR_SocketSetSocketOption,
+	SocketSendFile,
+	SocketConnectContinue,
+	(PRReservedFN)_PR_InvalidInt, 
+	(PRReservedFN)_PR_InvalidInt, 
+	(PRReservedFN)_PR_InvalidInt, 
+	(PRReservedFN)_PR_InvalidInt
+};
+
+struct PRTCPDescriptor: public PRFileDesc
+{
+	int rfd;
+	int wfd;
+	
+	S6U::SocketAddress addr;
+	bool attemptSendTo;
+	
+	void destructor(PRFileDesc *fd)
+	{
+		PRTCPDescriptor *descriptor = reinterpret_cast<PRTCPDescriptor *>(fd);
+		
+		//TODO
+		
+		delete descriptor;
+	}
+	
+	PRTCPDescriptor(int fd, const S6U::SocketAddress &addr = S6U::SocketAddress())
+		: methods(), secret(NULL), lower(NULL), higher(NULL), dtor(destructor), identity(),
+		  rfd(fd), wfd(fd), addr(addr), attemptSendTo(addr.isValid()) {}
+};
 
 enum BlockDirection
 {
