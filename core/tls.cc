@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdexcept>
 #include <socks6util/socks6util.hh>
 #include "rescheduleexception.hh"
@@ -7,69 +8,202 @@
 
 using namespace std;
 
-static PRIOMethods tcpMethods = {
-	PR_DESC_SOCKET_TCP,
-	SocketClose,
-	SocketRead,
-	SocketWrite,
-	SocketAvailable,
-	SocketAvailable64,
-	SocketSync,
-	(PRSeekFN)_PR_InvalidInt,
-	(PRSeek64FN)_PR_InvalidInt64,
-	(PRFileInfoFN)_PR_InvalidStatus,
-	(PRFileInfo64FN)_PR_InvalidStatus,
-	SocketWritev,
-	SocketConnect,
-	SocketAccept,
-	SocketBind,
-	SocketListen,
-	SocketShutdown,
-	SocketRecv,
-	SocketSend,
-	(PRRecvfromFN)_PR_InvalidInt,
-	#if defined(_WIN64) && defined(WIN95)
-	SocketTCPSendTo, /* This is for fast open. We imitate Linux interface. */
-	#else
-	(PRSendtoFN)_PR_InvalidInt,
-	#endif
-	SocketPoll,
-	SocketAcceptRead,
-	SocketTransmitFile,
-	SocketGetName,
-	SocketGetPeerName,
-	(PRReservedFN)_PR_InvalidInt,
-	(PRReservedFN)_PR_InvalidInt,
-	_PR_SocketGetSocketOption,
-	_PR_SocketSetSocketOption,
-	SocketSendFile,
-	SocketConnectContinue,
-	(PRReservedFN)_PR_InvalidInt, 
-	(PRReservedFN)_PR_InvalidInt, 
-	(PRReservedFN)_PR_InvalidInt, 
-	(PRReservedFN)_PR_InvalidInt
-};
+extern PRIntn     _PR_InvalidInt(void);
+extern PRInt16    _PR_InvalidInt16(void);
+extern PRInt64    _PR_InvalidInt64(void);
+extern PRStatus   _PR_InvalidStatus(void);
+extern PRFileDesc *_PR_InvalidDesc(void);
+
+NSPR_API(PRThread*) _PR_MD_CURRENT_THREAD(void);
+
+extern void _MD_unix_map_recv_error(int err);
+extern void _MD_unix_map_send_error(int err);
+extern void _MD_unix_map_connect_error(int err);
+extern void _MD_unix_map_getsockname_error(int err);
+extern void _MD_unix_map_getpeername_error(int err);
 
 struct PRTCPDescriptor: public PRFileDesc
 {
+	static void PR_CALLBACK destructor(PRFileDesc *fd)
+	{
+		PRTCPDescriptor *tcpDescriptor = reinterpret_cast<PRTCPDescriptor *>(fd);
+
+		if (fd->lower !=NULL)
+			fd->lower->higher = fd->higher;
+		if (fd->higher !=NULL)
+			fd->higher->lower = fd->lower;
+
+		delete tcpDescriptor;
+	}
+
+	static PRStatus PR_CALLBACK dClose(PRFileDesc *fd)
+	{
+		destructor(fd);
+
+		return PR_SUCCESS;
+	}
+
+	static PRInt32 PR_CALLBACK dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout)
+	{
+		(void)timeout;
+
+		PRTCPDescriptor *tcpDescriptor = reinterpret_cast<PRTCPDescriptor *>(fd);
+
+		int rc = recv(tcpDescriptor->rfd, buf, amount, flags);
+		if (rc < 0)
+			_MD_unix_map_recv_error(errno);
+
+		return rc;
+	}
+
+	static PRInt32 PR_CALLBACK dRead(PRFileDesc *fd, void *buf, PRInt32 amount)
+	{
+		return dRecv(fd, buf, amount, MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
+	}
+
+	static PRInt32 PR_CALLBACK dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout)
+	{
+		(void)timeout;
+
+		PRTCPDescriptor *tcpDescriptor = reinterpret_cast<PRTCPDescriptor *>(fd);
+
+		int rc;
+
+		if (tcpDescriptor->attemptSendTo)
+		{
+			tcpDescriptor->attemptSendTo = false;
+			rc = sendto(tcpDescriptor->rfd, buf, amount, flags | MSG_FASTOPEN, &tcpDescriptor->addr.sockAddress, tcpDescriptor->addr.size());
+
+		}
+		else
+		{
+			rc = send(tcpDescriptor->rfd, buf, amount, flags);
+		}
+
+		if (rc < 0)
+			_MD_unix_map_send_error(errno);
+
+		return rc;
+	}
+
+	static PRInt32 PR_CALLBACK dWrite(PRFileDesc *fd, const void *buf, PRInt32 amount)
+	{
+		return dSend(fd, buf, amount, MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
+	}
+
+	static PRStatus PR_CALLBACK dConnectContinue(PRFileDesc *fd, PRInt16 outFlags)
+	{
+		(void)outFlags;
+
+		PRTCPDescriptor *tcpDescriptor = reinterpret_cast<PRTCPDescriptor *>(fd);
+
+		int err;
+		socklen_t optlen = sizeof(err);
+		int rc = getsockopt(tcpDescriptor->rfd, SOL_SOCKET, SO_ERROR, &err, &optlen);
+		if (rc < 0)
+		{
+			_MD_unix_map_connect_error(errno);
+			return PR_FAILURE;
+		}
+		else if (err != 0)
+		{
+			_MD_unix_map_connect_error(err);
+			return PR_FAILURE;
+		}
+		return PR_SUCCESS;
+	}
+
+	static PRStatus PR_CALLBACK dGetName(PRFileDesc *fd, PRNetAddr *addr)
+	{
+		PRTCPDescriptor *tcpDescriptor = reinterpret_cast<PRTCPDescriptor *>(fd);
+
+		socklen_t addrLen = sizeof(PRNetAddr);
+		int rc = getsockname(tcpDescriptor->rfd, (struct sockaddr *) addr, &addrLen);
+		if (rc < 0)
+		{
+		    _MD_unix_map_getsockname_error(errno);
+		    return PR_FAILURE;
+		}
+
+		if (addr->raw.family == AF_INET6)
+			addr->raw.family = PR_AF_INET6;
+
+		return PR_SUCCESS;
+	}
+
+	static PRStatus PR_CALLBACK dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
+	{
+		PRTCPDescriptor *tcpDescriptor = reinterpret_cast<PRTCPDescriptor *>(fd);
+
+		socklen_t addrLen = sizeof(PRNetAddr);
+		int rc = getpeername(tcpDescriptor->rfd, (struct sockaddr *) addr, &addrLen);
+		if (rc < 0)
+		{
+		    _MD_unix_map_getpeername_error(errno);
+		    return PR_FAILURE;
+		}
+
+		if (addr->raw.family == AF_INET6)
+			addr->raw.family = PR_AF_INET6;
+
+		return PR_SUCCESS;
+	}
+
+	static constexpr PRIOMethods METHODS = {
+		PR_DESC_SOCKET_TCP,
+		dClose,
+		dRead,
+		dWrite,
+		(PRAvailableFN)_PR_InvalidInt, //SocketAvailable,
+		(PRAvailable64FN)_PR_InvalidInt64, //SocketAvailable64,
+		(PRFsyncFN)_PR_InvalidInt, //SocketSync,
+		(PRSeekFN)_PR_InvalidInt,
+		(PRSeek64FN)_PR_InvalidInt64,
+		(PRFileInfoFN)_PR_InvalidStatus,
+		(PRFileInfo64FN)_PR_InvalidStatus,
+		(PRWritevFN)_PR_InvalidInt, //SocketWritev,
+		(PRConnectFN)_PR_InvalidInt, //SocketConnect,
+		(PRAcceptFN)_PR_InvalidDesc, //SocketAccept,
+		(PRBindFN)_PR_InvalidInt, //SocketBind,
+		(PRListenFN)_PR_InvalidInt, //SocketListen,
+		(PRShutdownFN)_PR_InvalidInt, //SocketShutdown,
+		dRecv,
+		dSend,
+		(PRRecvfromFN)_PR_InvalidInt,
+		(PRSendtoFN)_PR_InvalidInt,
+		(PRPollFN)_PR_InvalidInt16, //SocketPoll,
+		(PRAcceptreadFN)_PR_InvalidInt, //SocketAcceptRead,
+		(PRTransmitfileFN)_PR_InvalidInt, //SocketTransmitFile,
+		dGetName,
+		dGetPeerName,
+		(PRReservedFN)_PR_InvalidInt,
+		(PRReservedFN)_PR_InvalidInt,
+		(PRGetsocketoptionFN)_PR_InvalidInt, //_PR_SocketGetSocketOption,
+		(PRSetsocketoptionFN)_PR_InvalidInt, //_PR_SocketSetSocketOption,
+		(PRSendfileFN)_PR_InvalidInt, //SocketSendFile,
+		dConnectContinue,
+		(PRReservedFN)_PR_InvalidInt,
+		(PRReservedFN)_PR_InvalidInt,
+		(PRReservedFN)_PR_InvalidInt,
+		(PRReservedFN)_PR_InvalidInt
+	};
+
 	int rfd;
 	int wfd;
 	
 	S6U::SocketAddress addr;
 	bool attemptSendTo;
 	
-	void destructor(PRFileDesc *fd)
-	{
-		PRTCPDescriptor *descriptor = reinterpret_cast<PRTCPDescriptor *>(fd);
-		
-		//TODO
-		
-		delete descriptor;
-	}
-	
 	PRTCPDescriptor(int fd, const S6U::SocketAddress &addr = S6U::SocketAddress())
-		: methods(), secret(NULL), lower(NULL), higher(NULL), dtor(destructor), identity(),
-		  rfd(fd), wfd(fd), addr(addr), attemptSendTo(addr.isValid()) {}
+		: rfd(fd), wfd(fd), addr(addr), attemptSendTo(addr.isValid())
+	{
+		methods = &METHODS;
+		secret = NULL;
+		lower = NULL;
+		higher = NULL;
+		dtor = destructor;
+		identity = PR_NSPR_IO_LAYER;
+	}
 };
 
 enum BlockDirection
