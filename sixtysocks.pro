@@ -98,5 +98,5 @@ INCLUDEPATH += $$NSS_ROOT/lib/zlib
 INCLUDEPATH += $$NSPR_ROOT/Debug/dist/include/nspr
 INCLUDEPATH += $$NSPR_ROOT/pr/include/nspr
 
-LIBS += -L$$NSS_ROOT/lib64/ -L-L$$NSS_ROOT/lib/
+LIBS += -L$$NSSROOT/dist/Debug/lib64/ -L$$NSSROOT/dist/Debug/lib/
 LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lboost_thread -lnspr4 -lnss3 -lssl3
