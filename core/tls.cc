@@ -150,7 +150,7 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 
 void PR_CALLBACK TLS::PRTCPLayer::destructor(PRFileDesc *fd)
 {
-	PRTCPLayer *tcpDescriptor = reinterpret_cast<PRTCPLayer *>(fd);
+	PRTCPLayer *tcpDescriptor = (PRTCPLayer *)fd;
 
 	if (fd->lower !=NULL)
 		fd->lower->higher = fd->higher;
@@ -171,7 +171,7 @@ PRInt32 PR_CALLBACK TLS::PRTCPLayer::dRecv(PRFileDesc *fd, void *buf, PRInt32 am
 {
 	(void)timeout;
 
-	PRTCPLayer *tcpDescriptor = reinterpret_cast<PRTCPLayer *>(fd);
+	PRTCPLayer *tcpDescriptor = (PRTCPLayer *)fd;
 
 	int rc = recv(tcpDescriptor->rfd, buf, amount, flags);
 	if (rc < 0)
@@ -189,7 +189,7 @@ PRInt32 PR_CALLBACK TLS::PRTCPLayer::dSend(PRFileDesc *fd, const void *buf, PRIn
 {
 	(void)timeout;
 
-	PRTCPLayer *tcpDescriptor = reinterpret_cast<PRTCPLayer *>(fd);
+	PRTCPLayer *tcpDescriptor = (PRTCPLayer *)fd;
 
 	int rc;
 
@@ -215,11 +215,32 @@ PRInt32 PR_CALLBACK TLS::PRTCPLayer::dWrite(PRFileDesc *fd, const void *buf, PRI
 	return dSend(fd, buf, amount, MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
 }
 
+PRStatus PR_CALLBACK TLS::PRTCPLayer::dConnect(PRFileDesc *fd, const PRNetAddr *addr, PRIntervalTime timeout)
+{
+	(void)timeout;
+
+	PRTCPLayer *tcpDescriptor = (PRTCPLayer *)fd;
+
+	if (tcpDescriptor->attemptSendTo)
+		return PR_SUCCESS;
+
+	S6U::SocketAddress sockAddr;
+	memcpy(&sockAddr.storage, addr, sizeof(PRNetAddr));
+	if (addr->raw.family == PR_AF_INET6)
+		sockAddr.ipv6.sin6_family = AF_INET6;
+
+	int rc = connect(tcpDescriptor->wfd, &sockAddr.sockAddress, sockAddr.size());
+	if (rc < 0)
+		return PR_FAILURE;
+
+	return PR_SUCCESS;
+}
+
 PRStatus PR_CALLBACK TLS::PRTCPLayer::dConnectContinue(PRFileDesc *fd, PRInt16 outFlags)
 {
 	(void)outFlags;
 
-	PRTCPLayer *tcpDescriptor = reinterpret_cast<PRTCPLayer *>(fd);
+	PRTCPLayer *tcpDescriptor = (PRTCPLayer *)fd;
 
 	int err;
 	socklen_t optlen = sizeof(err);
@@ -239,7 +260,7 @@ PRStatus PR_CALLBACK TLS::PRTCPLayer::dConnectContinue(PRFileDesc *fd, PRInt16 o
 
 PRStatus PR_CALLBACK TLS::PRTCPLayer::dGetName(PRFileDesc *fd, PRNetAddr *addr)
 {
-	PRTCPLayer *tcpDescriptor = reinterpret_cast<PRTCPLayer *>(fd);
+	PRTCPLayer *tcpDescriptor = (PRTCPLayer *)fd;
 
 	socklen_t addrLen = sizeof(PRNetAddr);
 	int rc = getsockname(tcpDescriptor->rfd, (struct sockaddr *) addr, &addrLen);
@@ -257,7 +278,7 @@ PRStatus PR_CALLBACK TLS::PRTCPLayer::dGetName(PRFileDesc *fd, PRNetAddr *addr)
 
 PRStatus PR_CALLBACK TLS::PRTCPLayer::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 {
-	PRTCPLayer *tcpDescriptor = reinterpret_cast<PRTCPLayer *>(fd);
+	PRTCPLayer *tcpDescriptor = (PRTCPLayer *)fd;
 
 	socklen_t addrLen = sizeof(PRNetAddr);
 	int rc = getpeername(tcpDescriptor->rfd, (struct sockaddr *) addr, &addrLen);

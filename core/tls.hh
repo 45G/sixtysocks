@@ -22,6 +22,7 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 		static PRInt32  PR_CALLBACK dRead           (PRFileDesc *fd, void *buf, PRInt32 amount);
 		static PRInt32  PR_CALLBACK dSend           (PRFileDesc *fd, const void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout);
 		static PRInt32  PR_CALLBACK dWrite          (PRFileDesc *fd, const void *buf, PRInt32 amount);
+		static PRStatus PR_CALLBACK dConnect        (PRFileDesc *fd, const PRNetAddr *addr, PRIntervalTime timeout);
 		static PRStatus PR_CALLBACK dConnectContinue(PRFileDesc *fd, PRInt16 outFlags);
 		static PRStatus PR_CALLBACK dGetName        (PRFileDesc *fd, PRNetAddr *addr);
 		static PRStatus PR_CALLBACK dGetPeerName    (PRFileDesc *fd, PRNetAddr *addr);
