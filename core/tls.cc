@@ -282,3 +282,53 @@ PRStatus PR_CALLBACK TLS::PRTCPLayer::dGetPeerName(PRFileDesc *fd, PRNetAddr *ad
 
 	return PR_SUCCESS;
 }
+
+TLS::PRTCPLayer::PRTCPLayer(int fd)
+	: rfd(fd), wfd(fd), attemptSendTo(false)
+{
+	static const PRIOMethods METHODS = {
+		PR_DESC_SOCKET_TCP,
+		dClose,
+		dRead,
+		dWrite,
+		(PRAvailableFN)_PR_InvalidInt, //SocketAvailable,
+		(PRAvailable64FN)_PR_InvalidInt64, //SocketAvailable64,
+		(PRFsyncFN)_PR_InvalidInt, //SocketSync,
+		(PRSeekFN)_PR_InvalidInt,
+		(PRSeek64FN)_PR_InvalidInt64,
+		(PRFileInfoFN)_PR_InvalidStatus,
+		(PRFileInfo64FN)_PR_InvalidStatus,
+		(PRWritevFN)_PR_InvalidInt, //SocketWritev,
+		(PRConnectFN)_PR_InvalidInt, //SocketConnect,
+		(PRAcceptFN)_PR_InvalidDesc, //SocketAccept,
+		(PRBindFN)_PR_InvalidInt, //SocketBind,
+		(PRListenFN)_PR_InvalidInt, //SocketListen,
+		(PRShutdownFN)_PR_InvalidInt, //SocketShutdown,
+		dRecv,
+		dSend,
+		(PRRecvfromFN)_PR_InvalidInt,
+		(PRSendtoFN)_PR_InvalidInt,
+		(PRPollFN)_PR_InvalidInt16, //SocketPoll,
+		(PRAcceptreadFN)_PR_InvalidInt, //SocketAcceptRead,
+		(PRTransmitfileFN)_PR_InvalidInt, //SocketTransmitFile,
+		dGetName,
+		dGetPeerName,
+		(PRReservedFN)_PR_InvalidInt,
+		(PRReservedFN)_PR_InvalidInt,
+		(PRGetsocketoptionFN)_PR_InvalidInt, //_PR_SocketGetSocketOption,
+		(PRSetsocketoptionFN)_PR_InvalidInt, //_PR_SocketSetSocketOption,
+		(PRSendfileFN)_PR_InvalidInt, //SocketSendFile,
+		dConnectContinue,
+		(PRReservedFN)_PR_InvalidInt,
+		(PRReservedFN)_PR_InvalidInt,
+		(PRReservedFN)_PR_InvalidInt,
+		(PRReservedFN)_PR_InvalidInt
+	};
+
+	methods = &METHODS;
+	secret = NULL;
+	lower = NULL;
+	higher = NULL;
+	dtor = destructor;
+	identity = PR_NSPR_IO_LAYER;
+}
