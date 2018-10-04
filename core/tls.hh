@@ -13,61 +13,22 @@ class Proxifier;
 
 class TLS: public boost::intrusive_ref_counter<TLS>
 {
-	struct PRTCPLayer: public PRFileDesc
-	{
-		static void     PR_CALLBACK destructor      (PRFileDesc *fd);
+	static PRStatus PR_CALLBACK dClose          (PRFileDesc *fd);
+	static PRInt32  PR_CALLBACK dRecv           (PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout);
+	static PRInt32  PR_CALLBACK dRead           (PRFileDesc *fd, void *buf, PRInt32 amount);
+	static PRInt32  PR_CALLBACK dSend           (PRFileDesc *fd, const void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout);
+	static PRInt32  PR_CALLBACK dWrite          (PRFileDesc *fd, const void *buf, PRInt32 amount);
+	static PRStatus PR_CALLBACK dConnect        (PRFileDesc *fd, const PRNetAddr *addr, PRIntervalTime timeout);
+	static PRStatus PR_CALLBACK dConnectContinue(PRFileDesc *fd, PRInt16 outFlags);
+	static PRStatus PR_CALLBACK dGetName        (PRFileDesc *fd, PRNetAddr *addr);
+	static PRStatus PR_CALLBACK dGetPeerName    (PRFileDesc *fd, PRNetAddr *addr);
 
-		static PRStatus PR_CALLBACK dClose          (PRFileDesc *fd);
-		static PRInt32  PR_CALLBACK dRecv           (PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout);
-		static PRInt32  PR_CALLBACK dRead           (PRFileDesc *fd, void *buf, PRInt32 amount);
-		static PRInt32  PR_CALLBACK dSend           (PRFileDesc *fd, const void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout);
-		static PRInt32  PR_CALLBACK dWrite          (PRFileDesc *fd, const void *buf, PRInt32 amount);
-		static PRStatus PR_CALLBACK dConnect        (PRFileDesc *fd, const PRNetAddr *addr, PRIntervalTime timeout);
-		static PRStatus PR_CALLBACK dConnectContinue(PRFileDesc *fd, PRInt16 outFlags);
-		static PRStatus PR_CALLBACK dGetName        (PRFileDesc *fd, PRNetAddr *addr);
-		static PRStatus PR_CALLBACK dGetPeerName    (PRFileDesc *fd, PRNetAddr *addr);
+	int readFD;
+	int writeFD;
 
-		int rfd;
-		int wfd;
+	S6U::SocketAddress addr;
+	bool attemptSendTo;
 
-		S6U::SocketAddress addr;
-		bool attemptSendTo;
-
-		PRTCPLayer(int fd);
-
-		void setReadFD(int rfd)
-		{
-			this->rfd = rfd;
-		}
-
-		int getReadFD() const
-		{
-			return rfd;
-		}
-
-		void setWriteFD(int wfd)
-		{
-			this->wfd = wfd;
-		}
-
-		int getWriteFD() const
-		{
-			return wfd;
-		}
-
-		void setConnectAddr(const S6U::SocketAddress &addr)
-		{
-			this->addr = addr;
-			attemptSendTo = true;
-		}
-	};
-
-	static void descriptorDeleter(PRFileDesc *fd)
-	{
-		PR_Close(fd); //might return error
-	}
-
-	PRTCPLayer *bottomLayer;
 	std::unique_ptr<PRFileDesc, void (*)(PRFileDesc *)> descriptor;
 
 	bool connectCalled;
@@ -76,6 +37,8 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	static void handshakeCallback(PRFileDesc *fd, void *clientData);
 
 	static SECStatus canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalseStart);
+
+	static void PR_CALLBACK descriptorDeleter(PRFileDesc *fd);
 
 public:
 	TLS(TLSContext *ctx, int fd);
