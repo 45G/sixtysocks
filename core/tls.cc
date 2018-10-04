@@ -206,7 +206,8 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 
 PRStatus PR_CALLBACK TLS::dClose(PRFileDesc *fd)
 {
-	PR_FreeFileDesc(fd);
+	fd->secret = NULL;
+	fd->dtor(fd);
 
 	return PR_SUCCESS;
 }
