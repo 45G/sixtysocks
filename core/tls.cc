@@ -5,19 +5,9 @@
 #include "tlsexception.hh"
 #include "poller.hh"
 #include "tls.hh"
+#include "../external/nspr_stuff.h"
 
 using namespace std;
-
-extern "C"
-{
-
-extern void _MD_unix_map_recv_error(int err);
-extern void _MD_unix_map_send_error(int err);
-extern void _MD_unix_map_connect_error(int err);
-extern void _MD_unix_map_getsockname_error(int err);
-extern void _MD_unix_map_getpeername_error(int err);
-
-}
 
 enum BlockDirection
 {

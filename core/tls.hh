@@ -11,12 +11,6 @@
 
 class Proxifier;
 
-extern PRIntn     _PR_InvalidInt(void);
-extern PRInt16    _PR_InvalidInt16(void);
-extern PRInt64    _PR_InvalidInt64(void);
-extern PRStatus   _PR_InvalidStatus(void);
-extern PRFileDesc *_PR_InvalidDesc(void);
-
 class TLS: public boost::intrusive_ref_counter<TLS>
 {
 	struct PRTCPLayer: public PRFileDesc
