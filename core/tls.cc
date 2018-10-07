@@ -22,7 +22,7 @@ enum BlockDirection
 static void tlsHandleErr(BlockDirection bd, int fd)
 {
 	PRErrorCode err = PR_GetError();
-	if (err == PR_WOULD_BLOCK_ERROR)
+	if (err == PR_WOULD_BLOCK_ERROR || err == PR_IN_PROGRESS_ERROR)
 	{
 		if (bd == BD_IN)
 			throw RescheduleException(fd, Poller::IN_EVENTS);
@@ -51,7 +51,7 @@ SECStatus TLS::canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalse
 
 void TLS::descriptorDeleter(PRFileDesc *fd)
 {
-	PR_Close(fd); //can return error
+	delete fd;
 }
 
 TLS::TLS(TLSContext *ctx, int fd)
@@ -96,10 +96,11 @@ TLS::TLS(TLSContext *ctx, int fd)
 		.reserved_fn_0   = (PRReservedFN)_PR_InvalidInt
 	};
 
-	PRFileDesc *lowerDesc = PR_CreateIOLayerStub(PR_NSPR_IO_LAYER, &METHODS);
-	if (!lowerDesc)
-		throw TLSException();
+	PRFileDesc *lowerDesc = new PRFileDesc();
+	lowerDesc->identity = PR_NSPR_IO_LAYER;
+	lowerDesc->methods = &METHODS;
 	lowerDesc->secret = reinterpret_cast<PRFilePrivate *>(this);
+	lowerDesc->dtor = descriptorDeleter;
 
 	PRFileDesc *higherDesc = SSL_ImportFD(NULL, lowerDesc);
 	if (!higherDesc)
@@ -145,12 +146,20 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 	SECStatus rc;
 	useEarlyData = useEarlyData && addr != NULL && buf != NULL;
 
+	if (addr)
+	{
+		this->addr = *addr;
+		attemptSendTo = true;
+	}
+
 	if (!connectCalled && useEarlyData && buf->usedSize() > 0)
 	{
 		connectCalled = true;
 
-		PRInt32 earlyDataWritten = PR_SendTo(descriptor.get(), buf->getHead(), buf->usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL,
-			reinterpret_cast<const PRNetAddr *>(addr), PR_INTERVAL_NO_TIMEOUT);
+//		PRInt32 earlyDataWritten = PR_SendTo(descriptor.get(), buf->getHead(), buf->usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL,
+//			reinterpret_cast<const PRNetAddr *>(addr), PR_INTERVAL_NO_TIMEOUT);
+		PRInt32 earlyDataWritten = PR_Send(descriptor.get(), buf->getHead(), buf->usedSize(), MSG_NOSIGNAL,
+			PR_INTERVAL_NO_TIMEOUT);
 		if (earlyDataWritten < 0)
 			tlsHandleErr(BD_OUT, writeFD);
 
@@ -329,8 +338,15 @@ PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 	int rc = getpeername(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
 	{
-		_MD_unix_map_getpeername_error(errno);
-		return PR_FAILURE;
+		if (errno == ENOTCONN && tls->addr.isValid())
+		{
+			memcpy(addr, &tls->addr.storage, tls->addr.size());
+		}
+		else
+		{
+			_MD_unix_map_getpeername_error(errno);
+			return PR_FAILURE;
+		}
 	}
 
 	if (addr->raw.family == AF_INET6)

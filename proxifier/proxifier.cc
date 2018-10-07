@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/tcp.h>
 #include <system_error>
+#include <iostream>
 #include "proxifier.hh"
 #include "../core/poller.hh"
 #include "../core/readabledeferreactor.hh"
@@ -78,8 +79,9 @@ void Proxifier::handleNewConnection(int fd)
 		else
 			poller->assign(upstreamer);
 	}
-	catch (...)
+	catch (std::exception &ex)
 	{
+		std::cout << ex.what() << std::endl;
 		close(closeFD); // tolerable error
 	}
 }
