@@ -42,7 +42,10 @@ void Proxifier::start()
 			if (clientCtx != NULL) /* TLS uses TFO */
 				supplicateTFO = false;
 		}
-		catch(...) {}
+		catch (exception &ex)
+		{
+			cerr << "Error supplicating token window: " << ex.what() << endl;
+		}
 	}
 
 	if (supplicateTFO)
@@ -51,7 +54,10 @@ void Proxifier::start()
 		{
 			poller->assign(new TFOCookieSupplicationAgent(this));
 		}
-		catch(...) {}
+		catch (exception &ex)
+		{
+			cerr << "Error supplicating TFO cookie: " << ex.what() << endl;
+		}
 	}
 
 	ListenReactor::start();
@@ -79,9 +85,11 @@ void Proxifier::handleNewConnection(int fd)
 		else
 			poller->assign(upstreamer);
 	}
-	catch (std::exception &ex)
+	catch (exception &ex)
 	{
-		std::cout << ex.what() << std::endl;
-		close(closeFD); // tolerable error
+		cout << "Error handling new connection: " << ex.what() << endl;
 	}
+
+	if (closeFD != -1)
+		close(closeFD); // tolerable error
 }

@@ -9,7 +9,7 @@ class ReadableDeferReactor: public Reactor
 	boost::intrusive_ptr<Reactor> reactor;
 
 public:
-	ReadableDeferReactor(Poller *poller, int fd, Reactor *reactor)
+	ReadableDeferReactor(Poller *poller, int fd, boost::intrusive_ptr<Reactor> reactor)
 		: Reactor(poller), fd(fd), reactor(reactor) {}
 
 	void start();
