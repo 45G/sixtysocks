@@ -9,7 +9,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace boost;
+using boost::intrusive_ptr;
 
 Poller::Poller(int numThreads, int cpuOffset, size_t expectedFDs)
 	: numThreads(numThreads), alive(true)
@@ -36,7 +36,7 @@ Poller::Poller(int numThreads, int cpuOffset, size_t expectedFDs)
 //	}
 }
 
-void Poller::assign(boost::intrusive_ptr<Reactor> reactor)
+void Poller::assign(intrusive_ptr<Reactor> reactor)
 {
 	try
 	{
@@ -46,7 +46,7 @@ void Poller::assign(boost::intrusive_ptr<Reactor> reactor)
 	{
 		add(reactor, resched.getFD(), resched.getEvents());
 	}
-	catch (std::exception &ex)
+	catch (exception &ex)
 	{
 		cerr << "Caught exception; killing reactor: " << ex.what() << endl;
 		reactor->deactivate();
@@ -128,7 +128,7 @@ void Poller::threadFun(Poller *poller)
 		{
 			if (errno == EINTR)
 				continue;
-			throw std::system_error(errno, std::system_category());
+			throw system_error(errno, system_category());
 		}
 		
 		intrusive_ptr<Reactor> reactor = poller->fdEntries[event.data.fd].reactor;
@@ -145,7 +145,7 @@ void Poller::threadFun(Poller *poller)
 		{
 			poller->add(reactor, resched.getFD(), resched.getEvents());
 		}
-		catch (std::exception &ex)
+		catch (exception &ex)
 		{
 			cerr << "Caught exception; killing reactor: " << ex.what() << endl;
 			reactor->deactivate();
