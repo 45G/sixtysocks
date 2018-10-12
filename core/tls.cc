@@ -173,8 +173,13 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 	else
 	{
 		rc = SSL_ForceHandshake(descriptor.get());
+		if (rc == SECWouldBlock)
+			throw RescheduleException(readFD, Poller::IN_EVENTS);
 		if (rc != SECSuccess)
+		{
 			tlsHandleErr(BD_IN, readFD);
+			throw TLSException(); //EOF is bad
+		}
 	}
 }
 
@@ -183,8 +188,13 @@ void TLS::tlsAccept(StreamBuffer *buf)
 	do
 	{
 		SECStatus rc = SSL_ForceHandshake(descriptor.get());
+		if (rc == SECWouldBlock)
+			throw RescheduleException(readFD, Poller::IN_EVENTS);
 		if (rc != SECSuccess)
+		{
 			tlsHandleErr(BD_IN, readFD);
+			throw TLSException(); //EOF is bad
+		}
 
 		if (handshakeFinished)
 			return;
