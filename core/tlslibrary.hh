@@ -27,9 +27,6 @@ class TLSLibrary: public boost::intrusive_ref_counter<TLSLibrary>
 	NSSLibrary nssLibrary;
 
 public:
-	TLSLibrary();
-
-	//TODO: get rid of this; config CertDB per ctx
 	TLSLibrary(const std::string &configDir);
 };
 

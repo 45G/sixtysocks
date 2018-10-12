@@ -33,9 +33,7 @@ void usage()
 			"[-l <listen port>] [-t <TLS listen port>]",
 			"[-U <username>] [-P <password>]",
 			"[-s <proxy IP>] [-p <proxy port>]",
-			"[-V <trusted certificate file>]"
-			"[-C <certificate file>]"
-			"[-K <key file>]",
+			"[-C <certificate DB>]"
 			"[-D] (defer request until socket is readable)",
 		NULL,
 	};
@@ -76,9 +74,7 @@ int main(int argc, char **argv)
 	string password;
 	boost::intrusive_ptr<SimplePasswordChecker> passwordChecker;
 	bool defer = false;
-	string veriFile;
-	string certFile;
-	string keyFile;
+	string certDB;
 	boost::intrusive_ptr<TLSLibrary> tlsLibrary;
 	boost::intrusive_ptr<TLSContext> clientCtx;
 	boost::intrusive_ptr<TLSContext> serverCtx;
@@ -86,7 +82,7 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 
 	//TODO: fix this shit
-	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:V:C:K:D")) != -1)
+	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:C:D")) != -1)
 	{
 		switch (c)
 		{
@@ -142,20 +138,11 @@ int main(int argc, char **argv)
 				usage();
 			break;
 
-		case 'V':
-			veriFile = string(optarg);
-			useTLS = true;
-			break;
-
 		case 'C':
-			certFile = string(optarg);
+			certDB = string(optarg);
 			useTLS = true;
 			break;
 
-		case 'K':
-			keyFile = string(optarg);
-			useTLS = true;
-			break;
 
 		case 'D':
 			defer = true;
@@ -188,12 +175,12 @@ int main(int argc, char **argv)
 	/* WolfSSL */
 	if (useTLS)
 	{
-		tlsLibrary = new TLSLibrary();
+		tlsLibrary = new TLSLibrary(certDB);
 
 		if (mode == M_PROXIFIER)
-			clientCtx = new TLSContext(tlsLibrary, veriFile);
+			clientCtx = new TLSContext(false);
 		else /* M_PROXY */
-			serverCtx = new TLSContext(tlsLibrary, certFile, keyFile);
+			serverCtx = new TLSContext(true);
 	}
 
 	Poller poller(numThreads, cpuOffset);

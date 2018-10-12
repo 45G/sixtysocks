@@ -10,24 +10,12 @@
 
 class TLSContext: public boost::intrusive_ref_counter<TLSContext>
 {
-	boost::intrusive_ptr<TLSLibrary> tlsLibrary;
-	//CERTCertDBHandle certDB;
-
 	bool server;
 
 public:
-	/* client context */
-	TLSContext(boost::intrusive_ptr<TLSLibrary> tlsLibrary, const std::string &veriFile);
-
-	/* server context */
-	TLSContext(boost::intrusive_ptr<TLSLibrary> tlsLibrary, const std::string &certFile, const std::string keyFile);
+	TLSContext(bool server);
 
 	~TLSContext();
-	
-	TLSLibrary *getTLSLibrary()
-	{
-		return tlsLibrary.get();
-	}
 	
 	bool isServer() const
 	{

@@ -29,6 +29,8 @@ static void tlsHandleErr(BlockDirection bd, int fd)
 		else /* BD_OUT */
 			throw RescheduleException(fd, Poller::OUT_EVENTS);
 	}
+	if (err == PR_END_OF_FILE_ERROR)
+		return;
 	throw TLSException(err);
 }
 
@@ -161,7 +163,10 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 		PRInt32 earlyDataWritten = PR_Send(descriptor.get(), buf->getHead(), buf->usedSize(), MSG_NOSIGNAL,
 			PR_INTERVAL_NO_TIMEOUT);
 		if (earlyDataWritten < 0)
+		{
 			tlsHandleErr(BD_OUT, writeFD);
+			earlyDataWritten = 0;
+		}
 
 		buf->unuse(earlyDataWritten);
 	}
@@ -186,7 +191,10 @@ void TLS::tlsAccept(StreamBuffer *buf)
 
 		PRInt32 dataRead = PR_Recv(descriptor.get(), buf->getTail(), buf->availSize(), MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
 		if (dataRead < 0)
+		{
 			tlsHandleErr(BD_IN, readFD);
+			dataRead = 0;
+		}
 
 		buf->use(dataRead);
 	}
@@ -197,7 +205,10 @@ size_t TLS::tlsWrite(StreamBuffer *buf)
 {
 	PRInt32 bytes = PR_Send(descriptor.get(), buf->getHead(), buf->usedSize(), MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
 	if (bytes < 0)
+	{
 		tlsHandleErr(BD_OUT, writeFD);
+		bytes = 0;
+	}
 	
 	buf->unuse(bytes);
 	return bytes;
@@ -207,7 +218,10 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 {
 	PRInt32 bytes = PR_Recv(descriptor.get(), buf->getTail(), buf->availSize(), MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
 	if (bytes < 0)
+	{
 		tlsHandleErr(BD_IN, readFD);
+		bytes = 0;
+	}
 	
 	buf->use(bytes);
 	return bytes;

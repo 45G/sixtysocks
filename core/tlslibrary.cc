@@ -40,21 +40,11 @@ static void tlsCheck(SECStatus status)
 		throw TLSException();
 }
 
-static void init()
+TLSLibrary::TLSLibrary(const std::string &configDir)
+	: nssLibrary(configDir)
 {
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FDX, PR_TRUE));
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_SESSION_TICKETS, PR_TRUE));
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FALSE_START, PR_TRUE));
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA, PR_TRUE));
-}
-
-TLSLibrary::TLSLibrary()
-{
-	init();
-}
-
-TLSLibrary::TLSLibrary(const std::string &configDir)
-	: nssLibrary(configDir)
-{
-	init();
 }
