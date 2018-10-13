@@ -15,9 +15,6 @@ class TLSLibrary: public boost::intrusive_ref_counter<TLSLibrary>
 
 	struct NSSLibrary
 	{
-		NSSLibrary();
-		
-		//TODO: get rid of this
 		NSSLibrary(const std::string &configDir);
 
 		~NSSLibrary();
