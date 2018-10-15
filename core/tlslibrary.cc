@@ -37,11 +37,15 @@ static void tlsCheck(SECStatus status)
 TLSLibrary::TLSLibrary(const std::string &configDir)
 	: nssLibrary(configDir)
 {
-	static const SSLVersionRange verRange = { SSL_LIBRARY_VERSION_TLS_1_3, SSL_LIBRARY_VERSION_TLS_1_3 };
+	static const SSLVersionRange VER_RANGE = {
+		.min = SSL_LIBRARY_VERSION_TLS_1_3,
+		.max = SSL_LIBRARY_VERSION_TLS_1_3,
+	};
 
-	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FDX, PR_TRUE));
+	tlsCheck(SSL_VersionRangeSetDefault(ssl_variant_stream, &VER_RANGE));
+
+	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FDX,             PR_TRUE));
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_SESSION_TICKETS, PR_TRUE));
-	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FALSE_START, PR_TRUE));
-	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA, PR_TRUE));
-	tlsCheck(SSL_VersionRangeSetDefault(ssl_variant_stream, &verRange)); //TODO: why doesn't this work???
+	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FALSE_START,     PR_TRUE));
+	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA,       PR_TRUE));
 }
