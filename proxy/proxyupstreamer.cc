@@ -36,11 +36,11 @@ void ProxyUpstreamer::honorRequest()
 				if (S6U::Socket::setMPTCPSched(srcSock.fd, clientProxySched) == 0)
 					replyOptions.setClientProxySched(clientProxySched);
 		
-				SOCKS6MPTCPScheduler proxyServerSched = request->getOptionSet()->getProxyServerSched();
+				SOCKS6MPTCPScheduler proxyServerSched = request->getOptionSet()->getProxyRemoteSched();
 				if (S6U::Socket::setMPTCPSched(dstSock.fd, proxyServerSched) == 0)
-					replyOptions.setProxyServerSched(proxyServerSched);
+					replyOptions.setProxyRemoteSched(proxyServerSched);
 				
-				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFO(), false);
+				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFOPayload() > 0, false);
 				try
 				{
 					dstSock.clientHandshake();
@@ -70,13 +70,13 @@ void ProxyUpstreamer::honorRequest()
 	}
 	catch (SimpleReplyException &ex)
 	{
-		S6M::OperationReply reply(ex.getCode(), S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
+		S6M::OperationReply reply(ex.getCode(), S6M::Address(S6U::Socket::QUAD_ZERO), 0);
 		*reply.getOptionSet() = replyOptions;
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
 	catch (...)
 	{
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
+		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0);
 		*reply.getOptionSet() = replyOptions;
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
@@ -197,7 +197,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 
 		if (code != SOCKS6_OPERATION_REPLY_SUCCESS)
 		{
-			S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0, 0);
+			S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0);
 			*reply.getOptionSet() = replyOptions;
 			poller->assign(new SimpleProxyDownstreamer(this, &reply));
 			return;
@@ -212,7 +212,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		if (S6U::Socket::hasMPTCP(dstSock.fd) > 0)
 			replyOptions.setMPTCP();
 
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort(), request->getInitialDataLen());
+		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort());
 		*reply.getOptionSet() = replyOptions;
 		poller->assign(new ConnectProxyDownstreamer(this, &reply));
 

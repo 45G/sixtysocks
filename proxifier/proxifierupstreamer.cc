@@ -60,7 +60,7 @@ void ProxifierUpstreamer::start()
 	uint32_t polFlags = 0;
 	if (buf.usedSize() == 0)
 		polFlags |= S6U::TFOSafety::TFOS_NO_DATA;
-	if (req.getOptionSet()->getTFO())
+	if (req.getOptionSet()->getTFOPayload())
 		polFlags |= S6U::TFOSafety::TFOS_TFO_SYN;
 	if (!S6U::TFOSafety::tfoSafe(polFlags))
 	{
