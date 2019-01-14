@@ -20,12 +20,12 @@ class WindowSupplicationAgent: public StickReactor
 	
 	State state;
 	
-	boost::shared_ptr<WindowSupplicant> supplicant;
+	std::shared_ptr<WindowSupplicant> supplicant;
 
 	TLSContext *clientCtx;
 	
 public:
-	WindowSupplicationAgent(Proxifier *proxifier, boost::shared_ptr<WindowSupplicant> supplicant, TLSContext *clientCtx);
+	WindowSupplicationAgent(Proxifier *proxifier, std::shared_ptr<WindowSupplicant> supplicant, TLSContext *clientCtx);
 	
 	void process(int fd, uint32_t events);
 	

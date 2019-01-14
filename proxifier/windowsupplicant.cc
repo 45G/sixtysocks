@@ -19,7 +19,7 @@ void WindowSupplicant::process(S6M::AuthenticationReply *authRep)
 	{
 		uint32_t base = authRep->getOptionSet()->getTokenWindowBase();
 		
-		proxifier->setWallet(boost::shared_ptr<SyncedTokenWallet>(new SyncedTokenWallet(base, size)));
+		proxifier->setWallet(std::shared_ptr<SyncedTokenWallet>(new SyncedTokenWallet(base, size)));
 	}
 	proxifier->supplicantDone();
 	done = true;

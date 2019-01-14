@@ -1,7 +1,7 @@
 #ifndef SIMPLEPROXYDOWNSTREAMER_HH
 #define SIMPLEPROXYDOWNSTREAMER_HH
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <socks6msg/socks6msg.hh>
 #include "../core/streamreactor.hh"
 

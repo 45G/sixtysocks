@@ -21,7 +21,7 @@ class ProxifierDownstreamer: public StreamReactor
 
 	State state;
 	
-	boost::shared_ptr<WindowSupplicant> supplicant;
+	std::shared_ptr<WindowSupplicant> supplicant;
 
 public:
 	ProxifierDownstreamer(ProxifierUpstreamer *upstreamer);

@@ -1,7 +1,7 @@
 #ifndef SYNCEDTOKENSTUFF_H
 #define SYNCEDTOKENSTUFF_H
 
-#include <socks6util/socks6util_idempotence.hh>
+#include <socks6util/idempotence.hh>
 #include "../core/spinlock.hh"
 
 class SyncedTokenBank: S6U::TokenBank

@@ -16,7 +16,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	
 	SOCKS6AuthReplyCode code;
 	SOCKS6Method method;
-	boost::shared_ptr<S6M::Request> req = upstreamer->getRequest();
+	std::shared_ptr<S6M::Request> req = upstreamer->getRequest();
 	Proxy *proxy = upstreamer->getProxy();
 	
 	PasswordChecker *checker = proxy->getPasswordChecker();

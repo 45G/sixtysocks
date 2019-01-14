@@ -1,7 +1,7 @@
 #ifndef STREAMREACTOR_HH
 #define STREAMREACTOR_HH
 
-#include <socks6util/socks6util_socketaddress.hh>
+#include <socks6util/socketaddress.hh>
 #include "streambuffer.hh"
 #include "socket.hh"
 #include "reactor.hh"

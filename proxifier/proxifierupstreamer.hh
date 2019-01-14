@@ -22,14 +22,14 @@ class ProxifierUpstreamer: public StreamReactor
 	
 	State state;
 	
-	boost::shared_ptr<SyncedTokenWallet> wallet;
+	std::shared_ptr<SyncedTokenWallet> wallet;
 	
 	S6U::SocketAddress dest;
 	
-	boost::shared_ptr<WindowSupplicant> supplicant;
+	std::shared_ptr<WindowSupplicant> supplicant;
 	
 public:
-	ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, boost::shared_ptr<WindowSupplicant> supplicant);
+	ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<WindowSupplicant> supplicant);
 
 	void start();
 	
@@ -40,12 +40,12 @@ public:
 		return proxifier.get();
 	}
 	
-	boost::shared_ptr<SyncedTokenWallet> getWallet() const
+	std::shared_ptr<SyncedTokenWallet> getWallet() const
 	{
 		return wallet;
 	}
 	
-	boost::shared_ptr<WindowSupplicant> getSupplicant()
+	std::shared_ptr<WindowSupplicant> getSupplicant()
 	{
 		return supplicant;
 	}

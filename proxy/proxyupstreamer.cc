@@ -124,7 +124,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
 		try
 		{
-			request = boost::shared_ptr<S6M::Request>(new S6M::Request(&bb));
+			request = std::shared_ptr<S6M::Request>(new S6M::Request(&bb));
 			buf.unuse(bb.getUsed());
 		}
 		catch (S6M::BadVersionException &)

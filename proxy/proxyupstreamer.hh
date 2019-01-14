@@ -1,9 +1,9 @@
 #ifndef PROXYUPSTREAMER_HH
 #define PROXYUPSTREAMER_HH
 
+#include <memory>
 #include <boost/intrusive_ptr.hpp>
 #include <socks6msg/socks6msg.hh>
-#include <boost/shared_ptr.hpp>
 #include "core/streamreactor.hh"
 #include "core/spinlock.hh"
 
@@ -28,7 +28,7 @@ class ProxyUpstreamer: public StreamReactor
 	volatile State state;
 	volatile bool authenticated;
 	
-	boost::shared_ptr<S6M::Request> request;
+	std::shared_ptr<S6M::Request> request;
 	S6M::OptionSet replyOptions;
 
 	boost::intrusive_ptr<ConnectProxyDownstreamer> downstreamer;
@@ -49,7 +49,7 @@ public:
 	
 	void authDone(SOCKS6TokenExpenditureCode expenditureCode);
 
-	boost::shared_ptr<S6M::Request> getRequest() const
+	std::shared_ptr<S6M::Request> getRequest() const
 	{
 		return request;
 	}

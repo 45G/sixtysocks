@@ -11,7 +11,7 @@ using namespace std;
 
 static const size_t HEADROOM = 512; //more than enough for any request
 
-ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, boost::shared_ptr<WindowSupplicant> supplicant)
+ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<WindowSupplicant> supplicant)
 	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
 {
 	buf.makeHeadroom(HEADROOM);
@@ -48,9 +48,10 @@ void ProxifierUpstreamer::start()
 	}
 	catch (RescheduleException &) {}
 
-	S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort(), 0);
-	if (S6U::Socket::tfoAttempted(srcSock.fd))
-		req.getOptionSet()->setTFO();
+	S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort());
+	ssize_t tfoPayload = S6U::Socket::tfoPayloadSize(srcSock.fd);
+	if (tfoPayload > 0)
+		req.getOptionSet()->setTFOPayload(tfoPayload);
 
 	if (proxifier->getUsername()->length() > 0)
 		req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());

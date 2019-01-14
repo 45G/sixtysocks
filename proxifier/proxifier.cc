@@ -36,7 +36,7 @@ void Proxifier::start()
 	{
 		try
 		{
-			boost::shared_ptr<WindowSupplicant> windowSupplicant (new WindowSupplicant(this));
+			std::shared_ptr<WindowSupplicant> windowSupplicant (new WindowSupplicant(this));
 			poller->assign(new WindowSupplicationAgent(this, windowSupplicant, clientCtx));
 
 			if (clientCtx != NULL) /* TLS uses TFO */
@@ -65,12 +65,12 @@ void Proxifier::start()
 
 void Proxifier::handleNewConnection(int fd)
 {
-	boost::shared_ptr<WindowSupplicant> supplicant;
+	std::shared_ptr<WindowSupplicant> supplicant;
 
 	if (supplicationLock.attempt())
 	{
 		if (wallet->remaining() == 0)
-			supplicant = boost::shared_ptr<WindowSupplicant>(new WindowSupplicant(this));
+			supplicant = std::shared_ptr<WindowSupplicant>(new WindowSupplicant(this));
 		else
 			supplicationLock.release();
 	}

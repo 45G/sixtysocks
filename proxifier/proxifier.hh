@@ -2,7 +2,7 @@
 #define PROXIFIER_HH
 
 #include <string>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/atomic.hpp>
 #include <socks6util/socks6util.hh>
 #include "../core/tlscontext.hh"
@@ -16,12 +16,12 @@ class Proxifier: public ListenReactor
 
 	bool defer;
 
-	const boost::shared_ptr<std::string> username;
-	const boost::shared_ptr<std::string> password;
+	const std::shared_ptr<std::string> username;
+	const std::shared_ptr<std::string> password;
 	
 	bool idempotence;
 	
-	boost::shared_ptr<SyncedTokenWallet> wallet;
+	std::shared_ptr<SyncedTokenWallet> wallet;
 	Spinlock walletLock;
 	Spinlock supplicationLock;
 
@@ -39,32 +39,32 @@ public:
 
 	void handleNewConnection(int fd);
 
-	const boost::shared_ptr<std::string> getUsername() const
+	const std::shared_ptr<std::string> getUsername() const
 	{
 		return username;
 	}
 	
-	const boost::shared_ptr<std::string> getPassword() const
+	const std::shared_ptr<std::string> getPassword() const
 	{
 		return password;
 	}
 	
-	boost::shared_ptr<SyncedTokenWallet> getWallet()
+	std::shared_ptr<SyncedTokenWallet> getWallet()
 	{
 		ScopedSpinlock lock(&walletLock); (void)lock;
 		
 		return wallet;
 	}
 	
-	void killWallet(boost::shared_ptr<SyncedTokenWallet> wallet)
+	void killWallet(std::shared_ptr<SyncedTokenWallet> wallet)
 	{
 		ScopedSpinlock lock(&walletLock); (void)lock;
 		
 		if (wallet.get() == this->wallet.get())
-			this->wallet = boost::shared_ptr<SyncedTokenWallet>(new SyncedTokenWallet());
+			this->wallet = std::shared_ptr<SyncedTokenWallet>(new SyncedTokenWallet());
 	}
 	
-	void setWallet(boost::shared_ptr<SyncedTokenWallet> wallet)
+	void setWallet(std::shared_ptr<SyncedTokenWallet> wallet)
 	{
 		ScopedSpinlock lock(&walletLock); (void)lock;
 		

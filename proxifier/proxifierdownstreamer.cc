@@ -49,7 +49,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			}
 			else
 			{
-				boost::shared_ptr<SyncedTokenWallet> wallet = upstreamer->getWallet();
+				std::shared_ptr<SyncedTokenWallet> wallet = upstreamer->getWallet();
 				if (wallet.get() != NULL)
 					wallet->updateWindow(authRep.getOptionSet());
 			}

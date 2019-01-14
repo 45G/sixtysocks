@@ -13,7 +13,7 @@ SimplePasswordChecker::SimplePasswordChecker(const std::string &user, const std:
 	}
 }
 
-bool SimplePasswordChecker::check(boost::shared_ptr<string> user, boost::shared_ptr<string> password)
+bool SimplePasswordChecker::check(std::shared_ptr<string> user, std::shared_ptr<string> password)
 {
 	if (user.get() == NULL)
 		return false;
