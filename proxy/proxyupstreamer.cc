@@ -21,41 +21,7 @@ void ProxyUpstreamer::honorRequest()
 		{
 		case SOCKS6_REQUEST_CONNECT:
 		{
-			//TODO: resolve
-			if (request->getAddress()->getType() == SOCKS6_ADDR_DOMAIN)
-				throw SimpleReplyException(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED);
-			
-			try
-			{
-				S6U::SocketAddress addr(*request->getAddress(), request->getPort());
-				dstSock.fd.assign(socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
-				if (dstSock.fd < 0)
-					throw system_error(errno, system_category());
-				
-				SOCKS6MPTCPScheduler clientProxySched = request->getOptionSet()->getClientProxySched();
-				if (S6U::Socket::setMPTCPSched(srcSock.fd, clientProxySched) == 0)
-					replyOptions.setClientProxySched(clientProxySched);
-		
-				SOCKS6MPTCPScheduler proxyServerSched = request->getOptionSet()->getProxyRemoteSched();
-				if (S6U::Socket::setMPTCPSched(dstSock.fd, proxyServerSched) == 0)
-					replyOptions.setProxyRemoteSched(proxyServerSched);
-				
-				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFOPayload(), false);
-				try
-				{
-					dstSock.clientHandshake();
-				}
-				catch (std::exception &)
-				{
-					throw runtime_error("Unexpected exception in null handshake");
-				}
-			}
-			catch (system_error &err)
-			{
-				throw SimpleReplyException(S6U::Socket::connectErrnoToReplyCode(err.code().value()));
-			}
-			poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
-			state = S_CONNECTING;
+			honorConnect();
 			break;
 		}
 		case SOCKS6_REQUEST_NOOP:
@@ -74,12 +40,51 @@ void ProxyUpstreamer::honorRequest()
 		*reply.getOptionSet() = replyOptions;
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
-	catch (...)
+	catch (std::exception &)
 	{
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0);
 		*reply.getOptionSet() = replyOptions;
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
+}
+
+void ProxyUpstreamer::honorConnect()
+{
+	//TODO: resolve
+	if (request->getAddress()->getType() == SOCKS6_ADDR_DOMAIN)
+		throw SimpleReplyException(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED);
+
+	S6U::SocketAddress addr(*request->getAddress(), request->getPort());
+	dstSock.fd.assign(socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
+	if (dstSock.fd < 0)
+		throw system_error(errno, system_category());
+
+	honorConnectStackOptions();
+
+	try
+	{
+		dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFOPayload(), false);
+	}
+	catch (system_error &err)
+	{
+		throw SimpleReplyException(S6U::Socket::connectErrnoToReplyCode(err.code().value()));
+	}
+
+	dstSock.clientHandshake();
+
+	poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
+	state = S_CONNECTING;
+}
+
+void ProxyUpstreamer::honorConnectStackOptions()
+{
+	SOCKS6MPTCPScheduler clientProxySched = request->getOptionSet()->getClientProxySched();
+	if (S6U::Socket::setMPTCPSched(srcSock.fd, clientProxySched) == 0)
+		replyOptions.setClientProxySched(clientProxySched);
+
+	SOCKS6MPTCPScheduler proxyServerSched = request->getOptionSet()->getProxyRemoteSched();
+	if (S6U::Socket::setMPTCPSched(dstSock.fd, proxyServerSched) == 0)
+		replyOptions.setProxyRemoteSched(proxyServerSched);
 }
 
 ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int *pSrcFD, TLSContext *serverCtx)

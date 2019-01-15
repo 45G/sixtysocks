@@ -42,6 +42,10 @@ class ProxyUpstreamer: public StreamReactor
 	bool mustFail;
 	
 	void honorRequest();
+
+	void honorConnect();
+
+	void honorConnectStackOptions();
 	
 public:
 	ProxyUpstreamer(Proxy *proxy, int *pSrcFD, TLSContext *serverCtx);

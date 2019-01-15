@@ -11,7 +11,7 @@ void Proxy::handleNewConnection(int fd)
 	{
 		poller->assign(new ProxyUpstreamer(this, &fd, serverCtx));
 	}
-	catch (...)
+	catch (exception &)
 	{
 		close(fd); // tolerable error
 	}
