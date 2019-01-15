@@ -11,8 +11,8 @@ using namespace std;
 
 static const size_t HEADROOM = 512; //more than enough for any request
 
-ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<WindowSupplicant> supplicant)
-	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), state(S_CONNECTING), supplicant(supplicant)
+ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<WindowSupplicant> windowSupplicant)
+	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), state(S_CONNECTING), wallet(proxifier->getWallet()), windowSupplicant(windowSupplicant)
 {
 	buf.makeHeadroom(HEADROOM);
 
@@ -49,6 +49,7 @@ void ProxifierUpstreamer::start()
 	catch (RescheduleException &) {}
 
 	S6M::Request req(SOCKS6_REQUEST_CONNECT, dest.getAddress(), dest.getPort());
+
 	ssize_t tfoPayload = S6U::Socket::tfoPayloadSize(srcSock.fd);
 	if (tfoPayload > 0)
 		req.getOptionSet()->setTFOPayload(tfoPayload);
@@ -56,26 +57,16 @@ void ProxifierUpstreamer::start()
 	if (proxifier->getUsername()->length() > 0)
 		req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());
 
-	/* check if idempotence is wanted */
-	uint32_t polFlags = 0;
-	if (buf.usedSize() == 0)
-		polFlags |= S6U::TFOSafety::TFOS_NO_DATA;
-	if (req.getOptionSet()->getTFOPayload())
-		polFlags |= S6U::TFOSafety::TFOS_TFO_SYN;
-	if (!S6U::TFOSafety::tfoSafe(polFlags))
+	if (windowSupplicant.get() != NULL)
+		windowSupplicant->process(&req);
+
+	S6U::RequestSafety::Recommendation recommendation = S6U::RequestSafety::recommend(req, dstSock.tls != NULL, buf.usedSize());
+	uint32_t token;
+	if (recommendation.useToken && wallet->extract(&token))
 	{
-		wallet = proxifier->getWallet();
-		uint32_t token;
-
-		if (wallet->extract(&token))
-		{
-			req.getOptionSet()->setToken(token);
-			polFlags |= S6U::TFOSafety::TFOS_SPEND_TOKEN;
-		}
+		req.getOptionSet()->setToken(token);
+		recommendation.tokenSpent(dstSock.tls != NULL);
 	}
-
-	if (supplicant.get() != NULL)
-		supplicant->process(&req);
 
 	uint8_t reqBuf[HEADROOM];
 	S6M::ByteBuffer bb(reqBuf, sizeof(reqBuf));
@@ -83,7 +74,7 @@ void ProxifierUpstreamer::start()
 	buf.prepend(bb.getBuf(), bb.getUsed());
 
 	/* connect */
-	dstSock.sockConnect(*proxifier->getProxyAddr(), &buf, S6U::TFOSafety::tfoSafe(polFlags), polFlags & S6U::TFOSafety::TFOS_SPEND_TOKEN);
+	dstSock.sockConnect(*proxifier->getProxyAddr(), &buf, recommendation.tfoPayload, recommendation.earlyData);
 
 	poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
 }

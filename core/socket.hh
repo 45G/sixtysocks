@@ -43,9 +43,9 @@ struct Socket
 		return bytes;
 	}
 	
-	size_t tcpSendTFO(StreamBuffer *buf, S6U::SocketAddress dest)
+	size_t tcpSendTFO(StreamBuffer *buf, size_t maxPayload, S6U::SocketAddress dest)
 	{
-		ssize_t bytes = sendto(fd, buf->getHead(), buf->usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.sockAddress, dest.size());
+		ssize_t bytes = sendto(fd, buf->getHead(), std::min(buf->usedSize(), maxPayload), MSG_FASTOPEN | MSG_NOSIGNAL, &dest.sockAddress, dest.size());
 		if (bytes < 0 && errno != EINPROGRESS)
 			throw std::system_error(errno, std::system_category());
 		if (bytes > 0)
@@ -74,12 +74,12 @@ struct Socket
 		return tcpSend(buf);
 	}
 	
-	void sockConnect(S6U::SocketAddress addr, StreamBuffer *buf, bool tfoIfTCP, bool earlyDataIfTLS)
+	void sockConnect(S6U::SocketAddress addr, StreamBuffer *buf, size_t maxTFOPayload, bool earlyDataIfTLS)
 	{
 		if (tls == NULL)
 		{
-			if (tfoIfTCP)
-				tcpSendTFO(buf, addr);
+			if (maxTFOPayload > 0)
+				tcpSendTFO(buf, maxTFOPayload, addr);
 			else
 				tcpConnect(addr);
 		}

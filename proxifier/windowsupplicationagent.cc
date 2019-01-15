@@ -28,7 +28,7 @@ WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, std::shar
 
 void WindowSupplicationAgent::start()
 {
-	sock.sockConnect(*proxifier->getProxyAddr(), &buf, false, false);
+	sock.sockConnect(*proxifier->getProxyAddr(), &buf, 0, false);
 
 	poller->add(this, sock.fd, Poller::OUT_EVENTS);
 }

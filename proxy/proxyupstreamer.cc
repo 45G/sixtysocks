@@ -40,7 +40,7 @@ void ProxyUpstreamer::honorRequest()
 				if (S6U::Socket::setMPTCPSched(dstSock.fd, proxyServerSched) == 0)
 					replyOptions.setProxyRemoteSched(proxyServerSched);
 				
-				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFOPayload() > 0, false);
+				dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFOPayload(), false);
 				try
 				{
 					dstSock.clientHandshake();

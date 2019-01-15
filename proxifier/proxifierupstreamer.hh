@@ -26,10 +26,10 @@ class ProxifierUpstreamer: public StreamReactor
 	
 	S6U::SocketAddress dest;
 	
-	std::shared_ptr<WindowSupplicant> supplicant;
+	std::shared_ptr<WindowSupplicant> windowSupplicant;
 	
 public:
-	ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<WindowSupplicant> supplicant);
+	ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<WindowSupplicant> windowSupplicant);
 
 	void start();
 	
@@ -47,7 +47,7 @@ public:
 	
 	std::shared_ptr<WindowSupplicant> getSupplicant()
 	{
-		return supplicant;
+		return windowSupplicant;
 	}
 };
 
