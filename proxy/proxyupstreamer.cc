@@ -140,10 +140,12 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		}
 
 		poller->assign(new AuthServer(this));
+
+		tfoPayload = std::min((size_t)request->getOptionSet()->getTFOPayload(), MSS);
 		
-		if (buf.usedSize() < request->getInitialDataLen())
+		if (buf.usedSize() < tfoPayload)
 		{
-			state = S_READING_INIT_DATA;
+			state = S_READING_TFO_PAYLOAD;
 			poller->add(this, srcSock.fd, Poller::IN_EVENTS);
 		}
 		else
@@ -163,7 +165,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		// this point shouldn't be reached
 		break;
 	}
-	case S_READING_INIT_DATA:
+	case S_READING_TFO_PAYLOAD:
 	{
 		ssize_t bytes = srcSock.sockRecv(&buf);
 		if (bytes == 0)
@@ -171,7 +173,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			deactivate();
 			return;
 		}
-		if (buf.usedSize() >= request->getInitialDataLen())
+		if (buf.usedSize() >= tfoPayload)
 		{
 			honorLock.acquire();
 			state = S_AWAITING_AUTH;

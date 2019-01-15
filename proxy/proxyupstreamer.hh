@@ -13,11 +13,13 @@ class AuthServer;
 
 class ProxyUpstreamer: public StreamReactor
 {
+	const size_t MSS = 1460; //TODO: don't hardcode
+
 	enum State
 	{
 		S_HANDSHAKE,
 		S_READING_REQ,
-		S_READING_INIT_DATA,
+		S_READING_TFO_PAYLOAD,
 		S_AWAITING_AUTH,
 		S_CONNECTING,
 		S_STREAM,
@@ -27,6 +29,7 @@ class ProxyUpstreamer: public StreamReactor
 	
 	volatile State state;
 	volatile bool authenticated;
+	size_t tfoPayload;
 	
 	std::shared_ptr<S6M::Request> request;
 	S6M::OptionSet replyOptions;
