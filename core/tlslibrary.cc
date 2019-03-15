@@ -5,6 +5,8 @@
 #include "tlsexception.hh"
 #include "tlslibrary.hh"
 
+using namespace std;
+
 TLSLibrary::NSPRLibrary::NSPRLibrary()
 {
 	PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
@@ -16,7 +18,7 @@ TLSLibrary::NSPRLibrary::~NSPRLibrary()
 	PR_Cleanup(); // might return error
 }
 
-TLSLibrary::NSSLibrary::NSSLibrary(const std::string &configDir)
+TLSLibrary::NSSLibrary::NSSLibrary(const string &configDir)
 {
 	SECStatus status = NSS_Init(configDir.c_str());
 	if (status != SECSuccess)
@@ -34,7 +36,7 @@ static void tlsCheck(SECStatus status)
 		throw TLSException();
 }
 
-TLSLibrary::TLSLibrary(const std::string &configDir)
+TLSLibrary::TLSLibrary(const string &configDir)
 	: nssLibrary(configDir)
 {
 	static const SSLVersionRange VER_RANGE = {
