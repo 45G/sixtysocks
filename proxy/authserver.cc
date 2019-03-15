@@ -20,7 +20,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	Proxy *proxy = upstreamer->getProxy();
 	
 	PasswordChecker *checker = proxy->getPasswordChecker();
-	if (checker == NULL)
+	if (checker == nullptr)
 	{
 		code = SOCKS6_AUTH_REPLY_SUCCESS;
 		method = SOCKS6_METHOD_NOAUTH;
@@ -44,7 +44,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	bool idempotenceFail = false;
 	
 	//TODO: untangle mess
-	SyncedTokenBank *bank = NULL;
+	SyncedTokenBank *bank = nullptr;
 	if (success && method != SOCKS6_METHOD_NOAUTH)
 		bank = proxy->getBank(*req->getOptionSet()->getUsername());
 	
@@ -53,7 +53,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	{	
 		SOCKS6TokenExpenditureCode expendCode;
 		/* no bank */
-		if (bank == NULL)
+		if (bank == nullptr)
 		{
 			idempotenceFail = false;
 			upstreamer->fail();
@@ -78,14 +78,14 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	uint32_t requestedWindow = req->getOptionSet()->requestedTokenWindow();
 	if (success && method != SOCKS6_METHOD_NOAUTH && !idempotenceFail && requestedWindow > 0)
 	{
-		if (bank == NULL)
+		if (bank == nullptr)
 			bank = proxy->createBank(*req->getOptionSet()->getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
 		else
 			bank->renew();
 	}
 	
 	/* advertise window */
-	if (bank != NULL)
+	if (bank != nullptr)
 	{
 		uint32_t base;
 		uint32_t size;

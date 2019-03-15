@@ -35,14 +35,14 @@ void usage()
 			"[-s <proxy IP>] [-p <proxy port>]",
 			"[-C <certificate DB>]"
 			"[-D] (defer request until socket is readable)",
-		NULL,
+		nullptr,
 	};
 	
 	const char **line = &usageLines[0];
 	
 	cerr << *line << endl;
 	line++;
-	while (*line != NULL)
+	while (*line != nullptr)
 	{
 		cerr << "\t" << *line << endl;
 		line++;
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 	boost::intrusive_ptr<TLSContext> clientCtx;
 	boost::intrusive_ptr<TLSContext> serverCtx;
 	
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	//TODO: fix this shit
 	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:C:D")) != -1)
@@ -204,7 +204,7 @@ int main(int argc, char **argv)
 			bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
 			bindAddr.ipv4.sin_port        = htons(port);
 
-			poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), NULL));
+			poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), nullptr));
 		}
 		if (tlsPort != 0)
 		{

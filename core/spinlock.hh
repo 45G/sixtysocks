@@ -33,7 +33,7 @@ class ScopedSpinlock
 	
 public:
 	ScopedSpinlock()
-		: spinlock(NULL) {}
+		: spinlock(nullptr) {}
 	
 	ScopedSpinlock(Spinlock *spinlock)
 		: spinlock(spinlock)
@@ -48,7 +48,7 @@ public:
 	
 	~ScopedSpinlock()
 	{
-		if (spinlock != NULL)
+		if (spinlock != nullptr)
 			spinlock->release();
 	}
 };

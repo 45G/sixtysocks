@@ -88,11 +88,11 @@ void Poller::remove(int fd, bool force)
 	if ((!fdEntries[fd].registered || fd < 0) && !force)
 		return;
 
-	int rc = epoll_ctl(epollFD, EPOLL_CTL_DEL, fd, NULL);
+	int rc = epoll_ctl(epollFD, EPOLL_CTL_DEL, fd, nullptr);
 	if (rc < 0 && errno != ENOENT)
 		throw system_error(errno, system_category());
 
-	fdEntries[fd].reactor = NULL;
+	fdEntries[fd].reactor = nullptr;
 	fdEntries[fd].registered = false;
 }
 
@@ -102,7 +102,7 @@ void Poller::stop()
 	
 	for (int i = 0; i < (int)fdEntries.size(); i++)
 	{
-		if (fdEntries[i].reactor == NULL)
+		if (fdEntries[i].reactor == nullptr)
 			continue;
 		
 		fdEntries[i].reactor->deactivate();
@@ -132,7 +132,7 @@ void Poller::threadFun(Poller *poller)
 		}
 		
 		intrusive_ptr<Reactor> reactor = poller->fdEntries[event.data.fd].reactor;
-		poller->fdEntries[event.data.fd].reactor = NULL;
+		poller->fdEntries[event.data.fd].reactor = nullptr;
 		
 		if (!reactor->isActive())
 			return;

@@ -57,7 +57,7 @@ void TLS::descriptorDeleter(PRFileDesc *fd)
 }
 
 TLS::TLS(TLSContext *ctx, int fd)
-	: readFD(fd), writeFD(fd), attemptSendTo(false), descriptor(NULL, descriptorDeleter), connectCalled(false), handshakeFinished(false)
+	: readFD(fd), writeFD(fd), attemptSendTo(false), descriptor(nullptr, descriptorDeleter), connectCalled(false), handshakeFinished(false)
 {
 	static const PRIOMethods METHODS = {
 		.file_type       = PR_DESC_SOCKET_TCP,
@@ -104,7 +104,7 @@ TLS::TLS(TLSContext *ctx, int fd)
 	lowerDesc->secret = reinterpret_cast<PRFilePrivate *>(this);
 	lowerDesc->dtor = descriptorDeleter;
 
-	PRFileDesc *higherDesc = SSL_ImportFD(NULL, lowerDesc);
+	PRFileDesc *higherDesc = SSL_ImportFD(nullptr, lowerDesc);
 	if (!higherDesc)
 	{
 		PR_Close(lowerDesc); //might return error
@@ -122,7 +122,7 @@ TLS::TLS(TLSContext *ctx, int fd)
 	if (rc != SECSuccess)
 		throw TLSException();
 
-	rc = SSL_SetCanFalseStartCallback(descriptor.get(), canFalseStartCallback, NULL);
+	rc = SSL_SetCanFalseStartCallback(descriptor.get(), canFalseStartCallback, nullptr);
 	if (rc != SECSuccess)
 		throw TLSException();
 }
@@ -146,7 +146,7 @@ void TLS::setWriteFD(int fd)
 void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData)
 {
 	SECStatus rc;
-	useEarlyData = useEarlyData && addr != NULL && buf != NULL;
+	useEarlyData = useEarlyData && addr != nullptr && buf != nullptr;
 
 	if (addr)
 	{
@@ -239,7 +239,7 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 
 PRStatus PR_CALLBACK TLS::dClose(PRFileDesc *fd)
 {
-	fd->secret = NULL;
+	fd->secret = nullptr;
 	fd->dtor(fd);
 
 	return PR_SUCCESS;

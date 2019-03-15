@@ -39,7 +39,7 @@ void Proxifier::start()
 			std::shared_ptr<WindowSupplicant> windowSupplicant (new WindowSupplicant(this));
 			poller->assign(new WindowSupplicationAgent(this, windowSupplicant, clientCtx));
 
-			if (clientCtx != NULL) /* TLS uses TFO */
+			if (clientCtx != nullptr) /* TLS uses TFO */
 				supplicateTFO = false;
 		}
 		catch (exception &ex)

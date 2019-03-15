@@ -41,7 +41,7 @@ void ListenReactor::process(int fd, uint32_t events)
 	
 	while (active)
 	{
-		int clientFD = accept4(listenFD, NULL, NULL, SOCK_NONBLOCK);
+		int clientFD = accept4(listenFD, nullptr, nullptr, SOCK_NONBLOCK);
 		if (clientFD < 0)
 		{
 			switch (errno)

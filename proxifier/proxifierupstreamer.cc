@@ -22,7 +22,7 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSC
 	dstSock.fd.assign(socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (dstSock.fd < 0)
 		throw system_error(errno, system_category());
-	if (clientCtx != NULL)
+	if (clientCtx != nullptr)
 		dstSock.tls = new TLS(clientCtx, dstSock.fd);
 	
 	int rc = S6U::Socket::getOriginalDestination(srcSock.fd, &dest.storage);
@@ -57,15 +57,15 @@ void ProxifierUpstreamer::start()
 	if (proxifier->getUsername()->length() > 0)
 		req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());
 
-	if (windowSupplicant.get() != NULL)
+	if (windowSupplicant.get() != nullptr)
 		windowSupplicant->process(&req);
 
-	S6U::RequestSafety::Recommendation recommendation = S6U::RequestSafety::recommend(req, dstSock.tls != NULL, buf.usedSize());
+	S6U::RequestSafety::Recommendation recommendation = S6U::RequestSafety::recommend(req, dstSock.tls != nullptr, buf.usedSize());
 	uint32_t token;
 	if (recommendation.useToken && wallet->extract(&token))
 	{
 		req.getOptionSet()->setToken(token);
-		recommendation.tokenSpent(dstSock.tls != NULL);
+		recommendation.tokenSpent(dstSock.tls != nullptr);
 	}
 
 	uint8_t reqBuf[HEADROOM];

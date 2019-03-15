@@ -76,7 +76,7 @@ struct Socket
 	
 	void sockConnect(S6U::SocketAddress addr, StreamBuffer *buf, size_t maxTFOPayload, bool earlyDataIfTLS)
 	{
-		if (tls == NULL)
+		if (tls == nullptr)
 		{
 			if (maxTFOPayload > 0)
 				tcpSendTFO(buf, maxTFOPayload, addr);
@@ -95,15 +95,15 @@ struct Socket
 	
 	void clientHandshake()
 	{
-		if (tls == NULL)
+		if (tls == nullptr)
 			return;
 		
-		tls->tlsConnect(NULL, NULL, false);
+		tls->tlsConnect(nullptr, nullptr, false);
 	}
 	
 	void serverHandshake(StreamBuffer *buf)
 	{
-		if (tls == NULL)
+		if (tls == nullptr)
 			return;
 		
 		tls->tlsAccept(buf);
@@ -111,7 +111,7 @@ struct Socket
 	
 	bool benefitsFromIdempotence()
 	{
-		return tls != NULL;
+		return tls != nullptr;
 	}
 	
 	void duplicate(Socket<UniqSendFD> *ws)
@@ -120,7 +120,7 @@ struct Socket
 		if (fd < 0)
 			throw std::system_error(errno, std::system_category());
 		tls = ws->tls;
-		if (tls != NULL)
+		if (tls != nullptr)
 			tls->setReadFD(fd);
 	}
 	
@@ -130,7 +130,7 @@ struct Socket
 		if (fd < 0)
 			throw std::system_error(errno, std::system_category());
 		tls = rs->tls;
-		if (tls != NULL)
+		if (tls != nullptr)
 			tls->setWriteFD(fd);
 	}
 };
