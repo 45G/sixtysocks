@@ -55,6 +55,8 @@ void Poller::assign(intrusive_ptr<Reactor> reactor)
 
 void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 {
+	ScopedSpinlock scopedLock(&reactor->deactivationLock);
+
 	if (fd < 0 || !reactor->isActive())
 		return;
 
@@ -77,10 +79,6 @@ void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 	
 	fdEntries[fd].reactor = reactor;
 	fdEntries[fd].registered = true;
-	
-	/* work around race condition with Reactor::pleaseStop() */
-	if (!reactor->isActive())
-		remove(fd, true);
 }
 
 void Poller::remove(int fd, bool force)

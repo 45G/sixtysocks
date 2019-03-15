@@ -9,6 +9,7 @@ using namespace std;
 
 void Reactor::deactivate()
 {
+	ScopedSpinlock scopedLock(&deactivationLock);
 	active = false;
 }
 

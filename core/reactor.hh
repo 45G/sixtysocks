@@ -13,15 +13,19 @@
 #include "rescheduleexception.hh"
 #include "uniqfd.hh"
 #include "streambuffer.hh"
+#include "spinlock.hh"
 
 class Poller;
 
 class Reactor: public boost::intrusive_ref_counter<Reactor>
 {
+private:
+	std::atomic<bool> active { true };
+	Spinlock deactivationLock;
+
 protected:
 	Poller *poller;
-	std::atomic<bool> active { true };
-	
+
 public:
 	Reactor(Poller *poller)
 		: poller(poller) {}
@@ -43,6 +47,8 @@ public:
 	}
 	
 	virtual ~Reactor();
+
+	friend class Poller;
 };
 
 #endif // REACTOR_HH

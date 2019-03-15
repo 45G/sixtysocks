@@ -39,7 +39,7 @@ void ListenReactor::process(int fd, uint32_t events)
 {
 	(void)fd; (void)events;
 	
-	while (active)
+	while (isActive())
 	{
 		int clientFD = accept4(listenFD, nullptr, nullptr, SOCK_NONBLOCK);
 		if (clientFD < 0)
