@@ -13,10 +13,7 @@ class Poller
 	struct FDEntry
 	{
 		boost::intrusive_ptr<Reactor> reactor;
-		bool registered;
-		
-		FDEntry()
-			: registered(false) {}
+		bool registered = false;
 	};
 	
 	int numThreads;
@@ -27,7 +24,7 @@ class Poller
 	
 	std::vector<FDEntry> fdEntries;
 	
-	volatile bool alive;
+	volatile bool alive = true;
 	
 public:
 	static const uint32_t IN_EVENTS  = EPOLLIN | EPOLLRDHUP;

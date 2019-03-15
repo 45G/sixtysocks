@@ -12,7 +12,7 @@ using namespace std;
 using boost::intrusive_ptr;
 
 Poller::Poller(int numThreads, int cpuOffset, size_t expectedFDs)
-	: numThreads(numThreads), alive(true)
+	: numThreads(numThreads)
 {
 	threads.reserve(numThreads);
 	epollFD = epoll_create(1); // number doesn't matter

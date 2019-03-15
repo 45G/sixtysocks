@@ -7,7 +7,7 @@
 using namespace std;
 
 ProxifierDownstreamer::ProxifierDownstreamer(ProxifierUpstreamer *upstreamer)
-	: StreamReactor(upstreamer->getPoller()), proxifier(upstreamer->getProxifier()), upstreamer(upstreamer), state(S_WAITING_FOR_AUTH_REP), supplicant(upstreamer->getSupplicant())
+	: StreamReactor(upstreamer->getPoller()), proxifier(upstreamer->getProxifier()), upstreamer(upstreamer), supplicant(upstreamer->getSupplicant())
 {
 	srcSock.duplicate(upstreamer->getDstSock());
 	dstSock.duplicate(upstreamer->getSrcSock());

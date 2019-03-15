@@ -15,7 +15,7 @@ class ConnectProxyDownstreamer: public StreamReactor
 		S_SENDING_OP_REP,
 	};
 
-	State state;
+	State state = S_INIT;
 
 	boost::intrusive_ptr<ProxyUpstreamer> upstreamer;
 

@@ -19,7 +19,7 @@ class ProxifierDownstreamer: public StreamReactor
 	boost::intrusive_ptr<Proxifier> proxifier;
 	boost::intrusive_ptr<ProxifierUpstreamer> upstreamer;
 
-	State state;
+	State state = S_WAITING_FOR_AUTH_REP;
 	
 	std::shared_ptr<WindowSupplicant> supplicant;
 

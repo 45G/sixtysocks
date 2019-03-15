@@ -6,11 +6,11 @@
 //TODO: do we really need this?
 class StrikeCounter
 {
-	unsigned count;
+	unsigned count = 0;
 	unsigned max;
 public:
 	StrikeCounter(unsigned max)
-		: count(0), max(max) {}
+		: max(max) {}
 
 	void increment();
 

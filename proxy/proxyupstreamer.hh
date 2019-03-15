@@ -27,19 +27,19 @@ class ProxyUpstreamer: public StreamReactor
 
 	boost::intrusive_ptr<Proxy> proxy;
 	
-	volatile State state;
-	volatile bool authenticated;
+	volatile State state = S_HANDSHAKE;
+	volatile bool authenticated = false;
 	size_t tfoPayload;
 	
 	std::shared_ptr<S6M::Request> request;
-	S6M::OptionSet replyOptions;
+	S6M::OptionSet replyOptions { S6M::OptionSet::M_OP_REP };
 
 	boost::intrusive_ptr<ConnectProxyDownstreamer> downstreamer;
 	
-	AuthServer *authServer;
+	AuthServer *authServer = nullptr;
 	Spinlock honorLock;
 	
-	bool mustFail;
+	bool mustFail = false;
 	
 	void honorRequest();
 

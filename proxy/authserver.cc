@@ -10,7 +10,7 @@
 using namespace std;
 
 AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
-	: StickReactor(upstreamer->getPoller()), upstreamer(upstreamer), state(S_WRITING)
+	: StickReactor(upstreamer->getPoller()), upstreamer(upstreamer)
 {
 	sock.duplicate(upstreamer->getSrcSock());
 	

@@ -1,24 +1,21 @@
 #ifndef SPINLOCK_HH
 #define SPINLOCK_HH
 
-#include <boost/atomic.hpp>
+#include <atomic>
 
 class Spinlock
 {
-	boost::atomic<bool> held;
+	std::atomic<bool> held { false };
 
 public:
-	Spinlock()
-		:held(false) {}
-
 	void acquire()
 	{
-		while (held.exchange(true, boost::memory_order_acquire));
+		while (held.exchange(true, std::memory_order_acquire));
 	}
 
 	bool attempt()
 	{
-		return held.exchange(true, boost::memory_order_acquire) == false;
+		return held.exchange(true, std::memory_order_acquire) == false;
 	}
 
 	void release()
@@ -32,24 +29,15 @@ class ScopedSpinlock
 	Spinlock *spinlock;
 	
 public:
-	ScopedSpinlock()
-		: spinlock(nullptr) {}
-	
 	ScopedSpinlock(Spinlock *spinlock)
 		: spinlock(spinlock)
 	{
 		spinlock->acquire();
 	}
-	
-	void reset()
-	{
-		*this = ScopedSpinlock();
-	}
-	
+
 	~ScopedSpinlock()
 	{
-		if (spinlock != nullptr)
-			spinlock->release();
+		spinlock->release();
 	}
 };
 

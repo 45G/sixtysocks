@@ -27,12 +27,12 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	int writeFD;
 
 	S6U::SocketAddress addr;
-	bool attemptSendTo;
+	bool attemptSendTo = false;
 
-	std::unique_ptr<PRFileDesc, void (*)(PRFileDesc *)> descriptor;
+	std::unique_ptr<PRFileDesc, void (*)(PRFileDesc *)> descriptor { nullptr, descriptorDeleter };
 
-	bool connectCalled;
-	bool handshakeFinished;
+	bool connectCalled = false;
+	bool handshakeFinished = false;
 
 	static void handshakeCallback(PRFileDesc *fd, void *clientData);
 

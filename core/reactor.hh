@@ -20,11 +20,11 @@ class Reactor: public boost::intrusive_ref_counter<Reactor>
 {
 protected:
 	Poller *poller;
-	volatile bool active;
+	volatile bool active = true;
 	
 public:
 	Reactor(Poller *poller)
-		: poller(poller), active(true) {}
+		: poller(poller) {}
 	
 	virtual void start() = 0;
 

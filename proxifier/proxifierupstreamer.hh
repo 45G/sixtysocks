@@ -20,7 +20,7 @@ class ProxifierUpstreamer: public StreamReactor
 	
 	boost::intrusive_ptr<Proxifier> proxifier;
 	
-	State state;
+	State state = S_CONNECTING;
 	
 	std::shared_ptr<SyncedTokenWallet> wallet;
 	

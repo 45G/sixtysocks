@@ -11,13 +11,10 @@ class StreamBuffer
 	
 	uint8_t buf[BUF_SIZE];
 	
-	size_t head;
-	size_t tail;
+	size_t head = 0;
+	size_t tail = 0;
 	
 public:
-	StreamBuffer()
-		: head(0), tail(0) {}
-	
 	uint8_t *getHead()
 	{
 		return &buf[head];

@@ -8,10 +8,10 @@ class Proxifier;
 class WindowSupplicant
 {
 	Proxifier *proxifier;
-	bool done;
+	bool done = false;
 public:
 	WindowSupplicant(Proxifier *proxifier)
-		: proxifier(proxifier), done(false) {}
+		: proxifier(proxifier) {}
 	
 	~WindowSupplicant();
 	

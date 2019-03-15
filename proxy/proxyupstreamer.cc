@@ -88,7 +88,7 @@ void ProxyUpstreamer::honorConnectStackOptions()
 }
 
 ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int *pSrcFD, TLSContext *serverCtx)
-	: StreamReactor(proxy->getPoller()), proxy(proxy), state(S_HANDSHAKE), authenticated(false), replyOptions(S6M::OptionSet::M_OP_REP), authServer(nullptr), mustFail(false)
+	: StreamReactor(proxy->getPoller()), proxy(proxy)
 {
 	srcSock.fd.assign(*pSrcFD);
 	*pSrcFD = -1;

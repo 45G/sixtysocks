@@ -57,7 +57,7 @@ void TLS::descriptorDeleter(PRFileDesc *fd)
 }
 
 TLS::TLS(TLSContext *ctx, int fd)
-	: readFD(fd), writeFD(fd), attemptSendTo(false), descriptor(nullptr, descriptorDeleter), connectCalled(false), handshakeFinished(false)
+	: readFD(fd), writeFD(fd)
 {
 	static const PRIOMethods METHODS = {
 		.file_type       = PR_DESC_SOCKET_TCP,

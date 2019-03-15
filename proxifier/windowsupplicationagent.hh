@@ -18,7 +18,7 @@ class WindowSupplicationAgent: public StickReactor
 	
 	boost::intrusive_ptr<Proxifier> proxifier;
 	
-	State state;
+	State state = S_CONNECTING;
 	
 	std::shared_ptr<WindowSupplicant> supplicant;
 

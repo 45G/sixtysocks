@@ -16,7 +16,7 @@ class AuthServer: public StickReactor
 	
 	boost::intrusive_ptr<ProxyUpstreamer> upstreamer;
 
-	State state;
+	State state = S_WRITING;
 	
 	bool success;
 	
