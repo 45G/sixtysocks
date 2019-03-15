@@ -27,8 +27,8 @@ class ProxyUpstreamer: public StreamReactor
 
 	boost::intrusive_ptr<Proxy> proxy;
 	
-	volatile State state = S_HANDSHAKE;
-	volatile bool authenticated = false;
+	std::atomic<State> state { S_HANDSHAKE };
+	std::atomic<bool> authenticated { false };
 	size_t tfoPayload;
 	
 	std::shared_ptr<S6M::Request> request;

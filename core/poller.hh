@@ -1,6 +1,7 @@
 #ifndef POLLER_HH
 #define POLLER_HH
 
+#include <atomic>
 #include <unordered_map>
 #include <thread>
 #include <vector>
@@ -24,7 +25,7 @@ class Poller
 	
 	std::vector<FDEntry> fdEntries;
 	
-	volatile bool alive = true;
+	std::atomic<bool> alive { true };
 	
 public:
 	static const uint32_t IN_EVENTS  = EPOLLIN | EPOLLRDHUP;

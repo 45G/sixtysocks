@@ -20,7 +20,7 @@ class Reactor: public boost::intrusive_ref_counter<Reactor>
 {
 protected:
 	Poller *poller;
-	volatile bool active = true;
+	std::atomic<bool> active { true };
 	
 public:
 	Reactor(Poller *poller)
