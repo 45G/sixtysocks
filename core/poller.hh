@@ -17,8 +17,6 @@ class Poller
 		bool registered = false;
 	};
 	
-	int numThreads;
-	
 	int epollFD;
 	
 	std::vector<std::thread> threads;
