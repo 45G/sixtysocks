@@ -149,8 +149,3 @@ void Poller::threadFun(Poller *poller)
 		}
 	}
 }
-
-const char *Poller::MaxFDsExceededException::what() const throw()
-{
-	return "Maximum number of FDs exceeded";
-}

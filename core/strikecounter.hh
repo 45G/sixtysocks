@@ -1,7 +1,7 @@
 #ifndef STRIKECOUNTER_HH
 #define STRIKECOUNTER_HH
 
-#include <exception>
+#include <stdexcept>
 
 //TODO: do we really need this?
 class StrikeCounter
@@ -14,10 +14,11 @@ public:
 
 	void increment();
 
-	class YoureOutException: public std::exception
+	class YoureOutException: public std::runtime_error
 	{
 	public:
-		const char *what() const throw();
+		YoureOutException()
+			: runtime_error("You're out!") {}
 	};
 };
 

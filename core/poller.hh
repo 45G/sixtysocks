@@ -43,10 +43,11 @@ public:
 	
 	static void threadFun(Poller *poller);
 
-	class MaxFDsExceededException: public std::exception
+	class MaxFDsExceededException: public std::runtime_error
 	{
 	public:
-		const char *what() const throw();
+		MaxFDsExceededException()
+			: runtime_error("Maximum number of FDs exceeded") {}
 	};
 };
 

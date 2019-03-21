@@ -9,7 +9,7 @@ SimplePasswordChecker::SimplePasswordChecker(const std::string &user, const std:
 		password.size() < 1 || password.size() > 255)
 	{
 		//TODO: proper exception
-		throw exception();
+		throw length_error("Bad username or password length");
 	}
 }
 

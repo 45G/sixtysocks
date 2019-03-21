@@ -3,7 +3,6 @@
 
 #include <string>
 #include <memory>
-#include <boost/atomic.hpp>
 #include <socks6util/socks6util.hh>
 #include "../core/tlscontext.hh"
 #include "../authentication/syncedtokenstuff.h"

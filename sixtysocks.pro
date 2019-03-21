@@ -29,7 +29,6 @@ SOURCES += \
     core/stickreactor.cc \
     core/tls.cc \
     core/tlsexception.cc \
-    core/strikecounter.cc \
     core/readabledeferreactor.cc \
     core/tlslibrary.cc \
     external/nspr_stuff.c

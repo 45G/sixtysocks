@@ -23,8 +23,3 @@ void StreamBuffer::prepend(uint8_t *stuff, uint8_t size)
 	memcpy(&buf[head - size], stuff, size);
 	head -= size;
 }
-
-const char *StreamBuffer::NoRoomException::what() const throw()
-{
-	return "No room in stream buffer";
-}

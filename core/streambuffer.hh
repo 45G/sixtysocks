@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <unistd.h>
-#include <exception>
+#include <stdexcept>
 
 class StreamBuffer
 {
@@ -64,10 +64,11 @@ public:
 	
 	void prepend(uint8_t *stuff, uint8_t size);
 	
-	class NoRoomException: public std::exception
+	class NoRoomException: public std::runtime_error
 	{
 	public:
-		const char *what() const throw();
+		NoRoomException()
+			: runtime_error("No room in stream buffer") {}
 	};
 };
 
