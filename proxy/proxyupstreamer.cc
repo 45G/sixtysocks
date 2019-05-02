@@ -37,13 +37,13 @@ void ProxyUpstreamer::honorRequest()
 	catch (SimpleReplyException &ex)
 	{
 		S6M::OperationReply reply(ex.getCode(), S6M::Address(S6U::Socket::QUAD_ZERO), 0);
-		*reply.getOptionSet() = replyOptions;
+		*reply.getOptionSet() = std::move(replyOptions);
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
 	catch (std::exception &)
 	{
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0);
-		*reply.getOptionSet() = replyOptions;
+		*reply.getOptionSet() = std::move(replyOptions);
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
 }
@@ -63,7 +63,7 @@ void ProxyUpstreamer::honorConnect()
 
 	try
 	{
-		dstSock.sockConnect(addr, &buf, request->getOptionSet()->getTFOPayload(), false);
+		dstSock.sockConnect(addr, &buf, request->getOptionSet()->stack()->tfo()->get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), false);
 	}
 	catch (system_error &err)
 	{
@@ -78,13 +78,7 @@ void ProxyUpstreamer::honorConnect()
 
 void ProxyUpstreamer::honorConnectStackOptions()
 {
-	SOCKS6MPTCPScheduler clientProxySched = request->getOptionSet()->getClientProxySched();
-	if (S6U::Socket::setMPTCPSched(srcSock.fd, clientProxySched) == 0)
-		replyOptions.setClientProxySched(clientProxySched);
-
-	SOCKS6MPTCPScheduler proxyServerSched = request->getOptionSet()->getProxyRemoteSched();
-	if (S6U::Socket::setMPTCPSched(dstSock.fd, proxyServerSched) == 0)
-		replyOptions.setProxyRemoteSched(proxyServerSched);
+	//TODO
 }
 
 ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int *pSrcFD, TLSContext *serverCtx)
@@ -146,7 +140,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 
 		poller->assign(new AuthServer(this));
 
-		tfoPayload = std::min((size_t)request->getOptionSet()->getTFOPayload(), MSS);
+		tfoPayload = std::min((size_t)request->getOptionSet()->stack()->tfo()->get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), MSS);
 		
 		if (buf.usedSize() < tfoPayload)
 		{
@@ -205,7 +199,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		if (code != SOCKS6_OPERATION_REPLY_SUCCESS)
 		{
 			S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0);
-			*reply.getOptionSet() = replyOptions;
+			*reply.getOptionSet() = std::move(replyOptions);
 			poller->assign(new SimpleProxyDownstreamer(this, &reply));
 			return;
 		}
@@ -217,10 +211,10 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			throw system_error(errno, system_category());
 
 		if (S6U::Socket::hasMPTCP(dstSock.fd) > 0)
-			replyOptions.setMPTCP();
+			replyOptions.stack()->mp()->set(SOCKS6_STACK_LEG_PROXY_REMOTE, true);
 
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort());
-		*reply.getOptionSet() = replyOptions;
+		*reply.getOptionSet() = std::move(replyOptions);
 		poller->assign(new ConnectProxyDownstreamer(this, &reply));
 
 		state = S_STREAM;
@@ -241,7 +235,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 void ProxyUpstreamer::authDone(SOCKS6TokenExpenditureCode expenditureCode)
 {
 	if (expenditureCode != (SOCKS6TokenExpenditureCode)0)
-		replyOptions.setExpenditureReply(expenditureCode);
+		replyOptions.idempotence()->setReply(expenditureCode);
 	
 	honorLock.acquire();
 	authenticated = true;

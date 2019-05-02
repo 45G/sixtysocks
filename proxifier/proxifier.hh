@@ -15,8 +15,8 @@ class Proxifier: public ListenReactor
 
 	bool defer;
 
-	const std::shared_ptr<std::string> username;
-	const std::shared_ptr<std::string> password;
+	const std::string username;
+	const std::string password;
 	
 	bool idempotence;
 	
@@ -38,14 +38,14 @@ public:
 
 	void handleNewConnection(int fd);
 
-	const std::shared_ptr<std::string> getUsername() const
+	const std::string *getUsername() const
 	{
-		return username;
+		return &username;
 	}
 	
-	const std::shared_ptr<std::string> getPassword() const
+	const std::string *getPassword() const
 	{
-		return password;
+		return &password;
 	}
 	
 	std::shared_ptr<SyncedTokenWallet> getWallet()

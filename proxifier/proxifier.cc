@@ -19,7 +19,7 @@ using namespace std;
 
 Proxifier::Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, bool defer, const string &username, const string &password, TLSContext *clientCtx)
 	: ListenReactor(poller, bindAddr), proxyAddr(proxyAddr), defer(defer),
-	  username(new std::string(username)), password(new std::string(password)),
+	  username(username), password(password),
 	  wallet(new SyncedTokenWallet()),
 	  clientCtx(clientCtx)
 {
@@ -32,7 +32,7 @@ void Proxifier::start()
 	bool supplicateTFO = true;
 
 	supplicationLock.acquire();
-	if (username->length() > 0)
+	if (username.length() > 0)
 	{
 		try
 		{

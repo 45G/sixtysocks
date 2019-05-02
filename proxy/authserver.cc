@@ -49,7 +49,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		bank = proxy->getBank(*req->getOptionSet()->getUsername());
 	
 	/* spend token? */
-	if (success && req->getOptionSet()->hasToken())
+	if (success && (bool)req->getOptionSet()->idempotence()->getToken())
 	{	
 		SOCKS6TokenExpenditureCode expendCode;
 		/* no bank */
@@ -61,7 +61,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		}
 		else
 		{
-			uint32_t token = req->getOptionSet()->getToken();
+			uint32_t token = req->getOptionSet()->idempotence()->getToken().get();
 			
 			expendCode = bank->withdraw(token);
 			
@@ -71,11 +71,11 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 				upstreamer->fail();
 			}
 		}
-		rep.getOptionSet()->setExpenditureReply(expendCode);
+		rep.getOptionSet()->idempotence()->setReply(expendCode);
 	}
 	
 	/* request window */
-	uint32_t requestedWindow = req->getOptionSet()->requestedTokenWindow();
+	uint32_t requestedWindow = req->getOptionSet()->idempotence()->requestedSize();
 	if (success && method != SOCKS6_METHOD_NOAUTH && !idempotenceFail && requestedWindow > 0)
 	{
 		if (bank == nullptr)
@@ -91,7 +91,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		uint32_t size;
 		
 		bank->getWindow(&base, &size);
-		rep.getOptionSet()->setTokenWindow(base, size);
+		rep.getOptionSet()->idempotence()->advertise(base, size);
 	}
 	
 	buf.use(rep.pack(buf.getTail(), buf.availSize()));

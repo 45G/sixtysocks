@@ -18,7 +18,7 @@ WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, std::shar
 		sock.tls = new TLS(clientCtx, sock.fd);
 	
 	S6M::Request req(SOCKS6_REQUEST_NOOP, S6U::Socket::QUAD_ZERO, 0);
-	req.getOptionSet()->setUsernamePassword(proxifier->getUsername(), proxifier->getPassword());
+	req.getOptionSet()->setUsernamePassword(*proxifier->getUsername(), *proxifier->getPassword());
 	supplicant->process(&req);
 
 	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
