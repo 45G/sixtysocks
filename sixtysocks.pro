@@ -62,7 +62,6 @@ HEADERS += \
     core/tlsexception.hh \
     core/socket.hh \
     core/tlslibrary.hh \
-    core/strikecounter.hh \
     core/readabledeferreactor.hh \
     external/nspr_stuff.h \
     external/nspr_stuff.h
