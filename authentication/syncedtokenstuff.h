@@ -14,19 +14,19 @@ public:
 	
 	SOCKS6TokenExpenditureCode withdraw(uint32_t token)
 	{
-		ScopedSpinlock lock(spinlock);
+		std::lock_guard<Spinlock> lock(spinlock);
 		return TokenBank::withdraw(token);
 	}
 	
 	void renew()
 	{
-		ScopedSpinlock lock(spinlock);
+		std::lock_guard<Spinlock> lock(spinlock);
 		TokenBank::renew();
 	}
 	
 	void getWindow(uint32_t *base, uint32_t *size)
 	{
-		ScopedSpinlock lock(spinlock);
+		std::lock_guard<Spinlock> lock(spinlock);
 		*base = getBase();
 		*size = getSize();
 	}
@@ -43,25 +43,25 @@ public:
 	
 	bool extract(uint32_t *token)
 	{
-		ScopedSpinlock lock(spinlock);
+		std::lock_guard<Spinlock> lock(spinlock);
 		return S6U::TokenWallet::extract(token);
 	}
 	
 	void updateWindow(uint32_t newBase, uint32_t newSize)
 	{
-		ScopedSpinlock lock(spinlock);
+		std::lock_guard<Spinlock> lock(spinlock);
 		return S6U::TokenWallet::updateWindow(newBase, newSize);
 	}
 	
 	void updateWindow(const S6M::OptionSet *optionSet)
 	{
-		ScopedSpinlock lock(spinlock);
+		std::lock_guard<Spinlock> lock(spinlock);
 		return S6U::TokenWallet::updateWindow(optionSet);
 	}
 	
 	uint32_t remaining() const
 	{
-		ScopedSpinlock lock(spinlock);
+		std::lock_guard<Spinlock> lock(spinlock);
 		return S6U::TokenWallet::remaining();
 	}
 };

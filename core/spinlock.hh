@@ -31,24 +31,4 @@ public:
 	}
 };
 
-typedef std::lock_guard<Spinlock> ScopedSpinlock;
-
-//class ScopedSpinlock
-//{
-//	Spinlock *spinlock;
-	
-//public:
-//	ScopedSpinlock(Spinlock *spinlock)
-//		: spinlock(spinlock)
-//	{
-//		spinlock->lock();
-//	}
-
-//	~ScopedSpinlock()
-//	{
-//		spinlock->unlock();
-//	}
-//};
-
-
 #endif // SPINLOCK_HH

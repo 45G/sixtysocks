@@ -50,14 +50,14 @@ public:
 	
 	std::shared_ptr<SyncedTokenWallet> getWallet()
 	{
-		ScopedSpinlock lock(walletLock); (void)lock;
+		std::lock_guard<Spinlock> lock(walletLock);
 		
 		return wallet;
 	}
 	
 	void killWallet(std::shared_ptr<SyncedTokenWallet> wallet)
 	{
-		ScopedSpinlock lock(walletLock);
+		std::lock_guard<Spinlock> lock(walletLock);
 		
 		if (wallet.get() == this->wallet.get())
 			this->wallet = std::shared_ptr<SyncedTokenWallet>(new SyncedTokenWallet());
@@ -65,7 +65,7 @@ public:
 	
 	void setWallet(std::shared_ptr<SyncedTokenWallet> wallet)
 	{
-		ScopedSpinlock lock(walletLock);
+		std::lock_guard<Spinlock> lock(walletLock);
 		
 		this->wallet = wallet;
 	}
