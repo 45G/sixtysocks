@@ -149,10 +149,10 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		}
 		else
 		{
-			honorLock.acquire();
+			honorLock.lock();
 			state = S_AWAITING_AUTH;
 			bool honor = authenticated;
-			honorLock.release();
+			honorLock.unlock();
 			
 			if (honor)
 				honorRequest();
@@ -174,10 +174,10 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		}
 		if (buf.usedSize() >= tfoPayload)
 		{
-			honorLock.acquire();
+			honorLock.lock();
 			state = S_AWAITING_AUTH;
 			bool honor = authenticated;
-			honorLock.release();
+			honorLock.unlock();
 			
 			if (honor)
 				honorRequest();
@@ -237,10 +237,10 @@ void ProxyUpstreamer::authDone(SOCKS6TokenExpenditureCode expenditureCode)
 	if (expenditureCode != (SOCKS6TokenExpenditureCode)0)
 		replyOptions.idempotence.setReply(expenditureCode);
 	
-	honorLock.acquire();
+	honorLock.lock();
 	authenticated = true;
 	bool honor = state == S_AWAITING_AUTH;
-	honorLock.release();
+	honorLock.unlock();
 	
 	if (honor)
 		honorRequest();

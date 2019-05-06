@@ -31,7 +31,7 @@ void Proxifier::start()
 {
 	bool supplicateTFO = true;
 
-	supplicationLock.acquire();
+	supplicationLock.lock();
 	if (username.length() > 0)
 	{
 		try
@@ -67,12 +67,12 @@ void Proxifier::handleNewConnection(int fd)
 {
 	std::shared_ptr<WindowSupplicant> supplicant;
 
-	if (supplicationLock.attempt())
+	if (supplicationLock.try_lock())
 	{
 		if (wallet->remaining() == 0)
 			supplicant = std::shared_ptr<WindowSupplicant>(new WindowSupplicant(this));
 		else
-			supplicationLock.release();
+			supplicationLock.unlock();
 	}
 
 	int closeFD = fd;

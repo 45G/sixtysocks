@@ -19,7 +19,7 @@ void Proxy::handleNewConnection(int fd)
 
 SyncedTokenBank *Proxy::createBank(const string &user, uint32_t size)
 {
-	ScopedSpinlock lock(&bankLock); (void)lock;
+	ScopedSpinlock lock(bankLock);
 	SyncedTokenBank *bank = new SyncedTokenBank((uint32_t)rand(), size, 0, size / 2);
 	
 	banks[user] = unique_ptr<SyncedTokenBank>(bank);
@@ -28,7 +28,7 @@ SyncedTokenBank *Proxy::createBank(const string &user, uint32_t size)
 
 SyncedTokenBank *Proxy::getBank(const string &user)
 {
-	ScopedSpinlock lock(&bankLock); (void)lock;
+	ScopedSpinlock lock(bankLock);
 	
 	return banks[user].get();
 }
