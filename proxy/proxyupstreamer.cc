@@ -63,7 +63,7 @@ void ProxyUpstreamer::honorConnect()
 
 	try
 	{
-		dstSock.sockConnect(addr, &buf, request->getOptionSet()->stack()->tfo()->get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), false);
+		dstSock.sockConnect(addr, &buf, request->getOptionSet()->stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), false);
 	}
 	catch (system_error &err)
 	{
@@ -140,7 +140,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 
 		poller->assign(new AuthServer(this));
 
-		tfoPayload = std::min((size_t)request->getOptionSet()->stack()->tfo()->get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), MSS);
+		tfoPayload = std::min((size_t)request->getOptionSet()->stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), MSS);
 		
 		if (buf.usedSize() < tfoPayload)
 		{
@@ -211,7 +211,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			throw system_error(errno, system_category());
 
 		if (S6U::Socket::hasMPTCP(dstSock.fd) > 0)
-			replyOptions.stack()->mp()->set(SOCKS6_STACK_LEG_PROXY_REMOTE, true);
+			replyOptions.stack.mp.set(SOCKS6_STACK_LEG_PROXY_REMOTE, true);
 
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort());
 		*reply.getOptionSet() = std::move(replyOptions);
@@ -235,7 +235,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 void ProxyUpstreamer::authDone(SOCKS6TokenExpenditureCode expenditureCode)
 {
 	if (expenditureCode != (SOCKS6TokenExpenditureCode)0)
-		replyOptions.idempotence()->setReply(expenditureCode);
+		replyOptions.idempotence.setReply(expenditureCode);
 	
 	honorLock.acquire();
 	authenticated = true;
