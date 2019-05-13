@@ -69,8 +69,11 @@ HEADERS += \
 # EDIT ME!
 NSS_BUNDLE_ROOT = /home/vlad/nss-bundle/
 
-NSS_ROOT        = $$NSS_BUNDLE_ROOT/nss/
-NSPR_ROOT       = $$NSS_BUNDLE_ROOT/nspr/
+NSS_ROOT        = /usr/include/nss3/
+NSPR_ROOT       = /usr/include/nspr4/
+
+INCLUDEPATH += $$NSS_ROOT
+INCLUDEPATH += $$NSPR_ROOT
 
 INCLUDEPATH += $$NSS_ROOT/lib/base
 INCLUDEPATH += $$NSS_ROOT/lib/certdb

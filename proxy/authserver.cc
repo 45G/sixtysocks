@@ -57,7 +57,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		{
 			idempotenceFail = false;
 			upstreamer->fail();
-			expendCode = SOCKS6_TOK_EXPEND_NO_WND;
+			expendCode = SOCKS6_TOK_EXPEND_FAILURE;
 		}
 		else
 		{
@@ -65,7 +65,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 			
 			expendCode = bank->withdraw(token);
 			
-			if (expendCode == SOCKS6_TOK_EXPEND_OUT_OF_WND || expendCode == SOCKS6_TOK_EXPEND_DUPLICATE)
+			if (expendCode == SOCKS6_TOK_EXPEND_FAILURE)
 			{
 				idempotenceFail = true;
 				upstreamer->fail();

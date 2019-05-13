@@ -40,7 +40,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			buf.unuse(bb.getUsed());
 			
 			SOCKS6TokenExpenditureCode expenditureCode = authRep.getOptionSet()->idempotence.getReply().get_value_or((SOCKS6TokenExpenditureCode)0);
-			if (upstreamer->getWallet().get() != nullptr && (expenditureCode == (SOCKS6TokenExpenditureCode)0 || expenditureCode == SOCKS6_TOK_EXPEND_NO_WND))
+			if (upstreamer->getWallet().get() != nullptr && (expenditureCode == (SOCKS6TokenExpenditureCode)0))
 				proxifier->killWallet(upstreamer->getWallet());
 			
 			if (supplicant.get() != nullptr)
