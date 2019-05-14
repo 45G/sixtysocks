@@ -12,7 +12,7 @@ public:
 	SyncedTokenBank(uint32_t base, uint32_t size, uint32_t lowWatermark, uint32_t highWatermark)
 		: TokenBank(base, size, lowWatermark, highWatermark) {}
 	
-	SOCKS6TokenExpenditureCode withdraw(uint32_t token)
+	bool withdraw(uint32_t token)
 	{
 		std::lock_guard<Spinlock> lock(spinlock);
 		return TokenBank::withdraw(token);

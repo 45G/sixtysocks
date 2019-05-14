@@ -63,7 +63,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		{
 			uint32_t token = req->getOptionSet()->idempotence.getToken().get();
 			
-			expendCode = bank->withdraw(token);
+			expendCode = bank->withdraw(token) ? SOCKS6_TOK_EXPEND_SUCCESS : SOCKS6_TOK_EXPEND_FAILURE;
 			
 			if (expendCode == SOCKS6_TOK_EXPEND_FAILURE)
 			{
