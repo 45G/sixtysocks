@@ -211,7 +211,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			throw system_error(errno, system_category());
 
 		if (S6U::Socket::hasMPTCP(dstSock.fd) > 0)
-			replyOptions.stack.mp.set(SOCKS6_STACK_LEG_PROXY_REMOTE, true);
+			replyOptions.stack.mp.set(SOCKS6_STACK_LEG_PROXY_REMOTE, SOCKS6_MP_AVAILABLE);
 
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort());
 		*reply.getOptionSet() = std::move(replyOptions);

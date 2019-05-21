@@ -15,7 +15,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	sock.duplicate(upstreamer->getSrcSock());
 	
 	SOCKS6AuthReplyCode code;
-	SOCKS6Method method;
+	bool pwChecked;
 	std::shared_ptr<S6M::Request> req = upstreamer->getRequest();
 	Proxy *proxy = upstreamer->getProxy();
 	
@@ -23,30 +23,28 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	if (checker == nullptr)
 	{
 		code = SOCKS6_AUTH_REPLY_SUCCESS;
-		method = SOCKS6_METHOD_NOAUTH;
 		success = true;
 	}
-	else if (checker->check(req->getOptionSet()->getUsername(), req->getOptionSet()->getPassword()))
+	else if (checker->check(req->getOptionSet()->userPasswd.getUsername(), req->getOptionSet()->userPasswd.getPassword()))
 	{
 		code = SOCKS6_AUTH_REPLY_SUCCESS;
-		method = SOCKS6_METHOD_USRPASSWD;
+		pwChecked = true;
 		success = true;
 	}
 	else
 	{
 		code = SOCKS6_AUTH_REPLY_MORE;
-		method = SOCKS6_METHOD_UNACCEPTABLE;
 		success = false;
 	}
 	
-	S6M::AuthenticationReply rep(code, method);
+	S6M::AuthenticationReply rep(code);
 	
 	bool idempotenceFail = false;
 	
 	//TODO: untangle mess
 	SyncedTokenBank *bank = nullptr;
-	if (success && method != SOCKS6_METHOD_NOAUTH)
-		bank = proxy->getBank(*req->getOptionSet()->getUsername());
+	if (success && pwChecked)
+		bank = proxy->getBank(*req->getOptionSet()->userPasswd.getUsername());
 	
 	/* spend token? */
 	if (success && (bool)req->getOptionSet()->idempotence.getToken())
@@ -76,10 +74,10 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	
 	/* request window */
 	uint32_t requestedWindow = req->getOptionSet()->idempotence.requestedSize();
-	if (success && method != SOCKS6_METHOD_NOAUTH && !idempotenceFail && requestedWindow > 0)
+	if (success && pwChecked && !idempotenceFail && requestedWindow > 0)
 	{
 		if (bank == nullptr)
-			bank = proxy->createBank(*req->getOptionSet()->getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
+			bank = proxy->createBank(*req->getOptionSet()->userPasswd.getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
 		else
 			bank->renew();
 	}
