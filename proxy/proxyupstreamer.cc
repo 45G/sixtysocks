@@ -100,7 +100,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 {
 	bool fellThrough = false;
 	
-	switch (state)
+	switch ((State)state)
 	{
 	case S_HANDSHAKE:
 	{
@@ -128,7 +128,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		}
 		catch (S6M::BadVersionException &)
 		{
-			SOCKS6Version version = { SOCKS6_VERSION_MAJOR, SOCKS6_VERSION_MINOR };
+			SOCKS6Version version = { SOCKS6_VERSION };
 			poller->assign(new SimpleProxyDownstreamer(this, &version));
 			return;
 		}
