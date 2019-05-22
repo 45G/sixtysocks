@@ -16,13 +16,7 @@ public:
 
 	bool try_lock()
 	{
-		if (held.exchange(true, std::memory_order_acquire))
-		{
-			std::atomic_thread_fence(std::memory_order_release);
-			return false;
-		}
-
-		return true;
+		return !held.exchange(true, std::memory_order_acquire);
 	}
 
 	void unlock()
