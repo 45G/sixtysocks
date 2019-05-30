@@ -37,13 +37,13 @@ void ProxyUpstreamer::honorRequest()
 	catch (SimpleReplyException &ex)
 	{
 		S6M::OperationReply reply(ex.getCode(), S6M::Address(S6U::Socket::QUAD_ZERO), 0);
-		*reply.getOptionSet() = std::move(replyOptions);
+		reply.options = std::move(replyOptions);
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
 	catch (std::exception &)
 	{
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0);
-		*reply.getOptionSet() = std::move(replyOptions);
+		reply.options = std::move(replyOptions);
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
 }
@@ -63,7 +63,7 @@ void ProxyUpstreamer::honorConnect()
 
 	try
 	{
-		dstSock.sockConnect(addr, &buf, request->getOptionSet()->stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), false);
+		dstSock.sockConnect(addr, &buf, request->options.stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), false);
 	}
 	catch (system_error &err)
 	{
@@ -140,7 +140,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 
 		poller->assign(new AuthServer(this));
 
-		tfoPayload = std::min((size_t)request->getOptionSet()->stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), MSS);
+		tfoPayload = std::min((size_t)request->options.stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), MSS);
 		
 		if (buf.usedSize() < tfoPayload)
 		{
@@ -199,7 +199,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		if (code != SOCKS6_OPERATION_REPLY_SUCCESS)
 		{
 			S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0);
-			*reply.getOptionSet() = std::move(replyOptions);
+			reply.options = std::move(replyOptions);
 			poller->assign(new SimpleProxyDownstreamer(this, &reply));
 			return;
 		}
@@ -214,7 +214,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			replyOptions.stack.mp.set(SOCKS6_STACK_LEG_PROXY_REMOTE, SOCKS6_MP_AVAILABLE);
 
 		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort());
-		*reply.getOptionSet() = std::move(replyOptions);
+		reply.options = std::move(replyOptions);
 		poller->assign(new ConnectProxyDownstreamer(this, &reply));
 
 		state = S_STREAM;

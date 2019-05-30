@@ -52,10 +52,10 @@ void ProxifierUpstreamer::start()
 
 	ssize_t tfoPayload = S6U::Socket::tfoPayloadSize(srcSock.fd);
 	if (tfoPayload > 0)
-		req.getOptionSet()->stack.tfo.set(SOCKS6_STACK_LEG_PROXY_REMOTE, tfoPayload);
+		req.options.stack.tfo.set(SOCKS6_STACK_LEG_PROXY_REMOTE, tfoPayload);
 
 	if (proxifier->getUsername()->length() > 0)
-		req.getOptionSet()->userPasswd.setCredentials(*proxifier->getUsername(), *proxifier->getPassword());
+		req.options.userPasswd.setCredentials(*proxifier->getUsername(), *proxifier->getPassword());
 
 	if (windowSupplicant.get() != nullptr)
 		windowSupplicant->process(&req);
@@ -64,7 +64,7 @@ void ProxifierUpstreamer::start()
 	uint32_t token;
 	if (recommendation.useToken && wallet->extract(&token))
 	{
-		req.getOptionSet()->idempotence.setToken(token);
+		req.options.idempotence.setToken(token);
 		recommendation.tokenSpent(dstSock.tls != nullptr);
 	}
 

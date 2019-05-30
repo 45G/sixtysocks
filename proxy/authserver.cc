@@ -25,7 +25,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		code = SOCKS6_AUTH_REPLY_SUCCESS;
 		success = true;
 	}
-	else if (checker->check(req->getOptionSet()->userPasswd.getUsername(), req->getOptionSet()->userPasswd.getPassword()))
+	else if (checker->check(req->options.userPasswd.getUsername(), req->options.userPasswd.getPassword()))
 	{
 		code = SOCKS6_AUTH_REPLY_SUCCESS;
 		pwChecked = true;
@@ -44,10 +44,10 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	//TODO: untangle mess
 	SyncedTokenBank *bank = nullptr;
 	if (success && pwChecked)
-		bank = proxy->getBank(*req->getOptionSet()->userPasswd.getUsername());
+		bank = proxy->getBank(*req->options.userPasswd.getUsername());
 	
 	/* spend token? */
-	if (success && (bool)req->getOptionSet()->idempotence.getToken())
+	if (success && (bool)req->options.idempotence.getToken())
 	{	
 		SOCKS6TokenExpenditureCode expendCode;
 		/* no bank */
@@ -59,7 +59,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		}
 		else
 		{
-			uint32_t token = req->getOptionSet()->idempotence.getToken().get();
+			uint32_t token = req->options.idempotence.getToken().get();
 			
 			expendCode = bank->withdraw(token) ? SOCKS6_TOK_EXPEND_SUCCESS : SOCKS6_TOK_EXPEND_FAILURE;
 			
@@ -69,15 +69,15 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 				upstreamer->fail();
 			}
 		}
-		rep.getOptionSet()->idempotence.setReply(expendCode);
+		rep.options.idempotence.setReply(expendCode);
 	}
 	
 	/* request window */
-	uint32_t requestedWindow = req->getOptionSet()->idempotence.requestedSize();
+	uint32_t requestedWindow = req->options.idempotence.requestedSize();
 	if (success && pwChecked && !idempotenceFail && requestedWindow > 0)
 	{
 		if (bank == nullptr)
-			bank = proxy->createBank(*req->getOptionSet()->userPasswd.getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
+			bank = proxy->createBank(*req->options.userPasswd.getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
 		else
 			bank->renew();
 	}
@@ -89,7 +89,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		uint32_t size;
 		
 		bank->getWindow(&base, &size);
-		rep.getOptionSet()->idempotence.advertise(base, size);
+		rep.options.idempotence.advertise(base, size);
 	}
 	
 	buf.use(rep.pack(buf.getTail(), buf.availSize()));

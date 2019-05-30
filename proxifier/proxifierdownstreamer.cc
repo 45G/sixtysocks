@@ -39,7 +39,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			}
 			buf.unuse(bb.getUsed());
 			
-			SOCKS6TokenExpenditureCode expenditureCode = authRep.getOptionSet()->idempotence.getReply().get_value_or((SOCKS6TokenExpenditureCode)0);
+			SOCKS6TokenExpenditureCode expenditureCode = authRep.options.idempotence.getReply().get_value_or((SOCKS6TokenExpenditureCode)0);
 			if (upstreamer->getWallet().get() != nullptr && (expenditureCode == (SOCKS6TokenExpenditureCode)0))
 				proxifier->killWallet(upstreamer->getWallet());
 			
@@ -51,7 +51,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			{
 				std::shared_ptr<SyncedTokenWallet> wallet = upstreamer->getWallet();
 				if (wallet.get() != nullptr)
-					wallet->updateWindow(authRep.getOptionSet());
+					wallet->updateWindow(&authRep.options);
 			}
 		}
 		catch (S6M::EndOfBufferException &)
