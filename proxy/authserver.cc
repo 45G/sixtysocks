@@ -25,7 +25,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 		code = SOCKS6_AUTH_REPLY_SUCCESS;
 		success = true;
 	}
-	else if (checker->check(req->options.userPasswd.getUsername(), req->options.userPasswd.getPassword()))
+	else if (checker->check(req->options.userPassword.getUsername(), req->options.userPassword.getPassword()))
 	{
 		code = SOCKS6_AUTH_REPLY_SUCCESS;
 		pwChecked = true;
@@ -44,7 +44,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	//TODO: untangle mess
 	SyncedTokenBank *bank = nullptr;
 	if (success && pwChecked)
-		bank = proxy->getBank(*req->options.userPasswd.getUsername());
+		bank = proxy->getBank(*req->options.userPassword.getUsername());
 	
 	/* spend token? */
 	if (success && (bool)req->options.idempotence.getToken())
@@ -77,7 +77,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	if (success && pwChecked && !idempotenceFail && requestedWindow > 0)
 	{
 		if (bank == nullptr)
-			bank = proxy->createBank(*req->options.userPasswd.getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
+			bank = proxy->createBank(*req->options.userPassword.getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
 		else
 			bank->renew();
 	}

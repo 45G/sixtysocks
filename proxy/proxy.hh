@@ -4,17 +4,20 @@
 #include <memory>
 #include <unordered_map>
 #include <string>
+#include <tbb/concurrent_hash_map.h>
 #include <socks6util/socks6util.hh>
 #include "core/tlscontext.hh"
 #include "../core/listenreactor.hh"
 #include "../authentication/passwordchecker.hh"
 #include "../authentication/syncedtokenstuff.h"
+#include "proxysession.hh"
 
 class Proxy: public ListenReactor
 {
 	std::unique_ptr<PasswordChecker> passwordChecker;
 	
-	std::unordered_map<std::string, std::unique_ptr<SyncedTokenBank> > banks;
+	tbb::concurrent_hash_map<uint64_t, std::unique_ptr<ProxySession>> sessions;
+	std::unordered_map<std::string, std::unique_ptr<SyncedTokenBank>> banks;
 	Spinlock bankLock;
 	
 	TLSContext *serverCtx;
