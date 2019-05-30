@@ -10,7 +10,7 @@
 #include "../core/listenreactor.hh"
 #include "../authentication/passwordchecker.hh"
 #include "../authentication/syncedtokenstuff.h"
-#include "proxysession.hh"
+#include "serversession.hh"
 
 class Proxy: public ListenReactor
 {

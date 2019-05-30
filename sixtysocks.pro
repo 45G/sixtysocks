@@ -32,7 +32,8 @@ SOURCES += \
     core/readabledeferreactor.cc \
     core/tlslibrary.cc \
     external/nspr_stuff.c \
-    proxy/proxysession.cc
+    proxifier/clientsession.cc \
+    proxy/serversession.cc
 
 HEADERS += \
     core/poller.hh \
@@ -66,7 +67,8 @@ HEADERS += \
     core/readabledeferreactor.hh \
     external/nspr_stuff.h \
     external/nspr_stuff.h \
-    proxy/proxysession.hh
+    proxifier/clientsession.hh \
+    proxy/serversession.hh
 
 # EDIT ME!
 NSS_BUNDLE_ROOT = /home/vlad/nss-bundle/

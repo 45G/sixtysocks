@@ -1,5 +1,5 @@
-#ifndef PROXYSESSION_HH
-#define PROXYSESSION_HH
+#ifndef SERVERSESSION_HH
+#define SERVERSESSION_HH
 
 #include <random>
 #include "../authentication/syncedtokenstuff.h"
@@ -33,4 +33,4 @@ public:
 	}
 };
 
-#endif // PROXYSESSION_HH
+#endif // SERVERSESSION_HH
