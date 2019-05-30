@@ -3,7 +3,7 @@
 
 #include "../core/streamreactor.hh"
 #include "proxifier.hh"
-#include "windowsupplicant.hh"
+#include "sessionsupplicant.hh"
 
 class ProxifierUpstreamer;
 
@@ -21,7 +21,7 @@ class ProxifierDownstreamer: public StreamReactor
 
 	State state = S_WAITING_FOR_AUTH_REP;
 	
-	std::shared_ptr<WindowSupplicant> supplicant;
+	std::shared_ptr<SessionSupplicant> supplicant;
 
 public:
 	ProxifierDownstreamer(ProxifierUpstreamer *upstreamer);

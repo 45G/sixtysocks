@@ -11,7 +11,7 @@ using namespace std;
 
 static const size_t HEADROOM = 512; //more than enough for any request
 
-ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<WindowSupplicant> windowSupplicant)
+ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<SessionSupplicant> windowSupplicant)
 	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), wallet(proxifier->getWallet()), windowSupplicant(windowSupplicant)
 {
 	buf.makeHeadroom(HEADROOM);

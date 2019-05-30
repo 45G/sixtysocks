@@ -6,7 +6,7 @@
 
 using namespace std;
 
-WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, std::shared_ptr<WindowSupplicant> supplicant, TLSContext *clientCtx)
+WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, std::shared_ptr<SessionSupplicant> supplicant, TLSContext *clientCtx)
 	: StickReactor(proxifier->getPoller()), proxifier(proxifier), supplicant(supplicant), clientCtx(clientCtx)
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();

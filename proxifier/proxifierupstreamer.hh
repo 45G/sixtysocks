@@ -4,7 +4,7 @@
 #include <socks6util/socks6util.hh>
 #include "../authentication/syncedtokenstuff.h"
 #include "../core/streamreactor.hh"
-#include "windowsupplicant.hh"
+#include "sessionsupplicant.hh"
 
 class Proxifier;
 class ProxifierDownstreamer;
@@ -26,10 +26,10 @@ class ProxifierUpstreamer: public StreamReactor
 	
 	S6U::SocketAddress dest;
 	
-	std::shared_ptr<WindowSupplicant> windowSupplicant;
+	std::shared_ptr<SessionSupplicant> windowSupplicant;
 	
 public:
-	ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<WindowSupplicant> windowSupplicant);
+	ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<SessionSupplicant> windowSupplicant);
 
 	void start();
 	
@@ -45,7 +45,7 @@ public:
 		return wallet;
 	}
 	
-	std::shared_ptr<WindowSupplicant> getSupplicant()
+	std::shared_ptr<SessionSupplicant> getSupplicant()
 	{
 		return windowSupplicant;
 	}

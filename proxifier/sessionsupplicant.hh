@@ -1,23 +1,23 @@
-#ifndef WINDOWSUPPLICANT_HH
-#define WINDOWSUPPLICANT_HH
+#ifndef SESSIONSUPPLICANT_HH
+#define SESSIONSUPPLICANT_HH
 
 #include <socks6msg/socks6msg.hh>
 
 class Proxifier;
 
-class WindowSupplicant
+class SessionSupplicant
 {
 	Proxifier *proxifier;
 	bool done = false;
 public:
-	WindowSupplicant(Proxifier *proxifier)
+	SessionSupplicant(Proxifier *proxifier)
 		: proxifier(proxifier) {}
 	
-	~WindowSupplicant();
+	~SessionSupplicant();
 	
 	void process(S6M::Request *req);
 	
 	void process(S6M::AuthenticationReply *authRep);
 };
 
-#endif // WINDOWSUPPLICANT_HH
+#endif // SESSIONSUPPLICANT_HH

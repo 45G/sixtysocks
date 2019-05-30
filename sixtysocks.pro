@@ -20,7 +20,6 @@ SOURCES += \
     sixtysocks.cc \
     authentication/passwordchecker.cc \
     authentication/simplepasswordchecker.cc \
-    proxifier/windowsupplicant.cc \
     core/streambuffer.cc \
     proxy/authserver.cc \
     core/tlscontext.cc \
@@ -33,7 +32,8 @@ SOURCES += \
     core/tlslibrary.cc \
     external/nspr_stuff.c \
     proxifier/clientsession.cc \
-    proxy/serversession.cc
+    proxy/serversession.cc \
+    proxifier/sessionsupplicant.cc
 
 HEADERS += \
     core/poller.hh \
@@ -52,7 +52,6 @@ HEADERS += \
     authentication/simplepasswordchecker.hh \
     core/uniqfd.hh \
     core/streambuffer.hh \
-    proxifier/windowsupplicant.hh \
     authentication/syncedtokenstuff.h \
     proxy/authserver.hh \
     core/tlscontext.hh \
@@ -68,7 +67,8 @@ HEADERS += \
     external/nspr_stuff.h \
     external/nspr_stuff.h \
     proxifier/clientsession.hh \
-    proxy/serversession.hh
+    proxy/serversession.hh \
+    proxifier/sessionsupplicant.hh
 
 # EDIT ME!
 NSS_BUNDLE_ROOT = /home/vlad/nss-bundle/

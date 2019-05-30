@@ -8,6 +8,7 @@
 #include "../authentication/syncedtokenstuff.h"
 #include "../core/listenreactor.hh"
 #include "../core/spinlock.hh"
+#include "clientsession.hh"
 
 class Proxifier: public ListenReactor
 {
@@ -20,8 +21,8 @@ class Proxifier: public ListenReactor
 	
 	bool idempotence;
 	
-	std::shared_ptr<SyncedTokenWallet> wallet;
-	Spinlock walletLock;
+	std::shared_ptr<ClientSession> session;
+	Spinlock sessionLock;
 	Spinlock supplicationLock;
 
 	TLSContext *clientCtx;
@@ -48,26 +49,26 @@ public:
 		return &password;
 	}
 	
-	std::shared_ptr<SyncedTokenWallet> getWallet()
+	std::shared_ptr<ClientSession> getSession()
 	{
-		std::lock_guard<Spinlock> lock(walletLock);
+		std::lock_guard<Spinlock> lock(sessionLock);
 		
-		return wallet;
+		return session;
 	}
 	
-	void killWallet(std::shared_ptr<SyncedTokenWallet> wallet)
+	void killSession(std::shared_ptr<ClientSession> session)
 	{
-		std::lock_guard<Spinlock> lock(walletLock);
+		std::lock_guard<Spinlock> lock(sessionLock);
 		
-		if (wallet.get() == this->wallet.get())
-			this->wallet = std::shared_ptr<SyncedTokenWallet>(new SyncedTokenWallet());
+		if (session.get() == this->session.get())
+			this->session.reset();
 	}
 	
-	void setWallet(std::shared_ptr<SyncedTokenWallet> wallet)
+	void setSession(std::shared_ptr<ClientSession> session)
 	{
-		std::lock_guard<Spinlock> lock(walletLock);
+		std::lock_guard<Spinlock> lock(sessionLock);
 		
-		this->wallet = wallet;
+		this->session = session;
 	}
 	
 	void supplicantDone()

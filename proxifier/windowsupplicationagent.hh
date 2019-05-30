@@ -2,7 +2,7 @@
 #define WINDOWSUPPLICATIONAGENT_HH
 
 #include "../core/stickreactor.hh"
-#include "windowsupplicant.hh"
+#include "sessionsupplicant.hh"
 
 class Proxifier;
 
@@ -20,12 +20,12 @@ class WindowSupplicationAgent: public StickReactor
 	
 	State state = S_CONNECTING;
 	
-	std::shared_ptr<WindowSupplicant> supplicant;
+	std::shared_ptr<SessionSupplicant> supplicant;
 
 	TLSContext *clientCtx;
 	
 public:
-	WindowSupplicationAgent(Proxifier *proxifier, std::shared_ptr<WindowSupplicant> supplicant, TLSContext *clientCtx);
+	WindowSupplicationAgent(Proxifier *proxifier, std::shared_ptr<SessionSupplicant> supplicant, TLSContext *clientCtx);
 	
 	void process(int fd, uint32_t events);
 	
