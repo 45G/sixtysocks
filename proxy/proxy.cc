@@ -4,6 +4,7 @@
 #include "proxy.hh"
 
 using namespace std;
+using namespace tbb;
 
 void Proxy::handleNewConnection(int fd)
 {
@@ -15,6 +16,32 @@ void Proxy::handleNewConnection(int fd)
 	{
 		close(fd); // tolerable error
 	}
+}
+
+shared_ptr<ProxySession> Proxy::spawnSession()
+{
+	shared_ptr<ProxySession> ret;
+	bool dupe;
+	
+	do
+	{
+		ret = make_shared<ProxySession>();
+		concurrent_hash_map<uint64_t, shared_ptr<ProxySession>>::accessor ac;
+		dupe = sessions.find(ac, ret->getId());
+	}
+	while (!dupe);
+	
+	sessions.insert({ ret->getId(), ret });
+	return ret;
+}
+
+std::shared_ptr<ProxySession> Proxy::getSession(uint64_t id)
+{
+	concurrent_hash_map<uint64_t, shared_ptr<ProxySession>>::accessor ac;
+	bool found = sessions.find(ac, id);
+	if (!found)
+		return {};
+	return ac->second;
 }
 
 SyncedTokenBank *Proxy::createBank(const string &user, uint32_t size)

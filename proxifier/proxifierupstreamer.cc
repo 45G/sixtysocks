@@ -55,7 +55,7 @@ void ProxifierUpstreamer::start()
 		req.options.stack.tfo.set(SOCKS6_STACK_LEG_PROXY_REMOTE, tfoPayload);
 
 	if (proxifier->getUsername()->length() > 0)
-		req.options.userPasswd.setCredentials(*proxifier->getUsername(), *proxifier->getPassword());
+		req.options.userPassword.setCredentials(*proxifier->getUsername(), *proxifier->getPassword());
 
 	if (windowSupplicant.get() != nullptr)
 		windowSupplicant->process(&req);

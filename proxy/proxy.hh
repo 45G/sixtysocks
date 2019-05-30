@@ -16,7 +16,7 @@ class Proxy: public ListenReactor
 {
 	std::unique_ptr<PasswordChecker> passwordChecker;
 	
-	tbb::concurrent_hash_map<uint64_t, std::unique_ptr<ProxySession>> sessions;
+	tbb::concurrent_hash_map<uint64_t, std::shared_ptr<ProxySession>> sessions;
 	std::unordered_map<std::string, std::unique_ptr<SyncedTokenBank>> banks;
 	Spinlock bankLock;
 	
@@ -32,6 +32,10 @@ public:
 	{
 		return passwordChecker.get();
 	}
+	
+	std::shared_ptr<ProxySession> spawnSession();
+	
+	std::shared_ptr<ProxySession> getSession(uint64_t id);
 	
 	SyncedTokenBank *createBank(const std::string &user, uint32_t size);
 	
