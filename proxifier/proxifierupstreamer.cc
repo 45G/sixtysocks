@@ -55,14 +55,21 @@ void ProxifierUpstreamer::start()
 	if (tfoPayload > 0)
 		req.options.stack.tfo.set(SOCKS6_STACK_LEG_PROXY_REMOTE, tfoPayload);
 
-	if (proxifier->getUsername()->length() > 0)
+	bool authenticate = proxifier->getUsername()->length() > 0;
+	if (session.get() != nullptr)
+	{
+		req.options.session.setID(*session->getID());
+		authenticate = authenticate && session->isUntrusted();
+	}
+
+	if (authenticate)
 		req.options.userPassword.setCredentials(*proxifier->getUsername(), *proxifier->getPassword());
 
 	if (sessionSupplicant.get() != nullptr)
 		sessionSupplicant->process(&req);
 
 	S6U::RequestSafety::Recommendation recommendation = S6U::RequestSafety::recommend(req, dstSock.tls != nullptr, buf.usedSize());
-	if (recommendation.useToken)
+	if (recommendation.useToken && session.get() != nullptr)
 	{
 		optional<uint32_t> token = session->getToken();
 		if (token)

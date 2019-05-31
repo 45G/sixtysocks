@@ -8,14 +8,25 @@
 class ClientSession
 {
 	std::vector<uint8_t> id;
+	bool untrusted;
 	std::unique_ptr<SyncedTokenWallet> wallet;
 	
 public:
-	ClientSession(const std::vector<uint8_t> &id, uint32_t winBase = 0, uint32_t winSize = 0)
-		: id(id)
+	ClientSession(const std::vector<uint8_t> &id, bool untrusted, uint32_t winBase = 0, uint32_t winSize = 0)
+		: id(id), untrusted(untrusted)
 	{
 		if (winSize > 0)
 			wallet.reset(new SyncedTokenWallet(winBase, winSize));
+	}
+
+	const std::vector<uint8_t> *getID() const
+	{
+		return &id;
+	}
+
+	bool isUntrusted() const
+	{
+		return untrusted;
 	}
 	
 	void updateWallet(uint32_t winBase, uint32_t winSize)
