@@ -18,7 +18,7 @@ class Proxy: public ListenReactor
 	
 	tbb::concurrent_hash_map<uint64_t, std::shared_ptr<ProxySession>> sessions;
 	std::unordered_map<std::string, std::unique_ptr<SyncedTokenBank>> banks;
-	Spinlock bankLock;
+	tbb::spin_mutex bankLock;
 	
 	TLSContext *serverCtx;
 

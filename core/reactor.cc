@@ -9,7 +9,7 @@ using namespace std;
 
 void Reactor::deactivate()
 {
-	std::lock_guard<Spinlock> scopedLock(deactivationLock);
+	tbb::spin_mutex::scoped_lock scopedLock(deactivationLock);
 	active = false;
 }
 

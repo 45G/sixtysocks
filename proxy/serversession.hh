@@ -1,16 +1,16 @@
 #ifndef SERVERSESSION_HH
 #define SERVERSESSION_HH
 
+#include <memory>
 #include <random>
 #include "../authentication/syncedtokenstuff.h"
-#include <boost/optional.hpp>
 
 class ProxySession
 {
 	uint64_t id { ((uint64_t)rand()) | ((uint64_t)rand() << 32) };
 	
-	Spinlock bankCreationLock;
-	boost::optional<SyncedTokenBank> tokenBank;
+	tbb::spin_mutex bankCreationLock;
+	std::unique_ptr<SyncedTokenBank> tokenBank;
 	
 public:
 	uint64_t getId() const
@@ -20,16 +20,16 @@ public:
 	
 	SyncedTokenBank *getTokenBank()
 	{
-		return tokenBank ? &tokenBank.get() : nullptr;
+		return tokenBank.get() != nullptr ? tokenBank.get() : nullptr;
 	}
 	
 	void makeBank(unsigned size)
 	{
-		std::lock_guard<Spinlock> scopedLock(bankCreationLock);
+		tbb::spin_mutex::scoped_lock scopedLock(bankCreationLock);
 		
 		if (tokenBank)
 			return;
-		tokenBank = SyncedTokenBank((uint32_t)rand(), size, 0, size / 2);
+		tokenBank.reset(new SyncedTokenBank((uint32_t)rand(), size, 0, size / 2));
 	}
 };
 

@@ -1,21 +1,21 @@
 #ifndef CLIENTSESSION_HH
 #define CLIENTSESSION_HH
 
-#include <boost/optional.hpp>
+#include <memory>
 #include <vector>
 #include "../authentication/syncedtokenstuff.h"
 
 class ClientSession
 {
 	std::vector<uint8_t> id;
-	boost::optional<SyncedTokenWallet> wallet;
+	std::unique_ptr<SyncedTokenWallet> wallet;
 	
 public:
 	ClientSession(const std::vector<uint8_t> &id, uint32_t winBase = 0, uint32_t winSize = 0)
 		: id(id)
 	{
 		if (winSize > 0)
-			wallet = SyncedTokenWallet(winBase, winSize);
+			wallet.reset(new SyncedTokenWallet(winBase, winSize));
 	}
 	
 	void updateWallet(uint32_t winBase, uint32_t winSize)

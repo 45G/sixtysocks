@@ -22,8 +22,8 @@ class Proxifier: public ListenReactor
 	bool idempotence;
 	
 	std::shared_ptr<ClientSession> session;
-	Spinlock sessionLock;
-	Spinlock supplicationLock;
+	tbb::spin_mutex sessionLock;
+	tbb::spin_mutex supplicationLock;
 
 	TLSContext *clientCtx;
 	
@@ -51,14 +51,14 @@ public:
 	
 	std::shared_ptr<ClientSession> getSession()
 	{
-		std::lock_guard<Spinlock> lock(sessionLock);
+		tbb::spin_mutex::scoped_lock lock(sessionLock);
 		
 		return session;
 	}
 	
 	void killSession(std::shared_ptr<ClientSession> session)
 	{
-		std::lock_guard<Spinlock> lock(sessionLock);
+		tbb::spin_mutex::scoped_lock lock(sessionLock);
 		
 		if (session.get() == this->session.get())
 			this->session.reset();
@@ -66,7 +66,7 @@ public:
 	
 	void setSession(std::shared_ptr<ClientSession> session)
 	{
-		std::lock_guard<Spinlock> lock(sessionLock);
+		tbb::spin_mutex::scoped_lock lock(sessionLock);
 		
 		this->session = session;
 	}

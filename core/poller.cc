@@ -54,7 +54,7 @@ void Poller::assign(intrusive_ptr<Reactor> reactor)
 
 void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 {
-	std::lock_guard<Spinlock> scopedLock(reactor->deactivationLock);
+	tbb::spin_mutex::scoped_lock scopedLock(reactor->deactivationLock);
 
 	if (fd < 0 || !reactor->isActive())
 		return;

@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/intrusive_ptr.hpp>
+#include <tbb/spin_mutex.h>
 #include <socks6util/socks6util.hh>
 #include "rescheduleexception.hh"
 #include "uniqfd.hh"
@@ -21,7 +22,7 @@ class Reactor: public boost::intrusive_ref_counter<Reactor>
 {
 private:
 	std::atomic<bool> active { true };
-	Spinlock deactivationLock;
+	tbb::spin_mutex deactivationLock;
 
 protected:
 	Poller *poller;
