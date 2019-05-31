@@ -172,7 +172,6 @@ int main(int argc, char **argv)
 //	if (cpuOffset + numThreads > (int)thread::hardware_concurrency())
 //		usage();
 
-	/* WolfSSL */
 	if (useTLS)
 	{
 		tlsLibrary = new TLSLibrary(certDB);
