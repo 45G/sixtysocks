@@ -7,7 +7,6 @@
 #include "../core/tlscontext.hh"
 #include "../authentication/syncedtokenstuff.h"
 #include "../core/listenreactor.hh"
-#include "../core/spinlock.hh"
 #include "clientsession.hh"
 
 class Proxifier: public ListenReactor

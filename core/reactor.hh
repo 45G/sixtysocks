@@ -14,7 +14,6 @@
 #include "rescheduleexception.hh"
 #include "uniqfd.hh"
 #include "streambuffer.hh"
-#include "spinlock.hh"
 
 class Poller;
 

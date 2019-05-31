@@ -5,7 +5,6 @@
 #include <boost/intrusive_ptr.hpp>
 #include <socks6msg/socks6msg.hh>
 #include "core/streamreactor.hh"
-#include "core/spinlock.hh"
 
 class Proxy;
 class ConnectProxyDownstreamer;
@@ -37,7 +36,7 @@ class ProxyUpstreamer: public StreamReactor
 	boost::intrusive_ptr<ConnectProxyDownstreamer> downstreamer;
 	
 	AuthServer *authServer = nullptr;
-	Spinlock honorLock;
+	tbb::spin_mutex honorLock;
 	
 	bool mustFail = false;
 	

@@ -3,7 +3,6 @@
 
 #include <socks6util/idempotence.hh>
 #include <tbb/spin_mutex.h>
-#include "../core/spinlock.hh"
 
 class SyncedTokenBank: S6U::TokenBank
 {

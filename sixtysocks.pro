@@ -46,7 +46,6 @@ HEADERS += \
     proxy/proxyupstreamer.hh \
     proxy/simpleproxydownstreamer.hh \
     proxy/connectproxydownstreamer.hh \
-    core/spinlock.hh \
     authentication/passwordchecker.hh \
     authentication/simplepasswordchecker.hh \
     core/uniqfd.hh \
