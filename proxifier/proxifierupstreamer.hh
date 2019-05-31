@@ -5,6 +5,7 @@
 #include "../authentication/syncedtokenstuff.h"
 #include "../core/streamreactor.hh"
 #include "sessionsupplicant.hh"
+#include "clientsession.hh"
 
 class Proxifier;
 class ProxifierDownstreamer;
@@ -22,14 +23,14 @@ class ProxifierUpstreamer: public StreamReactor
 	
 	State state = S_CONNECTING;
 	
-	std::shared_ptr<SyncedTokenWallet> wallet;
+	std::shared_ptr<ClientSession> session;
 	
 	S6U::SocketAddress dest;
 	
-	std::shared_ptr<SessionSupplicant> windowSupplicant;
+	std::shared_ptr<SessionSupplicant> sessionSupplicant;
 	
 public:
-	ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<SessionSupplicant> windowSupplicant);
+	ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<SessionSupplicant> sessionSupplicant);
 
 	void start();
 	
@@ -40,14 +41,14 @@ public:
 		return proxifier.get();
 	}
 	
-	std::shared_ptr<SyncedTokenWallet> getWallet() const
+	std::shared_ptr<ClientSession> getSession() const
 	{
-		return wallet;
+		return session;
 	}
 	
 	std::shared_ptr<SessionSupplicant> getSupplicant()
 	{
-		return windowSupplicant;
+		return sessionSupplicant;
 	}
 };
 

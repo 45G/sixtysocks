@@ -8,11 +8,12 @@
 #include "proxifierupstreamer.hh"
 
 using namespace std;
+using namespace boost;
 
 static const size_t HEADROOM = 512; //more than enough for any request
 
-ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<SessionSupplicant> windowSupplicant)
-	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), wallet(proxifier->getWallet()), windowSupplicant(windowSupplicant)
+ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<SessionSupplicant> sessionSupplicant)
+	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), session(proxifier->getSession()), sessionSupplicant(sessionSupplicant)
 {
 	buf.makeHeadroom(HEADROOM);
 
@@ -36,7 +37,7 @@ void ProxifierUpstreamer::start()
 	{
 		srcSock.serverHandshake(&buf);
 	}
-	catch (exception &)
+	catch (std::exception &)
 	{
 		throw runtime_error("Unexpected exception in null handshake");
 	}
@@ -57,15 +58,18 @@ void ProxifierUpstreamer::start()
 	if (proxifier->getUsername()->length() > 0)
 		req.options.userPassword.setCredentials(*proxifier->getUsername(), *proxifier->getPassword());
 
-	if (windowSupplicant.get() != nullptr)
-		windowSupplicant->process(&req);
+	if (sessionSupplicant.get() != nullptr)
+		sessionSupplicant->process(&req);
 
 	S6U::RequestSafety::Recommendation recommendation = S6U::RequestSafety::recommend(req, dstSock.tls != nullptr, buf.usedSize());
-	uint32_t token;
-	if (recommendation.useToken && wallet->extract(&token))
+	if (recommendation.useToken)
 	{
-		req.options.idempotence.setToken(token);
-		recommendation.tokenSpent(dstSock.tls != nullptr);
+		optional<uint32_t> token = session->getToken();
+		if (token)
+		{
+			req.options.idempotence.setToken(token.get());
+			recommendation.tokenSpent(dstSock.tls != nullptr);
+		}
 	}
 
 	uint8_t reqBuf[HEADROOM];

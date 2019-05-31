@@ -24,7 +24,7 @@ void SessionSupplicant::process(S6M::AuthenticationReply *authRep)
 		uint32_t base = 0;
 		uint32_t size = authRep->options.idempotence.advertisedSize();
 		if (size > 0)
-			uint32_t base = authRep->options.idempotence.advertisedBase().get();
+			uint32_t base = authRep->options.idempotence.advertisedBase();
 		
 		auto session = make_shared<ClientSession>(id, base, size);
 		proxifier->setSession(session);
