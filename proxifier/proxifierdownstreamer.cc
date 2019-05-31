@@ -32,6 +32,16 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 		try
 		{
 			S6M::AuthenticationReply authRep(&bb);
+
+			auto session = upstreamer->getSession();
+			if (session.get() != nullptr)
+			{
+				/* session still valid? */
+				if (authRep.options.session.rejected() || !authRep.options.session.isOK())
+					proxifier->killSession(upstreamer->getSession());
+				session->updateWallet(authRep.options.idempotence.advertisedBase(), authRep.options.idempotence.advertisedSize());
+			}
+
 			if (authRep.getReplyCode() != SOCKS6_AUTH_REPLY_SUCCESS)
 			{
 				deactivate();
@@ -39,20 +49,8 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			}
 			buf.unuse(bb.getUsed());
 			
-			SOCKS6TokenExpenditureCode expenditureCode = authRep.options.idempotence.getReply().get_value_or((SOCKS6TokenExpenditureCode)0);
-			if (upstreamer->getWallet().get() != nullptr && (expenditureCode == (SOCKS6TokenExpenditureCode)0))
-				proxifier->killWallet(upstreamer->getWallet());
-			
 			if (supplicant.get() != nullptr)
-			{
 				supplicant->process(&authRep);
-			}
-			else
-			{
-				std::shared_ptr<SyncedTokenWallet> wallet = upstreamer->getWallet();
-				if (wallet.get() != nullptr)
-					wallet->updateWindow(&authRep.options);
-			}
 		}
 		catch (S6M::EndOfBufferException &)
 		{

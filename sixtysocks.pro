@@ -31,7 +31,6 @@ SOURCES += \
     core/readabledeferreactor.cc \
     core/tlslibrary.cc \
     external/nspr_stuff.c \
-    proxifier/clientsession.cc \
     proxy/serversession.cc \
     proxifier/sessionsupplicant.cc
 

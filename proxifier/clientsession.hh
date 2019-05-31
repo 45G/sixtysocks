@@ -22,6 +22,8 @@ public:
 	{
 		if (!wallet)
 			return;
+		if (winSize == 0)
+			return;
 		
 		wallet->updateWindow(winBase, winSize);
 	}

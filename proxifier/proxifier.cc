@@ -20,7 +20,6 @@ using namespace std;
 Proxifier::Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, bool defer, const string &username, const string &password, TLSContext *clientCtx)
 	: ListenReactor(poller, bindAddr), proxyAddr(proxyAddr), defer(defer),
 	  username(username), password(password),
-	  wallet(new SyncedTokenWallet()),
 	  clientCtx(clientCtx)
 {
 	// tolerable error
@@ -69,8 +68,8 @@ void Proxifier::handleNewConnection(int fd)
 
 	if (supplicationLock.try_lock())
 	{
-		if (wallet->remaining() == 0)
-			supplicant = std::shared_ptr<SessionSupplicant>(new SessionSupplicant(this));
+		if (session.get() == nullptr)
+			supplicant = make_shared<SessionSupplicant>(this);
 		else
 			supplicationLock.unlock();
 	}
