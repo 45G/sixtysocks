@@ -38,8 +38,6 @@ class ProxyUpstreamer: public StreamReactor
 	AuthServer *authServer = nullptr;
 	tbb::spin_mutex honorLock;
 	
-	bool mustFail = false;
-	
 	void honorRequest();
 
 	void honorConnect();
@@ -63,11 +61,6 @@ public:
 	Proxy *getProxy()
 	{
 		return proxy.get();
-	}
-	
-	void fail()
-	{
-		mustFail = true;
 	}
 	
 	class SimpleReplyException: public std::exception

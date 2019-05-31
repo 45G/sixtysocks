@@ -14,9 +14,6 @@ void ProxyUpstreamer::honorRequest()
 {
 	try
 	{
-		if (mustFail)
-			throw SimpleReplyException(SOCKS6_OPERATION_REPLY_FAILURE);
-		
 		switch (request->getCommandCode())
 		{
 		case SOCKS6_REQUEST_CONNECT:
