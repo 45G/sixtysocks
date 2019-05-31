@@ -31,20 +31,17 @@ void Proxifier::start()
 	bool supplicateTFO = true;
 
 	supplicationLock.lock();
-	if (username.length() > 0)
+	try
 	{
-		try
-		{
-			std::shared_ptr<SessionSupplicant> windowSupplicant (new SessionSupplicant(this));
-			poller->assign(new SessionSupplicationAgent(this, windowSupplicant, clientCtx));
+		auto sessionSupplicant = make_shared<SessionSupplicant>(this);
+		poller->assign(new SessionSupplicationAgent(this, sessionSupplicant, clientCtx));
 
-			if (clientCtx != nullptr) /* TLS uses TFO */
-				supplicateTFO = false;
-		}
-		catch (exception &ex)
-		{
-			cerr << "Error supplicating token window: " << ex.what() << endl;
-		}
+		if (clientCtx != nullptr) /* TLS uses TFO */
+			supplicateTFO = false;
+	}
+	catch (exception &ex)
+	{
+		cerr << "Error supplicating token window: " << ex.what() << endl;
 	}
 
 	if (supplicateTFO)
