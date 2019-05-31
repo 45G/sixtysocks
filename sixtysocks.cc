@@ -172,55 +172,63 @@ int main(int argc, char **argv)
 //	if (cpuOffset + numThreads > (int)thread::hardware_concurrency())
 //		usage();
 
-	if (useTLS)
+	try
 	{
-		tlsLibrary = new TLSLibrary(certDB);
+		if (useTLS)
+		{
+			tlsLibrary = new TLSLibrary(certDB);
+
+			if (mode == M_PROXIFIER)
+				clientCtx = new TLSContext(false);
+			else /* M_PROXY */
+				serverCtx = new TLSContext(true);
+		}
+
+		Poller poller(numThreads, cpuOffset);
+		//poller.start();
 
 		if (mode == M_PROXIFIER)
-			clientCtx = new TLSContext(false);
-		else /* M_PROXY */
-			serverCtx = new TLSContext(true);
-	}
-
-	Poller poller(numThreads, cpuOffset);
-	//poller.start();
-	
-	if (mode == M_PROXIFIER)
-	{
-		S6U::SocketAddress bindAddr;
-		bindAddr.ipv4.sin_family      = AF_INET;
-		bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
-		bindAddr.ipv4.sin_port        = htons(port);
-
-		poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, defer, username, password, clientCtx.get()));
-	}
-	else /* M_PROXY */
-	{
-		if (port != 0)
 		{
 			S6U::SocketAddress bindAddr;
 			bindAddr.ipv4.sin_family      = AF_INET;
 			bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
 			bindAddr.ipv4.sin_port        = htons(port);
 
-			poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), nullptr));
+			poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, defer, username, password, clientCtx.get()));
 		}
-		if (tlsPort != 0)
+		else /* M_PROXY */
 		{
-			S6U::SocketAddress bindAddr;
-			bindAddr.ipv4.sin_family      = AF_INET;
-			bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
-			bindAddr.ipv4.sin_port        = htons(tlsPort);
+			if (port != 0)
+			{
+				S6U::SocketAddress bindAddr;
+				bindAddr.ipv4.sin_family      = AF_INET;
+				bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
+				bindAddr.ipv4.sin_port        = htons(port);
 
-			poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), serverCtx.get()));
+				poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), nullptr));
+			}
+			if (tlsPort != 0)
+			{
+				S6U::SocketAddress bindAddr;
+				bindAddr.ipv4.sin_family      = AF_INET;
+				bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
+				bindAddr.ipv4.sin_port        = htons(tlsPort);
+
+				poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), serverCtx.get()));
+			}
 		}
+
+	//	sleep(1000);
+		poller.threadFun(&poller);
+
+		poller.stop();
+		poller.join();
+	}
+	catch (exception &ex)
+	{
+		cerr << "Caught exception; exiting: " << ex.what() << endl;
+		return EXIT_FAILURE;
 	}
 	
-//	sleep(1000);
-	poller.threadFun(&poller);
-	
-	poller.stop();
-	poller.join();
-	
-	return 0;
+	return EXIT_SUCCESS;
 }

@@ -83,7 +83,7 @@ void Proxifier::handleNewConnection(int fd)
 	}
 	catch (exception &ex)
 	{
-		cout << "Error handling new connection: " << ex.what() << endl;
+		cerr << "Error handling new connection: " << ex.what() << endl;
 	}
 
 	if (closeFD != -1)
