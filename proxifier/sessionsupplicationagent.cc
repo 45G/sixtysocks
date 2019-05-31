@@ -2,11 +2,11 @@
 #include <socks6msg/socks6msg.hh>
 #include "proxifier.hh"
 #include "../core/poller.hh"
-#include "windowsupplicationagent.hh"
+#include "sessionsupplicationagent.hh"
 
 using namespace std;
 
-WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, std::shared_ptr<SessionSupplicant> supplicant, TLSContext *clientCtx)
+SessionSupplicationAgent::SessionSupplicationAgent(Proxifier *proxifier, std::shared_ptr<SessionSupplicant> supplicant, TLSContext *clientCtx)
 	: StickReactor(proxifier->getPoller()), proxifier(proxifier), supplicant(supplicant), clientCtx(clientCtx)
 {
 	const S6U::SocketAddress *proxyAddr = proxifier->getProxyAddr();
@@ -26,14 +26,14 @@ WindowSupplicationAgent::WindowSupplicationAgent(Proxifier *proxifier, std::shar
 	buf.use(bb.getUsed());
 }
 
-void WindowSupplicationAgent::start()
+void SessionSupplicationAgent::start()
 {
 	sock.sockConnect(*proxifier->getProxyAddr(), &buf, 0, false);
 
 	poller->add(this, sock.fd, Poller::OUT_EVENTS);
 }
 
-void WindowSupplicationAgent::process(int fd, uint32_t events)
+void SessionSupplicationAgent::process(int fd, uint32_t events)
 {
 	(void)fd; (void)events;
 	

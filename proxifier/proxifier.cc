@@ -11,7 +11,7 @@
 #include "proxifier.hh"
 #include "../core/poller.hh"
 #include "../core/readabledeferreactor.hh"
-#include "windowsupplicationagent.hh"
+#include "sessionsupplicationagent.hh"
 #include "tfocookiesupplicationagent.hh"
 #include "proxifierupstreamer.hh"
 
@@ -36,7 +36,7 @@ void Proxifier::start()
 		try
 		{
 			std::shared_ptr<SessionSupplicant> windowSupplicant (new SessionSupplicant(this));
-			poller->assign(new WindowSupplicationAgent(this, windowSupplicant, clientCtx));
+			poller->assign(new SessionSupplicationAgent(this, windowSupplicant, clientCtx));
 
 			if (clientCtx != nullptr) /* TLS uses TFO */
 				supplicateTFO = false;

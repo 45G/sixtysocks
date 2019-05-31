@@ -1,12 +1,12 @@
-#ifndef WINDOWSUPPLICATIONAGENT_HH
-#define WINDOWSUPPLICATIONAGENT_HH
+#ifndef SESSIONSUPPLICATIONAGENT_HH
+#define SESSIONSUPPLICATIONAGENT_HH
 
 #include "../core/stickreactor.hh"
 #include "sessionsupplicant.hh"
 
 class Proxifier;
 
-class WindowSupplicationAgent: public StickReactor
+class SessionSupplicationAgent: public StickReactor
 {
 	enum State
 	{
@@ -25,11 +25,11 @@ class WindowSupplicationAgent: public StickReactor
 	TLSContext *clientCtx;
 	
 public:
-	WindowSupplicationAgent(Proxifier *proxifier, std::shared_ptr<SessionSupplicant> supplicant, TLSContext *clientCtx);
+	SessionSupplicationAgent(Proxifier *proxifier, std::shared_ptr<SessionSupplicant> supplicant, TLSContext *clientCtx);
 	
 	void process(int fd, uint32_t events);
 	
 	void start();
 };
 
-#endif // WINDOWSUPPLICATIONAGENT_HH
+#endif // SESSIONSUPPLICATIONAGENT_HH

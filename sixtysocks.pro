@@ -24,14 +24,14 @@ SOURCES += \
     proxy/authserver.cc \
     core/tlscontext.cc \
     proxifier/tfocookiesupplicationagent.cc \
-    proxifier/windowsupplicationagent.cc \
     core/stickreactor.cc \
     core/tls.cc \
     core/tlsexception.cc \
     core/readabledeferreactor.cc \
     core/tlslibrary.cc \
     external/nspr_stuff.c \
-    proxifier/sessionsupplicant.cc
+    proxifier/sessionsupplicant.cc \
+    proxifier/sessionsupplicationagent.cc
 
 HEADERS += \
     core/poller.hh \
@@ -54,7 +54,6 @@ HEADERS += \
     core/tlscontext.hh \
     core/rescheduleexception.hh \
     proxifier/tfocookiesupplicationagent.hh \
-    proxifier/windowsupplicationagent.hh \
     core/stickreactor.hh \
     core/tls.hh \
     core/tlsexception.hh \
@@ -65,7 +64,8 @@ HEADERS += \
     external/nspr_stuff.h \
     proxifier/clientsession.hh \
     proxy/serversession.hh \
-    proxifier/sessionsupplicant.hh
+    proxifier/sessionsupplicant.hh \
+    proxifier/sessionsupplicationagent.hh
 
 # EDIT ME!
 NSS_BUNDLE_ROOT = /home/vlad/nss-bundle/
