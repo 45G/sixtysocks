@@ -18,26 +18,26 @@ void Proxy::handleNewConnection(int fd)
 	}
 }
 
-shared_ptr<ProxySession> Proxy::spawnSession()
+shared_ptr<ServerSession> Proxy::spawnSession()
 {
-	shared_ptr<ProxySession> ret;
+	shared_ptr<ServerSession> ret;
 	bool dupe;
 	
 	do
 	{
-		ret = make_shared<ProxySession>();
-		concurrent_hash_map<uint64_t, shared_ptr<ProxySession>>::accessor ac;
-		dupe = sessions.find(ac, ret->getId());
+		ret = make_shared<ServerSession>();
+		concurrent_hash_map<uint64_t, shared_ptr<ServerSession>>::accessor ac;
+		dupe = sessions.find(ac, ret->getID());
 	}
 	while (!dupe);
 	
-	sessions.insert({ ret->getId(), ret });
+	sessions.insert({ ret->getID(), ret });
 	return ret;
 }
 
-std::shared_ptr<ProxySession> Proxy::getSession(uint64_t id)
+std::shared_ptr<ServerSession> Proxy::getSession(uint64_t id)
 {
-	concurrent_hash_map<uint64_t, shared_ptr<ProxySession>>::accessor ac;
+	concurrent_hash_map<uint64_t, shared_ptr<ServerSession>>::accessor ac;
 	bool found = sessions.find(ac, id);
 	if (!found)
 		return {};

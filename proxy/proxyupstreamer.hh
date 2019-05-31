@@ -53,7 +53,7 @@ public:
 	
 	void process(int fd, uint32_t events);
 	
-	void authDone(SOCKS6TokenExpenditureCode expenditureCode);
+	void authDone();
 
 	std::shared_ptr<S6M::Request> getRequest() const
 	{

@@ -31,7 +31,6 @@ SOURCES += \
     core/readabledeferreactor.cc \
     core/tlslibrary.cc \
     external/nspr_stuff.c \
-    proxy/serversession.cc \
     proxifier/sessionsupplicant.cc
 
 HEADERS += \
@@ -105,4 +104,4 @@ INCLUDEPATH += $$NSPR_ROOT/Debug/dist/include/nspr
 INCLUDEPATH += $$NSPR_ROOT/pr/include/nspr
 
 LIBS += -L$$NSSROOT/dist/Debug/lib64/ -L$$NSSROOT/dist/Debug/lib/
-LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lboost_thread -lnspr4 -lnss3 -lssl3
+LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lboost_thread -lnspr4 -lnss3 -lssl3 -ltbb

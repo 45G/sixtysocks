@@ -232,11 +232,8 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 }
 
-void ProxyUpstreamer::authDone(SOCKS6TokenExpenditureCode expenditureCode)
+void ProxyUpstreamer::authDone()
 {
-	if (expenditureCode != (SOCKS6TokenExpenditureCode)0)
-		replyOptions.idempotence.setReply(expenditureCode);
-	
 	honorLock.lock();
 	authenticated = true;
 	bool honor = state == S_AWAITING_AUTH;

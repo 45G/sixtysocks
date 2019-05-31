@@ -21,12 +21,12 @@ void SessionSupplicant::process(S6M::AuthenticationReply *authRep)
 	auto id = authRep->options.session.getID();
 	if (id)
 	{
-		uint32_t base = 0;
+		bool untrusted = authRep->options.session.isUntrusted();
+		uint32_t base = authRep->options.idempotence.advertisedBase();
 		uint32_t size = authRep->options.idempotence.advertisedSize();
-		if (size > 0)
-			uint32_t base = authRep->options.idempotence.advertisedBase();
+
 		
-		auto session = make_shared<ClientSession>(id, base, size);
+		auto session = make_shared<ClientSession>(*id, untrusted, base, size);
 		proxifier->setSession(session);
 	}
 	

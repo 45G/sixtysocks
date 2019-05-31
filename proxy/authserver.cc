@@ -9,88 +9,102 @@
 
 using namespace std;
 
+void AuthServer::check()
+{
+	std::shared_ptr<S6M::Request> req = upstreamer->getRequest();
+	shared_ptr<ServerSession> session;
+
+	/* existing session */
+	auto rawID = req->options.session.getID();
+	if (rawID != nullptr)
+	{
+		if (rawID->size() != sizeof(uint64_t))
+		{
+			options.session.signalReject();
+			return;
+		}
+
+		uint64_t id;
+		memcpy(&id, rawID->data(), sizeof(uint64_t));
+
+		auto session = upstreamer->getProxy()->getSession(id);
+		if (session.get() == nullptr)
+		{
+			options.session.signalReject();
+			return;
+		}
+	}
+
+	/* authenticate */
+	auto checker = upstreamer->getProxy()->getPasswordChecker();
+	if (checker != nullptr && session.get() == nullptr)
+	{
+		bool success = checker->check(req->options.userPassword.getUsername(), req->options.userPassword.getPassword());
+		options.userPassword.setReply(success);
+		if (!success)
+			return;
+	}
+
+	/* new session */
+	if (session.get() == nullptr && req->options.session.requested())
+	{
+		session = upstreamer->getProxy()->spawnSession();
+
+		uint64_t id = session->getID();
+		vector<uint8_t> rawID;
+		rawID.resize(sizeof(uint64_t));
+		memcpy(rawID.data(), &id, sizeof(uint64_t));
+
+		options.session.setID(rawID);
+	}
+
+	/* idempotence stuff */
+	if (session.get() != nullptr)
+	{
+		/* spend token */
+		auto token = req->options.idempotence.getToken();
+		if (token)
+		{
+			/* got bank? */
+			if (session->getTokenBank() == nullptr)
+			{
+				options.idempotence.setReply(false);
+				return;
+			}
+
+			bool success = session->getTokenBank()->withdraw(token.get());
+			options.idempotence.setReply(success);
+			if (!success)
+				return;
+		}
+
+		/* new bank */
+		session->makeBank(req->options.idempotence.requestedSize());
+
+		/* advert */
+		SyncedTokenBank *bank = session->getTokenBank();
+		if (bank != nullptr)
+		{
+			uint32_t base;
+			uint32_t size;
+
+			bank->getWindow(&base, &size);
+			options.idempotence.advertise(base, size);
+		}
+	}
+
+	code = SOCKS6_AUTH_REPLY_SUCCESS;
+}
+
 AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	: StickReactor(upstreamer->getPoller()), upstreamer(upstreamer)
 {
 	sock.duplicate(upstreamer->getSrcSock());
 	
-	SOCKS6AuthReplyCode code;
-	bool pwChecked;
-	std::shared_ptr<S6M::Request> req = upstreamer->getRequest();
-	Proxy *proxy = upstreamer->getProxy();
-	
-	PasswordChecker *checker = proxy->getPasswordChecker();
-	if (checker == nullptr)
-	{
-		code = SOCKS6_AUTH_REPLY_SUCCESS;
-		success = true;
-	}
-	else if (checker->check(req->options.userPassword.getUsername(), req->options.userPassword.getPassword()))
-	{
-		code = SOCKS6_AUTH_REPLY_SUCCESS;
-		pwChecked = true;
-		success = true;
-	}
-	else
-	{
-		code = SOCKS6_AUTH_REPLY_MORE;
-		success = false;
-	}
+	check();
 	
 	S6M::AuthenticationReply rep(code);
-	
-	bool idempotenceFail = false;
-	
-	//TODO: untangle mess
-	SyncedTokenBank *bank = nullptr;
-	if (success && pwChecked)
-		bank = proxy->getBank(*req->options.userPassword.getUsername());
-	
-	/* spend token? */
-	if (success && (bool)req->options.idempotence.getToken())
-	{	
-		SOCKS6TokenExpenditureCode expendCode;
-		/* no bank */
-		if (bank == nullptr)
-		{
-			idempotenceFail = false;
-			upstreamer->fail();
-			expendCode = SOCKS6_TOK_EXPEND_FAILURE;
-		}
-		else
-		{
-			uint32_t token = req->options.idempotence.getToken().get();
-			
-			expendCode = bank->withdraw(token) ? SOCKS6_TOK_EXPEND_SUCCESS : SOCKS6_TOK_EXPEND_FAILURE;
-			
-			if (expendCode == SOCKS6_TOK_EXPEND_FAILURE)
-			{
-				idempotenceFail = true;
-				upstreamer->fail();
-			}
-		}
-		rep.options.idempotence.setReply(expendCode);
-	}
-	
-	/* request window */
-	uint32_t requestedWindow = req->options.idempotence.requestedSize();
-	if (success && pwChecked && !idempotenceFail && requestedWindow > 0)
-	{
-		if (bank == nullptr)
-			bank = proxy->createBank(*req->options.userPassword.getUsername(), std::min(requestedWindow, (uint32_t)200)); //TODO: don't hardcode
-		else
-			bank->renew();
-	}
-	
-	/* advertise window */
-	if (bank != nullptr)
-	{
-		uint32_t base;
-		uint32_t size;
-		
-		bank->getWindow(&base, &size);
-		rep.options.idempotence.advertise(base, size);
-	}
+	rep.options = move(options);
 	
 	buf.use(rep.pack(buf.getTail(), buf.availSize()));
 }
@@ -109,7 +123,7 @@ void AuthServer::sendReply()
 	{
 		try
 		{
-			upstreamer->authDone((SOCKS6TokenExpenditureCode)0);
+			upstreamer->authDone();
 		}
 		catch (RescheduleException &resched)
 		{

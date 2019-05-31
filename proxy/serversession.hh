@@ -5,7 +5,7 @@
 #include <random>
 #include "../authentication/syncedtokenstuff.h"
 
-class ProxySession
+class ServerSession
 {
 	uint64_t id { ((uint64_t)rand()) | ((uint64_t)rand() << 32) };
 	
@@ -13,7 +13,7 @@ class ProxySession
 	std::unique_ptr<SyncedTokenBank> tokenBank;
 	
 public:
-	uint64_t getId() const
+	uint64_t getID() const
 	{
 		return id;
 	}
@@ -29,6 +29,9 @@ public:
 		
 		if (tokenBank)
 			return;
+		if (size == 0)
+			return;
+
 		tokenBank.reset(new SyncedTokenBank((uint32_t)rand(), size, 0, size / 2));
 	}
 };
