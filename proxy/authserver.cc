@@ -119,7 +119,7 @@ void AuthServer::sendReply()
 	{
 		poller->add(this, sock.fd, Poller::OUT_EVENTS);
 	}
-	else if (success)
+	else if (code == SOCKS6_AUTH_REPLY_SUCCESS)
 	{
 		try
 		{

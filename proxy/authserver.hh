@@ -21,8 +21,6 @@ class AuthServer: public StickReactor
 	SOCKS6AuthReplyCode code = SOCKS6_AUTH_REPLY_FAILURE;
 	S6M::OptionSet options { S6M::OptionSet::M_AUTH_REP };
 	
-	bool success;
-	
 	void sendReply();
 
 	void check();

@@ -29,7 +29,7 @@ shared_ptr<ServerSession> Proxy::spawnSession()
 		concurrent_hash_map<uint64_t, shared_ptr<ServerSession>>::accessor ac;
 		dupe = sessions.find(ac, ret->getID());
 	}
-	while (!dupe);
+	while (dupe);
 	
 	sessions.insert({ ret->getID(), ret });
 	return ret;
