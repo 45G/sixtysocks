@@ -2,11 +2,13 @@
 #define TLSCONTEXT_HH
 
 #include <string>
+#include <stdexcept>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/thread/tss.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include <ssl.h>
 #include <keyhi.h>
+#include <pk11pub.h>
 #include "tlslibrary.hh"
 
 class TLSContext: public boost::intrusive_ref_counter<TLSContext>
@@ -18,7 +20,19 @@ class TLSContext: public boost::intrusive_ref_counter<TLSContext>
 
 public:
 	TLSContext(bool server, const std::string &nick = "")
-		: server(server), nick(nick) {}
+		: server(server), nick(nick)
+	{
+		if (server)
+		{
+			cert.reset(PK11_FindCertFromNickname(nick.c_str(), nullptr));
+			if (cert.get() == nullptr)
+				throw std::runtime_error("Can't find certificate");
+			
+			key.reset(PK11_FindKeyByAnyCert(cert.get(), nullptr));
+			if (key.get() == nullptr)
+				throw std::runtime_error("Can't find key");
+		}
+	}
 
 	~TLSContext() {}
 	
