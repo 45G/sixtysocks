@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 	srand(time(nullptr));
 
 	//TODO: fix this shit
-	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:C:D")) != -1)
+	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:C:n:D")) != -1)
 	{
 		switch (c)
 		{
