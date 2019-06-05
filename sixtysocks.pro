@@ -22,7 +22,6 @@ SOURCES += \
     authentication/simplepasswordchecker.cc \
     core/streambuffer.cc \
     proxy/authserver.cc \
-    core/tlscontext.cc \
     proxifier/tfocookiesupplicationagent.cc \
     core/stickreactor.cc \
     core/tls.cc \

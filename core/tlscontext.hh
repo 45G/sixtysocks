@@ -11,11 +11,13 @@
 class TLSContext: public boost::intrusive_ref_counter<TLSContext>
 {
 	bool server;
+	std::string nick;
 
 public:
-	TLSContext(bool server);
+	TLSContext(bool server, std::string nick = "")
+		: server(server), nick(nick) {}
 
-	~TLSContext();
+	~TLSContext() {}
 	
 	bool isServer() const
 	{
@@ -25,6 +27,11 @@ public:
 	bool isClient() const
 	{
 		return !server;
+	}
+	
+	const std::string *getNick() const
+	{
+		return &nick;
 	}
 };
 

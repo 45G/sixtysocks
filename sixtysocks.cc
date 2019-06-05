@@ -34,7 +34,7 @@ void usage()
 			"[-l <listen port>] [-t <TLS listen port>]",
 			"[-U <username>] [-P <password>]",
 			"[-s <proxy IP>] [-p <proxy port>]",
-			"[-C <certificate DB>]"
+			"[-C <certificate DB>] [-n <key nickname>]"
 			"[-D] (defer request until socket is readable)",
 		nullptr,
 	};
@@ -76,6 +76,7 @@ int main(int argc, char **argv)
 	boost::intrusive_ptr<SimplePasswordChecker> passwordChecker;
 	bool defer = false;
 	string certDB;
+	string nick;
 	boost::intrusive_ptr<TLSLibrary> tlsLibrary;
 	boost::intrusive_ptr<TLSContext> clientCtx;
 	boost::intrusive_ptr<TLSContext> serverCtx;
@@ -143,6 +144,11 @@ int main(int argc, char **argv)
 			certDB = string(optarg);
 			useTLS = true;
 			break;
+			
+		case 'n':
+			nick = string(optarg);
+			useTLS = true;
+			break;
 
 
 		case 'D':
@@ -182,7 +188,7 @@ int main(int argc, char **argv)
 			if (mode == M_PROXIFIER)
 				clientCtx = new TLSContext(false);
 			else /* M_PROXY */
-				serverCtx = new TLSContext(true);
+				serverCtx = new TLSContext(true, nick);
 		}
 
 		Poller poller(numThreads, cpuOffset);
