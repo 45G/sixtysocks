@@ -112,6 +112,14 @@ TLS::TLS(TLSContext *ctx, int fd)
 	}
 
 	descriptor.reset(higherDesc);
+	
+	/* set key + cert */
+	if (ctx->isServer())
+	{
+		SECStatus rc = SSL_ConfigServerCert(descriptor.get(), ctx->getCert(), ctx->getKey(), nullptr, 0);
+		if (rc != SECSuccess)
+			throw TLSException();
+	}
 
 	//static const int CERT_VERIFY_DEPTH = 3; //TODO: do something with this?
 	SECStatus rc = SSL_ResetHandshake(descriptor.get(), ctx->isServer());
