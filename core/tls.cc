@@ -193,9 +193,6 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 
 void TLS::tlsAccept(StreamBuffer *buf)
 {
-	SSL_ForceHandshake(descriptor.get());
-	return;
-	
 	do
 	{
 		SECStatus rc = SSL_ForceHandshake(descriptor.get());
