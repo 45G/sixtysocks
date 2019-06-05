@@ -233,7 +233,7 @@ void TLS::tlsAccept(StreamBuffer *buf)
 
 size_t TLS::tlsWrite(StreamBuffer *buf)
 {
-	PRInt32 bytes = PR_Send(descriptor.get(), buf->getHead(), buf->usedSize(), MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
+	PRInt32 bytes = PR_Write(descriptor.get(), buf->getHead(), buf->usedSize());
 	if (bytes < 0)
 	{
 		tlsHandleErr(BD_OUT, writeFD);
@@ -246,7 +246,7 @@ size_t TLS::tlsWrite(StreamBuffer *buf)
 
 size_t TLS::tlsRead(StreamBuffer *buf)
 {
-	PRInt32 bytes = PR_Recv(descriptor.get(), buf->getTail(), buf->availSize(), MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
+	PRInt32 bytes = PR_Read(descriptor.get(), buf->getTail(), buf->availSize());
 	if (bytes < 0)
 	{
 		tlsHandleErr(BD_IN, readFD);
