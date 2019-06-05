@@ -193,6 +193,9 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 
 void TLS::tlsAccept(StreamBuffer *buf)
 {
+	SSL_ForceHandshake(descriptor.get());
+	return;
+	
 	do
 	{
 		SECStatus rc = SSL_ForceHandshake(descriptor.get());
@@ -200,7 +203,16 @@ void TLS::tlsAccept(StreamBuffer *buf)
 			throw RescheduleException(readFD, Poller::IN_EVENTS);
 		if (rc != SECSuccess)
 		{
-			tlsHandleErr(BD_IN, readFD);
+			try
+			{
+				tlsHandleErr(BD_IN, readFD);
+			}
+			catch (RescheduleException &)
+			{
+				// don't reschedule; everything is fine
+				return;
+			}
+			
 			throw TLSException(); //EOF is bad
 		}
 
