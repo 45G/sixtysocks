@@ -168,8 +168,7 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 
 //		PRInt32 earlyDataWritten = PR_SendTo(descriptor.get(), buf->getHead(), buf->usedSize(), MSG_FASTOPEN | MSG_NOSIGNAL,
 //			reinterpret_cast<const PRNetAddr *>(addr), PR_INTERVAL_NO_TIMEOUT);
-		PRInt32 earlyDataWritten = PR_Send(descriptor.get(), buf->getHead(), buf->usedSize(), MSG_NOSIGNAL,
-			PR_INTERVAL_NO_TIMEOUT);
+		PRInt32 earlyDataWritten = PR_Write(descriptor.get(), buf->getHead(), buf->usedSize());
 		if (earlyDataWritten < 0)
 		{
 			tlsHandleErr(BD_OUT, writeFD);
