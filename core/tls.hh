@@ -23,6 +23,14 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	static PRStatus PR_CALLBACK dGetName        (PRFileDesc *fd, PRNetAddr *addr);
 	static PRStatus PR_CALLBACK dGetPeerName    (PRFileDesc *fd, PRNetAddr *addr);
 
+	enum BlockDirection
+	{
+		BD_IN,
+		BD_OUT,
+	};
+	
+	static thread_local BlockDirection blockDirection;
+	
 	int readFD;
 	int writeFD;
 
@@ -33,8 +41,8 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 
 	bool connectCalled = false;
 	bool handshakeFinished = false;
-
-	static void handshakeCallback(PRFileDesc *fd, void *clientData);
+	
+	static void tlsHandleErr(int fd);
 
 	static SECStatus canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalseStart);
 

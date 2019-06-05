@@ -13,18 +13,14 @@ extern "C"
 
 using namespace std;
 
-enum BlockDirection
-{
-	BD_IN,
-	BD_OUT,
-};
+thread_local TLS::BlockDirection TLS::blockDirection;
 
-static void tlsHandleErr(BlockDirection bd, int fd)
+void TLS::tlsHandleErr(int fd)
 {
 	PRErrorCode err = PR_GetError();
 	if (err == PR_WOULD_BLOCK_ERROR || err == PR_IN_PROGRESS_ERROR)
 	{
-		if (bd == BD_IN)
+		if (blockDirection == BD_IN)
 			throw RescheduleException(fd, Poller::IN_EVENTS);
 		else /* BD_OUT */
 			throw RescheduleException(fd, Poller::OUT_EVENTS);
@@ -32,15 +28,6 @@ static void tlsHandleErr(BlockDirection bd, int fd)
 	if (err == PR_END_OF_FILE_ERROR)
 		return;
 	throw TLSException(err);
-}
-
-void TLS::handshakeCallback(PRFileDesc *fd, void *clientData)
-{
-	(void)fd;
-
-	TLS *tls = reinterpret_cast<TLS *>(clientData);
-
-	tls->handshakeFinished = true;
 }
 
 SECStatus TLS::canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalseStart)
@@ -126,10 +113,6 @@ TLS::TLS(TLSContext *ctx, int fd)
 	if (rc != SECSuccess)
 		throw TLSException();
 
-	rc = SSL_HandshakeCallback(descriptor.get(), handshakeCallback, this);
-	if (rc != SECSuccess)
-		throw TLSException();
-
 	rc = SSL_SetCanFalseStartCallback(descriptor.get(), canFalseStartCallback, nullptr);
 	if (rc != SECSuccess)
 		throw TLSException();
@@ -153,8 +136,9 @@ void TLS::setWriteFD(int fd)
 
 void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData)
 {
-	SECStatus rc;
 	useEarlyData = useEarlyData && addr != nullptr && buf != nullptr;
+	if (!useEarlyData)
+		SSL_OptionSet(descriptor.get(), SSL_ENABLE_0RTT_DATA, PR_FALSE);
 
 	if (addr)
 	{
@@ -169,60 +153,19 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 		PRInt32 earlyDataWritten = PR_Write(descriptor.get(), buf->getHead(), buf->usedSize());
 		if (earlyDataWritten < 0)
 		{
-			tlsHandleErr(BD_OUT, writeFD);
+			tlsHandleErr(writeFD);
 			earlyDataWritten = 0;
 		}
 
 		buf->unuse(earlyDataWritten);
 	}
-	else
-	{
-		rc = SSL_ForceHandshake(descriptor.get());
-		if (rc == SECWouldBlock)
-			throw RescheduleException(readFD, Poller::IN_EVENTS);
-		if (rc != SECSuccess)
-		{
-			tlsHandleErr(BD_IN, readFD);
-			throw TLSException(); //EOF is bad
-		}
-	}
 }
 
 void TLS::tlsAccept(StreamBuffer *buf)
 {
-	do
-	{
-		SECStatus rc = SSL_ForceHandshake(descriptor.get());
-		if (rc == SECWouldBlock)
-			throw RescheduleException(readFD, Poller::IN_EVENTS);
-		if (rc != SECSuccess)
-		{
-			try
-			{
-				tlsHandleErr(BD_IN, readFD);
-			}
-			catch (RescheduleException &)
-			{
-				// don't reschedule; everything is fine
-				return;
-			}
-			
-			throw TLSException(); //EOF is bad
-		}
-
-		if (handshakeFinished)
-			return;
-
-		PRInt32 dataRead = PR_Recv(descriptor.get(), buf->getTail(), buf->availSize(), MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
-		if (dataRead < 0)
-		{
-			tlsHandleErr(BD_IN, readFD);
-			dataRead = 0;
-		}
-
-		buf->use(dataRead);
-	}
-	while (true);
+	(void)buf;
+	
+	/* nothing; first read will take care of rest */
 }
 
 size_t TLS::tlsWrite(StreamBuffer *buf)
@@ -230,7 +173,7 @@ size_t TLS::tlsWrite(StreamBuffer *buf)
 	PRInt32 bytes = PR_Write(descriptor.get(), buf->getHead(), buf->usedSize());
 	if (bytes < 0)
 	{
-		tlsHandleErr(BD_OUT, writeFD);
+		tlsHandleErr(writeFD);
 		bytes = 0;
 	}
 	
@@ -243,7 +186,7 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 	PRInt32 bytes = PR_Read(descriptor.get(), buf->getTail(), buf->availSize());
 	if (bytes < 0)
 	{
-		tlsHandleErr(BD_IN, readFD);
+		tlsHandleErr(readFD);
 		bytes = 0;
 	}
 	
@@ -268,6 +211,8 @@ PRInt32 PR_CALLBACK TLS::dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn
 	int rc = recv(tls->readFD, buf, amount, flags);
 	if (rc < 0)
 		_MD_unix_map_recv_error(errno);
+	
+	TLS::blockDirection = BD_IN;
 
 	return rc;
 }
@@ -298,6 +243,8 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 
 	if (rc < 0)
 		_MD_unix_map_send_error(errno);
+	
+	TLS::blockDirection = BD_OUT;
 
 	return rc;
 }
@@ -324,6 +271,8 @@ PRStatus PR_CALLBACK TLS::dConnect(PRFileDesc *fd, const PRNetAddr *addr, PRInte
 	int rc = connect(tls->writeFD, &sockAddr.sockAddress, sockAddr.size());
 	if (rc < 0)
 		return PR_FAILURE;
+	
+	TLS::blockDirection = BD_IN;
 
 	return PR_SUCCESS;
 }
@@ -347,6 +296,9 @@ PRStatus PR_CALLBACK TLS::dConnectContinue(PRFileDesc *fd, PRInt16 outFlags)
 		_MD_unix_map_connect_error(err);
 		return PR_FAILURE;
 	}
+	
+	TLS::blockDirection = BD_IN;
+	
 	return PR_SUCCESS;
 }
 
