@@ -34,7 +34,7 @@ void usage()
 			"[-l <listen port>] [-t <TLS listen port>]",
 			"[-U <username>] [-P <password>]",
 			"[-s <proxy IP>] [-p <proxy port>]",
-			"[-C <certificate DB>] [-n <key nickname>]"
+			"[-C <certificate DB>] [-n <key nickname>]",
 			"[-D] (defer request until socket is readable)",
 		nullptr,
 	};
