@@ -28,6 +28,7 @@ using namespace std;
 void usage()
 {
 	static const char *usageLines[] = {
+	//       12345678901234567890123456789012345678901234567890123456789012345678901234567890
 		"usage: sixtysocks [-j <thread count>] [-o <cpu offset>]",
 			"[-m <mode>] (\"proxify\"/\"proxy\")",
 			"[-l <listen port>] [-t <TLS listen port>]",
