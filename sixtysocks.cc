@@ -34,7 +34,7 @@ void usage()
 			"[-l <listen port>] [-t <TLS listen port>]",
 			"[-U <username>] [-P <password>]",
 			"[-s <proxy IP>] [-p <proxy port>]",
-			"[-C <certificate DB>] [-n <key nickname>]",
+			"[-C <certificate DB>] [-n <key nickname>] [-S <SNI>]",
 			"[-D] (defer request until socket is readable)",
 		nullptr,
 	};
@@ -77,6 +77,7 @@ int main(int argc, char **argv)
 	bool defer = false;
 	string certDB;
 	string nick;
+	string sni;
 	boost::intrusive_ptr<TLSLibrary> tlsLibrary;
 	boost::intrusive_ptr<TLSContext> clientCtx;
 	boost::intrusive_ptr<TLSContext> serverCtx;
@@ -84,7 +85,7 @@ int main(int argc, char **argv)
 	srand(time(nullptr));
 
 	//TODO: fix this shit
-	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:C:n:D")) != -1)
+	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:C:S:n:D")) != -1)
 	{
 		switch (c)
 		{
@@ -145,6 +146,11 @@ int main(int argc, char **argv)
 			useTLS = true;
 			break;
 			
+		case 'S':
+			sni = string(optarg);
+			useTLS = true;
+			break;
+			
 		case 'n':
 			nick = string(optarg);
 			useTLS = true;
@@ -186,9 +192,9 @@ int main(int argc, char **argv)
 			tlsLibrary = new TLSLibrary(certDB);
 
 			if (mode == M_PROXIFIER)
-				clientCtx = new TLSContext(false);
+				clientCtx = new TLSContext(false, "",   sni);
 			else /* M_PROXY */
-				serverCtx = new TLSContext(true, nick);
+				serverCtx = new TLSContext(true,  nick, "");
 		}
 
 		Poller poller(numThreads, cpuOffset);
