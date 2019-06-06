@@ -303,6 +303,8 @@ PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 
 PRStatus PR_CALLBACK TLS::dGetSocketOption(PRFileDesc *fd, PRSocketOptionData *data)
 {
+	(void)fd;
+	
 	if (PR_SockOpt_Nonblocking == data->option)
 	{
 		data->value.non_blocking = PR_TRUE;
