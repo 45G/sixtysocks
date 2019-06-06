@@ -37,6 +37,11 @@ public:
 			if (key.get() == nullptr)
 				throw std::runtime_error("Can't find key");
 		}
+		else /* client */
+		{
+			if (sni == "")
+				throw std::invalid_argument("SNI is required");
+		}
 	}
 
 	~TLSContext() {}
