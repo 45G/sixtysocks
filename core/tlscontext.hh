@@ -17,7 +17,7 @@ class TLSContext: public boost::intrusive_ref_counter<TLSContext>
 	
 	/* server stuff */
 	std::string nick;
-	std::unique_ptr<CERTCertificate,  void (*)(CERTCertificate *)>  cert { nullptr, CERT_DestroyCertificate };
+	std::unique_ptr<CERTCertificate,  void (*)(CERTCertificate  *)> cert { nullptr, CERT_DestroyCertificate };
 	std::unique_ptr<SECKEYPrivateKey, void (*)(SECKEYPrivateKey *)> key  { nullptr, SECKEY_DestroyPrivateKey };
 	
 	/* client stuff */
