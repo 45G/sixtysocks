@@ -218,6 +218,7 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 		rc = send(tls->writeFD, buf, amount, flags);
 	}
 
+	//TODO: proper solution; this is a HACK
 	int err = errno == EINPROGRESS ? EWOULDBLOCK : errno; 
 	if (rc < 0)
 		_MD_unix_map_send_error(err);
