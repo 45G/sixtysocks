@@ -16,7 +16,6 @@ class ProxyUpstreamer: public StreamReactor
 
 	enum State
 	{
-		S_HANDSHAKE,
 		S_READING_REQ,
 		S_READING_TFO_PAYLOAD,
 		S_AWAITING_AUTH,
@@ -26,7 +25,7 @@ class ProxyUpstreamer: public StreamReactor
 
 	boost::intrusive_ptr<Proxy> proxy;
 	
-	std::atomic<State> state { S_HANDSHAKE };
+	std::atomic<State> state { S_READING_REQ };
 	std::atomic<bool> authenticated { false };
 	size_t tfoPayload;
 	

@@ -146,26 +146,7 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 		attemptSendTo = true;
 	}
 
-	if (!connectCalled && useEarlyData && buf->usedSize() > 0)
-	{
-		connectCalled = true;
-
-		PRInt32 earlyDataWritten = PR_Write(descriptor.get(), buf->getHead(), buf->usedSize());
-		if (earlyDataWritten < 0)
-		{
-			tlsHandleErr(writeFD);
-			earlyDataWritten = 0;
-		}
-
-		buf->unuse(earlyDataWritten);
-	}
-}
-
-void TLS::tlsAccept(StreamBuffer *buf)
-{
-	(void)buf;
-	
-	/* nothing; first read will take care of rest */
+	tlsWrite(buf);
 }
 
 size_t TLS::tlsWrite(StreamBuffer *buf)

@@ -95,27 +95,13 @@ void ProxyUpstreamer::start()
 
 void ProxyUpstreamer::process(int fd, uint32_t events)
 {
-	bool fellThrough = false;
-	
 	switch ((State)state)
 	{
-	case S_HANDSHAKE:
-	{
-		srcSock.serverHandshake(&buf);
-		
-		state = S_READING_REQ;
-		fellThrough = true;
-		[[fallthrough]];
-	}
-		
 	case S_READING_REQ:
 	{
-		if (!fellThrough || buf.usedSize() == 0)
-		{
-			ssize_t bytes = srcSock.sockRecv(&buf);
-			if (bytes == 0)
-				return;
-		}
+		ssize_t bytes = srcSock.sockRecv(&buf);
+		if (bytes == 0)
+			return;
 
 		S6M::ByteBuffer bb(buf.getHead(), buf.usedSize());
 		try

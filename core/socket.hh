@@ -101,14 +101,6 @@ struct Socket
 		tls->tlsConnect(nullptr, nullptr, false);
 	}
 	
-	void serverHandshake(StreamBuffer *buf)
-	{
-		if (tls == nullptr)
-			return;
-		
-		tls->tlsAccept(buf);
-	}
-	
 	bool benefitsFromIdempotence()
 	{
 		return tls != nullptr;

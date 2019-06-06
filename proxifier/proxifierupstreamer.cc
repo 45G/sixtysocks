@@ -33,15 +33,6 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSC
 
 void ProxifierUpstreamer::start()
 {
-	try
-	{
-		srcSock.serverHandshake(&buf);
-	}
-	catch (std::exception &)
-	{
-		throw runtime_error("Unexpected exception in null handshake");
-	}
-	
 	/* read initial data opportunistically */
 	try
 	{

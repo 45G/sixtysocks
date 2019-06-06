@@ -59,8 +59,6 @@ public:
 	
 	void tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData);
 	
-	void tlsAccept(StreamBuffer *buf);
-	
 	size_t tlsWrite(StreamBuffer *buf);
 	
 	size_t tlsRead(StreamBuffer *buf);
