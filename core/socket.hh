@@ -95,6 +95,10 @@ struct Socket
 	
 	int getConnectError()
 	{
+		/* not our problem */
+		if (tls != nullptr)
+			return 0;
+		
 		int err;
 		socklen_t errLen = sizeof(err);
 		int rc = getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &errLen);

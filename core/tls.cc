@@ -136,15 +136,11 @@ void TLS::setWriteFD(int fd)
 
 void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData)
 {
-	useEarlyData = useEarlyData && addr != nullptr && buf != nullptr;
 	if (!useEarlyData)
 		SSL_OptionSet(descriptor.get(), SSL_ENABLE_0RTT_DATA, PR_FALSE);
 
-	if (addr)
-	{
-		this->addr = *addr;
-		attemptSendTo = true;
-	}
+	this->addr = *addr;
+	attemptSendTo = true;
 
 	tlsWrite(buf);
 }
