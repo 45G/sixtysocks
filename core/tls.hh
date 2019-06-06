@@ -21,6 +21,7 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	static PRStatus PR_CALLBACK dConnectContinue(PRFileDesc *fd, PRInt16 outFlags);
 	static PRStatus PR_CALLBACK dGetName        (PRFileDesc *fd, PRNetAddr *addr);
 	static PRStatus PR_CALLBACK dGetPeerName    (PRFileDesc *fd, PRNetAddr *addr);
+	static PRStatus PR_CALLBACK dGetSocketOption(PRFileDesc *fd, PRSocketOptionData *data);
 
 	enum BlockDirection
 	{

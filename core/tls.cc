@@ -75,7 +75,7 @@ TLS::TLS(TLSContext *ctx, int fd)
 		.getpeername     = dGetPeerName,
 		.reserved_fn_6   = (PRReservedFN)_PR_InvalidInt,
 		.reserved_fn_5   = (PRReservedFN)_PR_InvalidInt,
-		.getsocketoption = (PRGetsocketoptionFN)_PR_InvalidInt, //_PR_SocketGetSocketOption,
+		.getsocketoption = dGetSocketOption, //_PR_SocketGetSocketOption,
 		.setsocketoption = (PRSetsocketoptionFN)_PR_InvalidInt, //_PR_SocketSetSocketOption,
 		.sendfile        = (PRSendfileFN)_PR_InvalidInt, //SocketSendFile,
 		.connectcontinue = dConnectContinue,
@@ -298,4 +298,16 @@ PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 		addr->raw.family = PR_AF_INET6;
 
 	return PR_SUCCESS;
+}
+
+PRStatus PR_CALLBACK TLS::dGetSocketOption(PRFileDesc *fd, PRSocketOptionData *data)
+{
+	if (PR_SockOpt_Nonblocking == data->option)
+	{
+		data->value.non_blocking = PR_TRUE;
+		return PR_SUCCESS;
+	}
+	
+	//TODO: the rest
+	return PR_FAILURE;
 }
