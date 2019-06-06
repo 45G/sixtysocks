@@ -14,3 +14,5 @@ certutil -N -d /home/vlad/Work/nssdb/db/
 certutil -A -a -n socks -i socks.crt -t "cCu,," -d /home/vlad/Work/nssdb/db/
 
 openssl pkcs12 -export -out socks.pfx -inkey socks.key -in socks.crt -certfile socks.crt
+
+pk12util -i socks.pfx -d /home/vlad/Work/nssdb/db/
