@@ -107,6 +107,14 @@ TLS::TLS(TLSContext *ctx, int fd)
 		if (rc != SECSuccess)
 			throw TLSException();
 	}
+	
+	/* set SNI */
+	if (ctx->isClient())
+	{
+		SECStatus rc = SSL_SetURL(descriptor.get(), ctx->getSNI()->c_str());
+		if (rc != SECSuccess)
+			throw TLSException();
+	}
 
 	//static const int CERT_VERIFY_DEPTH = 3; //TODO: do something with this?
 	SECStatus rc = SSL_ResetHandshake(descriptor.get(), ctx->isServer());
