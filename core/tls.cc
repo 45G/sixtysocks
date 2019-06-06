@@ -231,29 +231,6 @@ PRInt32 PR_CALLBACK TLS::dWrite(PRFileDesc *fd, const void *buf, PRInt32 amount)
 	return dSend(fd, buf, amount, MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
 }
 
-PRStatus PR_CALLBACK TLS::dConnect(PRFileDesc *fd, const PRNetAddr *addr, PRIntervalTime timeout)
-{
-	(void)timeout;
-
-	TLS *tls = reinterpret_cast<TLS *>(fd->secret);
-
-	if (tls->attemptSendTo)
-		return PR_SUCCESS;
-
-	S6U::SocketAddress sockAddr;
-	memcpy(&sockAddr.storage, addr, sizeof(PRNetAddr));
-	if (addr->raw.family == PR_AF_INET6)
-		sockAddr.ipv6.sin6_family = AF_INET6;
-
-	int rc = connect(tls->writeFD, &sockAddr.sockAddress, sockAddr.size());
-	if (rc < 0)
-		return PR_FAILURE;
-	
-	TLS::blockDirection = BD_IN;
-
-	return PR_SUCCESS;
-}
-
 PRStatus PR_CALLBACK TLS::dConnectContinue(PRFileDesc *fd, PRInt16 outFlags)
 {
 	(void)outFlags;
