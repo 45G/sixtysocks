@@ -93,14 +93,6 @@ struct Socket
 		}
 	}
 	
-	void clientHandshake()
-	{
-		if (tls == nullptr)
-			return;
-		
-		tls->tlsConnect(nullptr, nullptr, false);
-	}
-	
 	bool benefitsFromIdempotence()
 	{
 		return tls != nullptr;

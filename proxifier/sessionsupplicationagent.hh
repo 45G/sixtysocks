@@ -11,7 +11,6 @@ class SessionSupplicationAgent: public StickReactor
 	enum State
 	{
 		S_CONNECTING,
-		S_HANDSHAKING,
 		S_SENDING_REQ,
 		S_RECEIVING_AUTH_REP,
 	};

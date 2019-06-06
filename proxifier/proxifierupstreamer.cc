@@ -87,13 +87,6 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 	{
 	case S_CONNECTING:
 	{
-		state = S_HANDSHAKING;
-		[[fallthrough]];
-	}
-	case S_HANDSHAKING:
-	{
-		dstSock.clientHandshake();
-
 		poller->assign(new ProxifierDownstreamer(this));
 
 		state = S_STREAM;

@@ -67,8 +67,6 @@ void ProxyUpstreamer::honorConnect()
 		throw SimpleReplyException(S6U::Socket::connectErrnoToReplyCode(err.code().value()));
 	}
 
-	dstSock.clientHandshake();
-
 	poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
 	state = S_CONNECTING;
 }

@@ -51,12 +51,6 @@ void SessionSupplicationAgent::process(int fd, uint32_t events)
 		if (err != 0)
 			throw system_error(err, system_category());
 		
-		state = S_HANDSHAKING;
-		[[fallthrough]];
-	}
-	case S_HANDSHAKING:
-	{
-		sock.clientHandshake();
 		state = S_SENDING_REQ;
 		[[fallthrough]];
 	}
