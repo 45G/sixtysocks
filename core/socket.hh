@@ -93,6 +93,16 @@ struct Socket
 		}
 	}
 	
+	int getConnectError()
+	{
+		int err;
+		socklen_t errLen = sizeof(err);
+		int rc = getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &errLen);
+		if (rc < 0)
+			throw std::system_error(errno, std::system_category());
+		return err;
+	}
+	
 	bool benefitsFromIdempotence()
 	{
 		return tls != nullptr;

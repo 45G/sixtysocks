@@ -169,13 +169,14 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	{
 		SOCKS6OperationReplyCode code;
 
-		int err;
-		socklen_t errLen = sizeof(err);
-		int rc = getsockopt(dstSock.fd, SOL_SOCKET, SO_ERROR, &err, &errLen);
-		if (rc < 0)
+		try
+		{
+			code = S6U::Socket::connectErrnoToReplyCode(dstSock.getConnectError());
+		}
+		catch (system_error &)
+		{
 			code = SOCKS6_OPERATION_REPLY_FAILURE;
-		else
-			code = S6U::Socket::connectErrnoToReplyCode(err);
+		}
 
 		if (code != SOCKS6_OPERATION_REPLY_SUCCESS)
 		{
@@ -187,7 +188,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 
 		S6U::SocketAddress bindAddr;
 		socklen_t addrLen = sizeof(bindAddr.storage);
-		rc = getsockname(dstSock.fd, &bindAddr.sockAddress, &addrLen);
+		int rc = getsockname(dstSock.fd, &bindAddr.sockAddress, &addrLen);
 		if (rc < 0)
 			throw system_error(errno, system_category());
 
