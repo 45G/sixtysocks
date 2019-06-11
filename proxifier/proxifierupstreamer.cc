@@ -87,6 +87,30 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 	{
 	case S_CONNECTING:
 	{
+		int err;
+		socklen_t errLen = sizeof(err);
+
+		int rc = getsockopt(dstSock.fd, SOL_SOCKET, SO_ERROR, &err, &errLen);
+		if (rc < 0)
+			throw system_error(errno, system_category());
+		if (err != 0)
+			throw system_error(err, system_category());
+		
+		state = S_SENDING_REQ;
+		[[fallthrough]];
+	}
+	case S_SENDING_REQ:
+	{
+		ssize_t bytes = dstSock.sockSend(&buf);
+		if (bytes == 0)
+			return;
+		
+		if (buf.usedSize() > 0)
+		{
+			poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
+			break;
+		}
+		
 		poller->assign(new ProxifierDownstreamer(this));
 
 		state = S_STREAM;
