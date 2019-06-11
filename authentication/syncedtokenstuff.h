@@ -24,11 +24,10 @@ public:
 		TokenBank::renew();
 	}
 	
-	void getWindow(uint32_t *base, uint32_t *size)
+	std::pair<uint32_t, uint32_t> getWindow()
 	{
 		tbb::spin_mutex::scoped_lock lock(spinlock);
-		*base = getBase();
-		*size = getSize();
+		return { getBase(), getSize() };
 	}
 };
 

@@ -85,11 +85,8 @@ void AuthServer::check()
 		SyncedTokenBank *bank = session->getTokenBank();
 		if (bank != nullptr)
 		{
-			uint32_t base;
-			uint32_t size;
-
-			bank->getWindow(&base, &size);
-			reply.options.idempotence.advertise(base, size);
+			auto window = bank->getWindow();
+			reply.options.idempotence.advertise(window.first, window.second);
 		}
 	}
 
@@ -142,7 +139,7 @@ void AuthServer::process(int fd, uint32_t events)
 
 void AuthServer::start()
 {
-	sendReply();
+	process(-1, 0);
 }
 
 void AuthServer::deactivate()
