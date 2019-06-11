@@ -14,7 +14,7 @@ void ProxyUpstreamer::honorRequest()
 {
 	try
 	{
-		switch (request->getCommandCode())
+		switch (request->getCode())
 		{
 		case SOCKS6_REQUEST_CONNECT:
 		{

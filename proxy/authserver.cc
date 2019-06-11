@@ -93,7 +93,7 @@ void AuthServer::check()
 		}
 	}
 
-	reply.setReplyCode(SOCKS6_AUTH_REPLY_SUCCESS);
+	reply.setCode(SOCKS6_AUTH_REPLY_SUCCESS);
 }
 
 AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
@@ -116,7 +116,7 @@ void AuthServer::sendReply()
 	{
 		poller->add(this, sock.fd, Poller::OUT_EVENTS);
 	}
-	else if (reply.getReplyCode() == SOCKS6_AUTH_REPLY_SUCCESS)
+	else if (reply.getCode() == SOCKS6_AUTH_REPLY_SUCCESS)
 	{
 		try
 		{

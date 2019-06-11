@@ -42,7 +42,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 				session->updateWallet(authRep.options.idempotence.advertisedBase(), authRep.options.idempotence.advertisedSize());
 			}
 
-			if (authRep.getReplyCode() != SOCKS6_AUTH_REPLY_SUCCESS)
+			if (authRep.getCode() != SOCKS6_AUTH_REPLY_SUCCESS)
 			{
 				deactivate();
 				return;
