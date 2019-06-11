@@ -30,7 +30,7 @@ class ProxyUpstreamer: public StreamReactor
 	size_t tfoPayload;
 	
 	std::shared_ptr<S6M::Request> request;
-	S6M::OptionSet replyOptions { S6M::OptionSet::M_OP_REP };
+	S6M::OperationReply reply { SOCKS6_OPERATION_REPLY_FAILURE };
 
 	boost::intrusive_ptr<ConnectProxyDownstreamer> downstreamer;
 	

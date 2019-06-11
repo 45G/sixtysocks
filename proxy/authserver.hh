@@ -18,8 +18,7 @@ class AuthServer: public StickReactor
 
 	State state = S_WRITING;
 
-	SOCKS6AuthReplyCode code = SOCKS6_AUTH_REPLY_FAILURE;
-	S6M::OptionSet options { S6M::OptionSet::M_AUTH_REP };
+	S6M::AuthenticationReply reply { SOCKS6_AUTH_REPLY_FAILURE };
 	
 	void sendReply();
 

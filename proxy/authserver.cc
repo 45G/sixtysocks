@@ -20,7 +20,7 @@ void AuthServer::check()
 	{
 		if (rawID->size() != sizeof(uint64_t))
 		{
-			options.session.signalReject();
+			reply.options.session.signalReject();
 			return;
 		}
 
@@ -30,7 +30,7 @@ void AuthServer::check()
 		auto session = upstreamer->getProxy()->getSession(id);
 		if (session.get() == nullptr)
 		{
-			options.session.signalReject();
+			reply.options.session.signalReject();
 			return;
 		}
 	}
@@ -40,7 +40,7 @@ void AuthServer::check()
 	if (checker != nullptr && session.get() == nullptr)
 	{
 		bool success = checker->check(req->options.userPassword.getUsername(), req->options.userPassword.getPassword());
-		options.userPassword.setReply(success);
+		reply.options.userPassword.setReply(success);
 		if (!success)
 			return;
 	}
@@ -55,7 +55,7 @@ void AuthServer::check()
 		rawID.resize(sizeof(uint64_t));
 		memcpy(rawID.data(), &id, sizeof(uint64_t));
 
-		options.session.setID(rawID);
+		reply.options.session.setID(rawID);
 	}
 
 	/* idempotence stuff */
@@ -68,12 +68,12 @@ void AuthServer::check()
 			/* got bank? */
 			if (session->getTokenBank() == nullptr)
 			{
-				options.idempotence.setReply(false);
+				reply.options.idempotence.setReply(false);
 				return;
 			}
 
 			bool success = session->getTokenBank()->withdraw(token.get());
-			options.idempotence.setReply(success);
+			reply.options.idempotence.setReply(success);
 			if (!success)
 				return;
 		}
@@ -89,11 +89,11 @@ void AuthServer::check()
 			uint32_t size;
 
 			bank->getWindow(&base, &size);
-			options.idempotence.advertise(base, size);
+			reply.options.idempotence.advertise(base, size);
 		}
 	}
 
-	code = SOCKS6_AUTH_REPLY_SUCCESS;
+	reply.setReplyCode(SOCKS6_AUTH_REPLY_SUCCESS);
 }
 
 AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
@@ -103,10 +103,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	
 	check();
 	
-	S6M::AuthenticationReply rep(code);
-	rep.options = move(options);
-	
-	buf.use(rep.pack(buf.getTail(), buf.availSize()));
+	buf.use(reply.pack(buf.getTail(), buf.availSize()));
 }
 
 void AuthServer::sendReply()
@@ -119,7 +116,7 @@ void AuthServer::sendReply()
 	{
 		poller->add(this, sock.fd, Poller::OUT_EVENTS);
 	}
-	else if (code == SOCKS6_AUTH_REPLY_SUCCESS)
+	else if (reply.getReplyCode() == SOCKS6_AUTH_REPLY_SUCCESS)
 	{
 		try
 		{

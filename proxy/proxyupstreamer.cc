@@ -33,14 +33,12 @@ void ProxyUpstreamer::honorRequest()
 	}
 	catch (SimpleReplyException &ex)
 	{
-		S6M::OperationReply reply(ex.getCode(), S6M::Address(S6U::Socket::QUAD_ZERO), 0);
-		reply.options = std::move(replyOptions);
+		reply.setCode(ex.getCode());
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
 	catch (std::exception &)
 	{
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_FAILURE, S6M::Address(S6U::Socket::QUAD_ZERO), 0);
-		reply.options = std::move(replyOptions);
+		reply.setCode(SOCKS6_OPERATION_REPLY_FAILURE);
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
 }
@@ -167,21 +165,17 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_CONNECTING:
 	{
-		SOCKS6OperationReplyCode code;
-
 		try
 		{
-			code = S6U::Socket::connectErrnoToReplyCode(dstSock.getConnectError());
+			reply.setCode(S6U::Socket::connectErrnoToReplyCode(dstSock.getConnectError()));
 		}
 		catch (system_error &)
 		{
-			code = SOCKS6_OPERATION_REPLY_FAILURE;
+			reply.setCode(SOCKS6_OPERATION_REPLY_FAILURE);
 		}
 
-		if (code != SOCKS6_OPERATION_REPLY_SUCCESS)
+		if (reply.getCode() != SOCKS6_OPERATION_REPLY_SUCCESS)
 		{
-			S6M::OperationReply reply(code, S6M::Address(S6U::Socket::QUAD_ZERO), 0);
-			reply.options = std::move(replyOptions);
 			poller->assign(new SimpleProxyDownstreamer(this, &reply));
 			return;
 		}
@@ -193,10 +187,11 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			throw system_error(errno, system_category());
 
 		if (S6U::Socket::hasMPTCP(dstSock.fd) > 0)
-			replyOptions.stack.mp.set(SOCKS6_STACK_LEG_PROXY_REMOTE, SOCKS6_MP_AVAILABLE);
+			reply.options.stack.mp.set(SOCKS6_STACK_LEG_PROXY_REMOTE, SOCKS6_MP_AVAILABLE);
 
-		S6M::OperationReply reply(SOCKS6_OPERATION_REPLY_SUCCESS, bindAddr.getAddress(), bindAddr.getPort());
-		reply.options = std::move(replyOptions);
+		reply.setCode(SOCKS6_OPERATION_REPLY_SUCCESS);
+		reply.setAddress(bindAddr.getAddress());
+		reply.setPort(bindAddr.getPort());
 		poller->assign(new ConnectProxyDownstreamer(this, &reply));
 
 		state = S_STREAM;
