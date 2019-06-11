@@ -41,13 +41,9 @@ public:
 	
 	boost::optional<uint32_t> getToken()
 	{
-		uint32_t ret;
 		if (!wallet)
 			return {};
-		if (!wallet->extract(&ret))
-			return {};
-		
-		return ret;
+		return wallet->extract();
 	}
 };
 

@@ -41,10 +41,10 @@ public:
 	SyncedTokenWallet(uint32_t base, uint32_t size)
 		: TokenWallet(base, size) {}
 	
-	bool extract(uint32_t *token)
+	boost::optional<uint32_t> extract()
 	{
 		tbb::spin_mutex::scoped_lock lock(spinlock);
-		return S6U::TokenWallet::extract(token);
+		return S6U::TokenWallet::extract();
 	}
 	
 	void updateWindow(uint32_t newBase, uint32_t newSize)
