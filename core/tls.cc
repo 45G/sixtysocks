@@ -78,7 +78,7 @@ TLS::TLS(TLSContext *ctx, int fd)
 		.getsocketoption = dGetSocketOption, //_PR_SocketGetSocketOption,
 		.setsocketoption = (PRSetsocketoptionFN)_PR_InvalidInt, //_PR_SocketSetSocketOption,
 		.sendfile        = (PRSendfileFN)_PR_InvalidInt, //SocketSendFile,
-		.connectcontinue = dConnectContinue,
+		.connectcontinue = (PRConnectcontinueFN)_PR_InvalidStatus, //TODO
 		.reserved_fn_3   = (PRReservedFN)_PR_InvalidInt,
 		.reserved_fn_2   = (PRReservedFN)_PR_InvalidInt,
 		.reserved_fn_1   = (PRReservedFN)_PR_InvalidInt,
@@ -239,31 +239,6 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 PRInt32 PR_CALLBACK TLS::dWrite(PRFileDesc *fd, const void *buf, PRInt32 amount)
 {
 	return dSend(fd, buf, amount, MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
-}
-
-PRStatus PR_CALLBACK TLS::dConnectContinue(PRFileDesc *fd, PRInt16 outFlags)
-{
-	(void)outFlags;
-
-	TLS *tls = reinterpret_cast<TLS *>(fd->secret);
-
-	int err;
-	socklen_t optlen = sizeof(err);
-	int rc = getsockopt(tls->readFD, SOL_SOCKET, SO_ERROR, &err, &optlen);
-	if (rc < 0)
-	{
-		_MD_unix_map_connect_error(errno);
-		return PR_FAILURE;
-	}
-	else if (err != 0)
-	{
-		_MD_unix_map_connect_error(err);
-		return PR_FAILURE;
-	}
-	
-	TLS::blockDirection = BD_IN;
-	
-	return PR_SUCCESS;
 }
 
 PRStatus PR_CALLBACK TLS::dGetName(PRFileDesc *fd, PRNetAddr *addr)
