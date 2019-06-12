@@ -27,7 +27,7 @@ void AuthServer::check()
 		uint64_t id;
 		memcpy(&id, rawID->data(), sizeof(uint64_t));
 
-		auto session = upstreamer->getProxy()->getSession(id);
+		session = upstreamer->getProxy()->getSession(id);
 		if (session.get() == nullptr)
 		{
 			reply.options.session.signalReject();
