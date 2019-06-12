@@ -7,7 +7,7 @@ SOCKS 6 proxy and proxifier (under heavy development)
 * Anything else other than CONNECT functionality
 * Expiration timers for idle connections, sessions etc.
 
-##Quick start guide
+## Quick start guide
 
 This section is meant to help you quickly setup a transparent SOCKSv6 proxifier and a proxy.
 
