@@ -18,12 +18,6 @@ public:
 		return TokenBank::withdraw(token);
 	}
 	
-	void renew()
-	{
-		tbb::spin_mutex::scoped_lock lock(spinlock);
-		TokenBank::renew();
-	}
-	
 	std::pair<uint32_t, uint32_t> getWindow()
 	{
 		tbb::spin_mutex::scoped_lock lock(spinlock);
@@ -57,12 +51,6 @@ public:
 	{
 		tbb::spin_mutex::scoped_lock lock(spinlock);
 		return S6U::TokenWallet::updateWindow(optionSet);
-	}
-	
-	uint32_t remaining() const
-	{
-		tbb::spin_mutex::scoped_lock lock(spinlock);
-		return S6U::TokenWallet::remaining();
 	}
 };
 
