@@ -49,5 +49,6 @@ TLSLibrary::TLSLibrary(const string &configDir)
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FDX,             PR_TRUE));
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_SESSION_TICKETS, PR_TRUE));
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FALSE_START,     PR_TRUE));
-	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA,       PR_TRUE));
+	//TODO: enable once I figure out why it messes everything up
+	//tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA,       PR_TRUE));
 }
