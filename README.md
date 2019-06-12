@@ -1,12 +1,6 @@
 # Sixtysocks
 SOCKS 6 proxy and proxifier (under heavy development)
 
-## Stuff that is notably missing
-
-* Hostname resolution
-* Anything else other than CONNECT functionality
-* Expiration timers for idle connections, sessions etc.
-
 ## Quick start guide
 
 This section is meant to help you quickly setup a transparent SOCKSv6 proxifier and a proxy.
@@ -70,3 +64,10 @@ Optionally, you can also require authentication by supplying both the proxifier 
 Just append the following arguments:
 
 -U username -P password
+
+
+## Stuff that is notably missing
+
+* Hostname resolution
+* Anything else other than CONNECT functionality
+* Expiration timers for idle connections, sessions etc.
