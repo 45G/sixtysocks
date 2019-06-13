@@ -65,8 +65,9 @@ TLS::TLS(TLSContext *ctx, int fd)
 	PRFileDesc *higherDesc = SSL_ImportFD(nullptr, lowerDesc);
 	if (!higherDesc)
 	{
+		PRErrorCode err = PR_GetError();
 		PR_Close(lowerDesc); //might return error
-		throw TLSException();
+		throw TLSException(err);
 	}
 
 	descriptor.reset(higherDesc);
