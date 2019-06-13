@@ -13,29 +13,6 @@ extern "C"
 
 using namespace std;
 
-enum BlockDirection
-{
-	BD_IN,
-	BD_OUT,
-};
-
-static thread_local BlockDirection blockDirection;
-
-static void tlsHandleErr(int fd)
-{
-	PRErrorCode err = PR_GetError();
-	if (err == PR_WOULD_BLOCK_ERROR || err == PR_IN_PROGRESS_ERROR)
-	{
-		if (blockDirection == BD_IN)
-			throw RescheduleException(fd, Poller::IN_EVENTS);
-		else /* BD_OUT */
-			throw RescheduleException(fd, Poller::OUT_EVENTS);
-	}
-	if (err == PR_END_OF_FILE_ERROR)
-		return;
-	throw TLSException(err);
-}
-
 static SECStatus canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalseStart)
 {
 	(void)fd; (void)arg;
@@ -99,18 +76,37 @@ TLS::TLS(TLSContext *ctx, int fd)
 		throw TLSException();
 }
 
-
-
 void TLS::setReadFD(int fd)
 {
 	this->readFD = fd;
-	//TODO: something else?
 }
 
 void TLS::setWriteFD(int fd)
 {
 	this->writeFD = fd;
-	//TODO: something else?
+}
+
+enum BlockDirection
+{
+	BD_IN,
+	BD_OUT,
+};
+
+static thread_local BlockDirection blockDirection;
+
+static void tlsHandleErr(int fd)
+{
+	PRErrorCode err = PR_GetError();
+	if (err == PR_WOULD_BLOCK_ERROR || err == PR_IN_PROGRESS_ERROR)
+	{
+		if (blockDirection == BD_IN)
+			throw RescheduleException(fd, Poller::IN_EVENTS);
+		else /* BD_OUT */
+			throw RescheduleException(fd, Poller::OUT_EVENTS);
+	}
+	if (err == PR_END_OF_FILE_ERROR)
+		return;
+	throw TLSException(err);
 }
 
 void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData)
