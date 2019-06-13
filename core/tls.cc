@@ -79,20 +79,21 @@ TLS::TLS(TLSContext *ctx, int fd)
 			throw TLSException();
 	}
 	
-	/* set SNI */
 	if (ctx->isClient())
 	{
+		/* set SNI */
 		SECStatus rc = SSL_SetURL(descriptor.get(), ctx->getSNI()->c_str());
+		if (rc != SECSuccess)
+			throw TLSException();
+		
+		/* false start */
+		rc = SSL_SetCanFalseStartCallback(descriptor.get(), canFalseStartCallback, nullptr);
 		if (rc != SECSuccess)
 			throw TLSException();
 	}
 
 	//static const int CERT_VERIFY_DEPTH = 3; //TODO: do something with this?
 	SECStatus rc = SSL_ResetHandshake(descriptor.get(), ctx->isServer());
-	if (rc != SECSuccess)
-		throw TLSException();
-
-	rc = SSL_SetCanFalseStartCallback(descriptor.get(), canFalseStartCallback, nullptr);
 	if (rc != SECSuccess)
 		throw TLSException();
 }
