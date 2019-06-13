@@ -13,9 +13,15 @@ extern "C"
 
 using namespace std;
 
-thread_local TLS::BlockDirection TLS::blockDirection;
+enum BlockDirection
+{
+	BD_IN,
+	BD_OUT,
+};
 
-void TLS::tlsHandleErr(int fd)
+static thread_local BlockDirection blockDirection;
+
+static void tlsHandleErr(int fd)
 {
 	PRErrorCode err = PR_GetError();
 	if (err == PR_WOULD_BLOCK_ERROR || err == PR_IN_PROGRESS_ERROR)
@@ -197,7 +203,7 @@ PRInt32 PR_CALLBACK TLS::dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn
 	if (rc < 0)
 		_MD_unix_map_recv_error(errno);
 	
-	TLS::blockDirection = BD_IN;
+	blockDirection = BD_IN;
 
 	return rc;
 }
@@ -231,7 +237,7 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 	if (rc < 0)
 		_MD_unix_map_send_error(err);
 	
-	TLS::blockDirection = BD_OUT;
+	blockDirection = BD_OUT;
 
 	return rc;
 }
