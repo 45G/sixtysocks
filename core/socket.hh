@@ -131,6 +131,14 @@ struct Socket
 		if (tls != nullptr)
 			tls->setWriteFD(fd);
 	}
+	
+	void keepAlive()
+	{
+		static const int ONE = 1;
+		int rc = setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &ONE, sizeof(ONE));
+		if (rc < 0)
+			throw std::system_error(errno, std::system_category());
+	}
 };
 
 typedef Socket<UniqFD> RWSocket;

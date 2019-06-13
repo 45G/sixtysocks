@@ -79,6 +79,7 @@ ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int *pSrcFD, TLSContext *serverCt
 {
 	srcSock.fd.assign(*pSrcFD);
 	*pSrcFD = -1;
+	srcSock.keepAlive();
 	
 	if (serverCtx != nullptr)
 		srcSock.tls = new TLS(serverCtx, srcSock.fd);
@@ -179,6 +180,8 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			poller->assign(new SimpleProxyDownstreamer(this, &reply));
 			return;
 		}
+		
+		dstSock.keepAlive();
 
 		S6U::SocketAddress bindAddr;
 		socklen_t addrLen = sizeof(bindAddr.storage);

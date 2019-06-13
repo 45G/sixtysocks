@@ -85,4 +85,4 @@ Just append the following arguments:
 
 * Hostname resolution
 * Anything else other than CONNECT functionality
-* Expiration timers for idle connections, sessions etc.
+* Expiration timers for sessions
