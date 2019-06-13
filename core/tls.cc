@@ -44,8 +44,10 @@ static SECStatus canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFal
 	return SECSuccess;
 }
 
-void TLS::descriptorDeleter(PRFileDesc *fd)
+static void PR_CALLBACK descriptorDeleter(PRFileDesc *fd)
 {
+	if (fd->higher != nullptr)
+		fd->higher->lower = nullptr;
 	delete fd;
 }
 
@@ -95,9 +97,7 @@ TLS::TLS(TLSContext *ctx, int fd)
 		throw TLSException();
 }
 
-TLS::~TLS()
-{
-}
+
 
 void TLS::setReadFD(int fd)
 {
