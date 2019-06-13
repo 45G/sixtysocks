@@ -32,9 +32,6 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 
 	std::unique_ptr<PRFileDesc, PRStatus (*)(PRFileDesc *)> descriptor { nullptr, PR_Close };
 
-	bool connectCalled = false;
-	bool handshakeFinished = false;
-
 public:
 	TLS(TLSContext *ctx, int fd);
 	
