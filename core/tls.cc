@@ -52,45 +52,6 @@ void TLS::descriptorDeleter(PRFileDesc *fd)
 TLS::TLS(TLSContext *ctx, int fd)
 	: readFD(fd), writeFD(fd)
 {
-	static const PRIOMethods METHODS = {
-		.file_type       = PR_DESC_SOCKET_TCP,
-		.close           = dClose,
-		.read            = dRead,
-		.write           = dWrite,
-		.available       = (PRAvailableFN)_PR_InvalidInt, //SocketAvailable,
-		.available64     = (PRAvailable64FN)_PR_InvalidInt64, //SocketAvailable64,
-		.fsync           = (PRFsyncFN)_PR_InvalidInt, //SocketSync,
-		.seek            = (PRSeekFN)_PR_InvalidInt,
-		.seek64          = (PRSeek64FN)_PR_InvalidInt64,
-		.fileInfo        = (PRFileInfoFN)_PR_InvalidStatus,
-		.fileInfo64      = (PRFileInfo64FN)_PR_InvalidStatus,
-		.writev          = (PRWritevFN)_PR_InvalidInt, //SocketWritev,
-		.connect         = (PRConnectFN)_PR_InvalidInt, //SocketConnect,
-		.accept          = (PRAcceptFN)_PR_InvalidDesc, //SocketAccept,
-		.bind            = (PRBindFN)_PR_InvalidInt, //SocketBind,
-		.listen          = (PRListenFN)_PR_InvalidInt, //SocketListen,
-		.shutdown        = (PRShutdownFN)_PR_InvalidInt, //SocketShutdown,
-		.recv            = dRecv,
-		.send            = dSend,
-		.recvfrom        = (PRRecvfromFN)_PR_InvalidInt,
-		.sendto          = (PRSendtoFN)_PR_InvalidInt,
-		.poll            = (PRPollFN)_PR_InvalidInt16, //SocketPoll,
-		.acceptread      = (PRAcceptreadFN)_PR_InvalidInt, //SocketAcceptRead,
-		.transmitfile    = (PRTransmitfileFN)_PR_InvalidInt, //SocketTransmitFile,
-		.getsockname     = dGetName,
-		.getpeername     = dGetPeerName,
-		.reserved_fn_6   = (PRReservedFN)_PR_InvalidInt,
-		.reserved_fn_5   = (PRReservedFN)_PR_InvalidInt,
-		.getsocketoption = dGetSocketOption, //_PR_SocketGetSocketOption,
-		.setsocketoption = (PRSetsocketoptionFN)_PR_InvalidInt, //_PR_SocketSetSocketOption,
-		.sendfile        = (PRSendfileFN)_PR_InvalidInt, //SocketSendFile,
-		.connectcontinue = (PRConnectcontinueFN)_PR_InvalidStatus, //TODO
-		.reserved_fn_3   = (PRReservedFN)_PR_InvalidInt,
-		.reserved_fn_2   = (PRReservedFN)_PR_InvalidInt,
-		.reserved_fn_1   = (PRReservedFN)_PR_InvalidInt,
-		.reserved_fn_0   = (PRReservedFN)_PR_InvalidInt
-	};
-
 	PRFileDesc *lowerDesc = new PRFileDesc();
 	lowerDesc->identity = PR_NSPR_IO_LAYER;
 	lowerDesc->methods = &METHODS;
@@ -184,6 +145,45 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 	buf->use(bytes);
 	return bytes;
 }
+
+const PRIOMethods TLS::METHODS = {
+	.file_type       = PR_DESC_SOCKET_TCP,
+	.close           = dClose,
+	.read            = dRead,
+	.write           = dWrite,
+	.available       = (PRAvailableFN)_PR_InvalidInt, //SocketAvailable,
+	.available64     = (PRAvailable64FN)_PR_InvalidInt64, //SocketAvailable64,
+	.fsync           = (PRFsyncFN)_PR_InvalidInt, //SocketSync,
+	.seek            = (PRSeekFN)_PR_InvalidInt,
+	.seek64          = (PRSeek64FN)_PR_InvalidInt64,
+	.fileInfo        = (PRFileInfoFN)_PR_InvalidStatus,
+	.fileInfo64      = (PRFileInfo64FN)_PR_InvalidStatus,
+	.writev          = (PRWritevFN)_PR_InvalidInt, //SocketWritev,
+	.connect         = (PRConnectFN)_PR_InvalidInt, //SocketConnect,
+	.accept          = (PRAcceptFN)_PR_InvalidDesc, //SocketAccept,
+	.bind            = (PRBindFN)_PR_InvalidInt, //SocketBind,
+	.listen          = (PRListenFN)_PR_InvalidInt, //SocketListen,
+	.shutdown        = (PRShutdownFN)_PR_InvalidInt, //SocketShutdown,
+	.recv            = dRecv,
+	.send            = dSend,
+	.recvfrom        = (PRRecvfromFN)_PR_InvalidInt,
+	.sendto          = (PRSendtoFN)_PR_InvalidInt,
+	.poll            = (PRPollFN)_PR_InvalidInt16, //SocketPoll,
+	.acceptread      = (PRAcceptreadFN)_PR_InvalidInt, //SocketAcceptRead,
+	.transmitfile    = (PRTransmitfileFN)_PR_InvalidInt, //SocketTransmitFile,
+	.getsockname     = dGetName,
+	.getpeername     = dGetPeerName,
+	.reserved_fn_6   = (PRReservedFN)_PR_InvalidInt,
+	.reserved_fn_5   = (PRReservedFN)_PR_InvalidInt,
+	.getsocketoption = dGetSocketOption, //_PR_SocketGetSocketOption,
+	.setsocketoption = (PRSetsocketoptionFN)_PR_InvalidInt, //_PR_SocketSetSocketOption,
+	.sendfile        = (PRSendfileFN)_PR_InvalidInt, //SocketSendFile,
+	.connectcontinue = (PRConnectcontinueFN)_PR_InvalidStatus, //TODO
+	.reserved_fn_3   = (PRReservedFN)_PR_InvalidInt,
+	.reserved_fn_2   = (PRReservedFN)_PR_InvalidInt,
+	.reserved_fn_1   = (PRReservedFN)_PR_InvalidInt,
+	.reserved_fn_0   = (PRReservedFN)_PR_InvalidInt
+};
 
 PRStatus PR_CALLBACK TLS::dClose(PRFileDesc *fd)
 {

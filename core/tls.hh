@@ -22,6 +22,8 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	static PRStatus PR_CALLBACK dGetPeerName    (PRFileDesc *fd, PRNetAddr *addr);
 	static PRStatus PR_CALLBACK dGetSocketOption(PRFileDesc *fd, PRSocketOptionData *data);
 	
+	static const PRIOMethods METHODS;
+	
 	int readFD;
 	int writeFD;
 
