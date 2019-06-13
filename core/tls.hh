@@ -35,8 +35,6 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	bool connectCalled = false;
 	bool handshakeFinished = false;
 
-	static SECStatus canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalseStart);
-
 	static void PR_CALLBACK descriptorDeleter(PRFileDesc *fd);
 
 public:

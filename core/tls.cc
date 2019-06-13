@@ -36,7 +36,7 @@ static void tlsHandleErr(int fd)
 	throw TLSException(err);
 }
 
-SECStatus TLS::canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalseStart)
+static SECStatus canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalseStart)
 {
 	(void)fd; (void)arg;
 
@@ -55,6 +55,8 @@ TLS::TLS(TLSContext *ctx, int fd)
 	PRFileDesc *lowerDesc = new PRFileDesc();
 	lowerDesc->identity = PR_NSPR_IO_LAYER;
 	lowerDesc->methods = &METHODS;
+	lowerDesc->lower = nullptr;
+	lowerDesc->higher = nullptr;
 	lowerDesc->secret = reinterpret_cast<PRFilePrivate *>(this);
 	lowerDesc->dtor = descriptorDeleter;
 
