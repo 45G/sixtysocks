@@ -18,6 +18,14 @@ public:
 	
 	explicit UniqFD(int fd)
 		: fd(fd) {}
+	
+	UniqFD(UniqFD &) = delete;
+	
+	UniqFD(UniqFD &&other)
+	{
+		this->fd = other.fd;
+		other.fd = -1;
+	}
 
 	void assign(int fd)
 	{
@@ -49,10 +57,7 @@ public:
 class UniqRecvFD: public UniqFD
 {
 public:
-	UniqRecvFD() {}
-
-	explicit UniqRecvFD(int fd)
-		: UniqFD(fd) {}
+	using UniqFD::UniqFD;
 
 	void reset()
 	{
@@ -74,10 +79,7 @@ public:
 class UniqSendFD: public UniqFD
 {
 public:
-	UniqSendFD() {}
-
-	explicit UniqSendFD(int fd)
-		: UniqFD(fd) {}
+	using UniqFD::UniqFD;
 
 	void reset()
 	{
