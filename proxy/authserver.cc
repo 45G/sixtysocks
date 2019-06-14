@@ -11,7 +11,7 @@ using namespace std;
 
 void AuthServer::check()
 {
-	std::shared_ptr<S6M::Request> req = upstreamer->getRequest();
+	shared_ptr<S6M::Request> req = upstreamer->getRequest();
 	shared_ptr<ServerSession> session;
 
 	/* existing session */
