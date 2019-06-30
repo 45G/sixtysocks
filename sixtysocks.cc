@@ -189,12 +189,12 @@ int main(int argc, char **argv)
 	{
 		if (useTLS)
 		{
-			tlsLibrary = new TLSLibrary(certDB);
+			tlsLibrary.reset(new TLSLibrary(certDB));
 
 			if (mode == M_PROXIFIER)
-				clientCtx = new TLSContext(false, "",   sni);
+				clientCtx.reset(new TLSContext(false, "",   sni));
 			else /* M_PROXY */
-				serverCtx = new TLSContext(true,  nick, "");
+				serverCtx.reset(new TLSContext(true,  nick, ""));
 		}
 
 		Poller poller(numThreads, cpuOffset);
