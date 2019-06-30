@@ -51,4 +51,8 @@ TLSLibrary::TLSLibrary(const string &configDir)
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FALSE_START,     PR_TRUE));
 	//TODO: enable once I figure out why it messes everything up
 	//tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA,       PR_TRUE));
+
+	static const int  SID_CACHE_ENTRIES = 1024;
+	static const char *SID_CACHE_DIR    = "/tmp/";
+	tlsCheck(SSL_ConfigServerSessionIDCache(SID_CACHE_ENTRIES, 0, 0, SID_CACHE_DIR));
 }
