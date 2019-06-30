@@ -72,7 +72,7 @@ NSPR_ROOT       = /usr/include/nspr4/
 INCLUDEPATH += $$NSS_ROOT
 INCLUDEPATH += $$NSPR_ROOT
 
-LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lboost_thread -lnspr4 -lnss3 -lssl3 -ltbb
+LIBS += -lsocks6msg -lsocks6util -lpthread -lboost_system -lboost_filesystem -lboost_thread -ltbb -lnspr4 -lnss3 -lssl3
 
 DISTFILES += \
     README.md
