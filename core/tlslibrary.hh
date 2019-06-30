@@ -2,9 +2,8 @@
 #define TLSLIBRARY_HH
 
 #include <string>
-#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
-class TLSLibrary: public boost::intrusive_ref_counter<TLSLibrary>
+class TLSLibrary
 {
 	struct NSPRLibrary
 	{
@@ -21,7 +20,7 @@ class TLSLibrary: public boost::intrusive_ref_counter<TLSLibrary>
 	};
 
 	NSPRLibrary nsprLibrary;
-	NSSLibrary nssLibrary;
+	NSSLibrary  nssLibrary;
 
 public:
 	TLSLibrary(const std::string &configDir);

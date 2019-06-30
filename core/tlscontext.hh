@@ -3,15 +3,13 @@
 
 #include <string>
 #include <stdexcept>
-#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/thread/tss.hpp>
-#include <boost/intrusive_ptr.hpp>
 #include <ssl.h>
 #include <keyhi.h>
 #include <pk11pub.h>
 #include "tlslibrary.hh"
 
-class TLSContext: public boost::intrusive_ref_counter<TLSContext>
+class TLSContext
 {
 	bool server;
 	

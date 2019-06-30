@@ -78,9 +78,9 @@ int main(int argc, char **argv)
 	string certDB;
 	string nick;
 	string sni;
-	boost::intrusive_ptr<TLSLibrary> tlsLibrary;
-	boost::intrusive_ptr<TLSContext> clientCtx;
-	boost::intrusive_ptr<TLSContext> serverCtx;
+	std::unique_ptr<TLSLibrary> tlsLibrary;
+	std::unique_ptr<TLSContext> clientCtx;
+	std::unique_ptr<TLSContext> serverCtx;
 	
 	srand(time(nullptr));
 
