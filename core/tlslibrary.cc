@@ -49,8 +49,10 @@ TLSLibrary::TLSLibrary(const string &configDir)
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FDX,             PR_TRUE));
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_SESSION_TICKETS, PR_TRUE));
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FALSE_START,     PR_TRUE));
+#ifdef SSL_SetupAntiReplay_NotMandatory
 	//TODO: enable once I figure out why it messes everything up
-	//tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA,       PR_TRUE));
+	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA,       PR_TRUE));
+#endif
 
 	static const int  SID_CACHE_ENTRIES = 1024;
 	static const char *SID_CACHE_DIR    = "/tmp/";
