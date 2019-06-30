@@ -81,7 +81,8 @@ int main(int argc, char **argv)
 	std::unique_ptr<TLSLibrary> tlsLibrary;
 	std::unique_ptr<TLSContext> clientCtx;
 	std::unique_ptr<TLSContext> serverCtx;
-	
+
+	//TODO: use stronger random (maybe /dev/urandom?)
 	srand(time(nullptr));
 
 	//TODO: fix this shit
