@@ -3,7 +3,7 @@
 
 #include <string>
 #include <stdexcept>
-#include <boost/thread/tss.hpp>
+#include <memory>
 #include <ssl.h>
 #include <keyhi.h>
 #include <pk11pub.h>
