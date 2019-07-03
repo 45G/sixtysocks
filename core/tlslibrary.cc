@@ -55,6 +55,5 @@ TLSLibrary::TLSLibrary(const string &configDir)
 #endif
 
 	static const int  SID_CACHE_ENTRIES = 1024;
-	static const char *SID_CACHE_DIR    = "/tmp/";
-	tlsCheck(SSL_ConfigServerSessionIDCache(SID_CACHE_ENTRIES, 0, 0, SID_CACHE_DIR));
+	tlsCheck(SSL_ConfigServerSessionIDCache(SID_CACHE_ENTRIES, 0, 0, nullptr));
 }
