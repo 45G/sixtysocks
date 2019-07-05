@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/tcp.h>
 #include <system_error>
 #include <boost/intrusive_ptr.hpp>
 #include "poller.hh"
@@ -58,6 +59,15 @@ struct Socket
 		int rc = connect(fd, &dest.sockAddress, dest.size());
 		if (rc < 0 && errno != EINPROGRESS)
 			throw std::system_error(errno, std::system_category());
+	}
+	
+	void tcpDeferredConnect(S6U::SocketAddress dest)
+	{
+		static const int ONE = 1;
+		int rc = setsockopt(fd, SOL_TCP, TCP_FASTOPEN_CONNECT, ONE, sizeof(ONE));
+		if (rc < 0)
+			throw std::system_error(errno, std::system_category());
+		tcpConnect();
 	}
 	
 	size_t sockRecv(StreamBuffer *buf)
