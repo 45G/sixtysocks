@@ -109,13 +109,10 @@ static void tlsHandleErr(int fd)
 	throw TLSException(err);
 }
 
-void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData)
+void TLS::tlsConnect(StreamBuffer *buf, bool useEarlyData)
 {
 	if (!useEarlyData)
 		SSL_OptionSet(descriptor.get(), SSL_ENABLE_0RTT_DATA, PR_FALSE);
-
-	this->addr = *addr;
-	attemptSendTo = true;
 
 	//tlsWrite(buf);
 }
@@ -259,15 +256,8 @@ PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 	int rc = getpeername(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
 	{
-		if (errno == ENOTCONN && tls->addr.isValid())
-		{
-			memcpy(addr, &tls->addr.storage, tls->addr.size());
-		}
-		else
-		{
-			_MD_unix_map_getpeername_error(errno);
-			return PR_FAILURE;
-		}
+		_MD_unix_map_getpeername_error(errno);
+		return PR_FAILURE;
 	}
 
 	if (addr->raw.family == AF_INET6)

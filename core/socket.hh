@@ -98,7 +98,7 @@ struct Socket
 			tcpDeferredConnect(addr);
 			try
 			{
-				tls->tlsConnect(&addr, buf, earlyDataIfTLS);
+				tls->tlsConnect(buf, earlyDataIfTLS);
 			}
 			catch (RescheduleException &) {}
 		}

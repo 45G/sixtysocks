@@ -27,9 +27,6 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	int readFD;
 	int writeFD;
 
-	S6U::SocketAddress addr;
-	bool attemptSendTo = false;
-
 	std::unique_ptr<PRFileDesc, PRStatus (*)(PRFileDesc *)> descriptor { nullptr, PR_Close };
 
 public:
@@ -39,7 +36,7 @@ public:
 	
 	void setWriteFD(int fd);
 	
-	void tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData);
+	void tlsConnect(StreamBuffer *buf, bool useEarlyData);
 	
 	size_t tlsWrite(StreamBuffer *buf);
 	
