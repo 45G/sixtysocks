@@ -101,14 +101,11 @@ void ProxifierUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_SENDING_REQ:
 	{
-		ssize_t bytes = dstSock.sockSend(&buf);
-		if (bytes == 0)
-			return;
-		
 		if (buf.usedSize() > 0)
 		{
-			poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
-			break;
+			ssize_t bytes = dstSock.sockSend(&buf);
+			if (bytes == 0)
+				return;
 		}
 		
 		poller->assign(new ProxifierDownstreamer(this));
