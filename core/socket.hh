@@ -64,7 +64,7 @@ struct Socket
 	void tcpDeferredConnect(S6U::SocketAddress dest)
 	{
 		static const int ONE = 1;
-		int rc = setsockopt(fd, SOL_TCP, TCP_FASTOPEN_CONNECT, ONE, sizeof(ONE));
+		int rc = setsockopt(fd, SOL_TCP, TCP_FASTOPEN_CONNECT, &ONE, sizeof(ONE));
 		if (rc < 0)
 			throw std::system_error(errno, std::system_category());
 		tcpConnect(dest);
