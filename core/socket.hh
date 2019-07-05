@@ -95,6 +95,7 @@ struct Socket
 		}
 		else
 		{
+			tcpDeferredConnect(addr);
 			try
 			{
 				tls->tlsConnect(&addr, buf, earlyDataIfTLS);

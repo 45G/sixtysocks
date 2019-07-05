@@ -117,7 +117,7 @@ void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyD
 	this->addr = *addr;
 	attemptSendTo = true;
 
-	tlsWrite(buf);
+	//tlsWrite(buf);
 }
 
 size_t TLS::tlsWrite(StreamBuffer *buf)
@@ -219,23 +219,9 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 
 	TLS *tls = reinterpret_cast<TLS *>(fd->secret);
 
-	int rc;
-
-	if (tls->attemptSendTo)
-	{
-		tls->attemptSendTo = false;
-		rc = sendto(tls->writeFD, buf, amount, flags | MSG_FASTOPEN, &tls->addr.sockAddress, tls->addr.size());
-
-	}
-	else
-	{
-		rc = send(tls->writeFD, buf, amount, flags);
-	}
-
-	//TODO: proper solution; this is a HACK
-	int err = errno == EINPROGRESS ? EWOULDBLOCK : errno;
+	int rc = send(tls->writeFD, buf, amount, flags);
 	if (rc < 0)
-		_MD_unix_map_send_error(err);
+		_MD_unix_map_send_error(errno);
 	
 	blockDirection = BD_OUT;
 
