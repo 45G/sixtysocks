@@ -67,7 +67,7 @@ struct Socket
 		int rc = setsockopt(fd, SOL_TCP, TCP_FASTOPEN_CONNECT, ONE, sizeof(ONE));
 		if (rc < 0)
 			throw std::system_error(errno, std::system_category());
-		tcpConnect();
+		tcpConnect(dest);
 	}
 	
 	size_t sockRecv(StreamBuffer *buf)
