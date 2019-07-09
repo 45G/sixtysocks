@@ -1,6 +1,23 @@
 # Sixtysocks
 SOCKS 6 proxy and proxifier (under heavy development)
 
+## Building Sixtysocks
+
+You will need the following packages:
+ * qt4-qmake
+ * Boost (libboost-dev(el), libboost_system-dev(el), liboost_filesystem-dev(el) liboost_thread-dev(el))
+ * Mozilla NSS (libnss-dev(el))
+ * Threading Building Blocks (libtbb-dev(el))
+ * libsocks6msg ([https://github.com/45G/libsocks6msg])
+ * libsocks6util ([https://github.com/45G/libsocks6util])
+
+Then run:
+
+```
+qmake
+make
+```
+
 ## Quick start guide
 
 This section is meant to help you quickly setup a transparent SOCKSv6 proxifier and a proxy.
