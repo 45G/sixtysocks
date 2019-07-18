@@ -69,6 +69,14 @@ struct Socket
 			throw std::system_error(errno, std::system_category());
 		tcpConnect(dest);
 	}
+
+	void clientHandshake(StreamBuffer *buf)
+	{
+		if (tls == nullptr)
+			return;
+
+		tls->clientHandshake(buf);
+	}
 	
 	size_t sockRecv(StreamBuffer *buf)
 	{
@@ -95,11 +103,9 @@ struct Socket
 		}
 		else
 		{
-			try
-			{
-				tls->tlsConnect(&addr, buf, earlyDataIfTLS);
-			}
-			catch (RescheduleException &) {}
+			tcpDeferredConnect(addr);
+			if (!earlyDataIfTLS)
+				tls->tlsDisableEarlyData();
 		}
 	}
 	

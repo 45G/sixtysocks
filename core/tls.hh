@@ -24,11 +24,18 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 	
 	static const PRIOMethods METHODS;
 	
+	enum HandshakeState
+	{
+		S_WANT_EARLY,
+		S_WANT_HANDSHAKE,
+		S_LAISEZ_FAIRE,
+	};
+
+	HandshakeState state { S_WANT_EARLY };
+	ssize_t earlyWritten = 0;
+
 	int readFD;
 	int writeFD;
-
-	S6U::SocketAddress addr;
-	bool attemptSendTo = false;
 
 	std::unique_ptr<PRFileDesc, PRStatus (*)(PRFileDesc *)> descriptor { nullptr, PR_Close };
 
@@ -39,7 +46,9 @@ public:
 	
 	void setWriteFD(int fd);
 	
-	void tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData);
+	void tlsDisableEarlyData();
+
+	void clientHandshake(StreamBuffer *buf);
 	
 	size_t tlsWrite(StreamBuffer *buf);
 	

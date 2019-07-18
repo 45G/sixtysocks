@@ -49,9 +49,10 @@ TLS::TLS(TLSContext *ctx, int fd)
 
 	descriptor.reset(higherDesc);
 	
-	/* set key + cert */
+
 	if (ctx->isServer())
 	{
+		/* set key + cert */
 		SECStatus rc = SSL_ConfigServerCert(descriptor.get(), ctx->getCert(), ctx->getKey(), nullptr, 0);
 		if (rc != SECSuccess)
 			throw TLSException();
@@ -109,15 +110,53 @@ static void tlsHandleErr(int fd)
 	throw TLSException(err);
 }
 
-void TLS::tlsConnect(S6U::SocketAddress *addr, StreamBuffer *buf, bool useEarlyData)
+void TLS::tlsDisableEarlyData()
 {
-	if (!useEarlyData)
-		SSL_OptionSet(descriptor.get(), SSL_ENABLE_0RTT_DATA, PR_FALSE);
+	SECStatus rc = SSL_OptionSet(descriptor.get(), SSL_ENABLE_0RTT_DATA, PR_FALSE);
+	if (rc < 0)
+		throw TLSException();
+	state = S_LAISEZ_FAIRE;
 
-	this->addr = *addr;
-	attemptSendTo = true;
+}
 
-	tlsWrite(buf);
+void TLS::clientHandshake(StreamBuffer *buf)
+{
+	switch (state)
+	{
+	case S_WANT_EARLY:
+	{
+		PRInt32 bytes = PR_Write(descriptor.get(), buf->getHead(), buf->usedSize());
+		if (bytes < 0)
+		{
+			tlsHandleErr(writeFD);
+			bytes = 0;
+		}
+		earlyWritten = bytes;
+		state = S_WANT_HANDSHAKE;
+		[[fallthrough]];
+	}
+
+	case S_WANT_HANDSHAKE:
+	{
+		SECStatus rc = SSL_ForceHandshake(descriptor.get());
+		if (rc < 0)
+			tlsHandleErr(writeFD);
+
+		SSLChannelInfo info;
+		rc = SSL_GetChannelInfo(descriptor.get(), &info, sizeof(info));
+		if (rc < 0)
+			tlsHandleErr(writeFD);
+
+		if (info.earlyDataAccepted)
+			buf->use(earlyWritten);
+
+		state = S_LAISEZ_FAIRE;
+		[[fallthrough]];
+	}
+
+	case S_LAISEZ_FAIRE:
+		return;
+	}
 }
 
 size_t TLS::tlsWrite(StreamBuffer *buf)
@@ -219,23 +258,9 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 
 	TLS *tls = reinterpret_cast<TLS *>(fd->secret);
 
-	int rc;
-
-	if (tls->attemptSendTo)
-	{
-		tls->attemptSendTo = false;
-		rc = sendto(tls->writeFD, buf, amount, flags | MSG_FASTOPEN, &tls->addr.sockAddress, tls->addr.size());
-
-	}
-	else
-	{
-		rc = send(tls->writeFD, buf, amount, flags);
-	}
-
-	//TODO: proper solution; this is a HACK
-	int err = errno == EINPROGRESS ? EWOULDBLOCK : errno;
+	ssize_t rc = send(tls->writeFD, buf, amount, flags);
 	if (rc < 0)
-		_MD_unix_map_send_error(err);
+		_MD_unix_map_send_error(errno);
 	
 	blockDirection = BD_OUT;
 
@@ -272,20 +297,7 @@ PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 	socklen_t addrLen = sizeof(PRNetAddr);
 	int rc = getpeername(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
-	{
-		if (errno == ENOTCONN && tls->addr.isValid())
-		{
-			memcpy(addr, &tls->addr.storage, tls->addr.size());
-		}
-		else
-		{
-			_MD_unix_map_getpeername_error(errno);
-			return PR_FAILURE;
-		}
-	}
-
-	if (addr->raw.family == AF_INET6)
-		addr->raw.family = PR_AF_INET6;
+		_MD_unix_map_getpeername_error(errno);
 
 	return PR_SUCCESS;
 }
