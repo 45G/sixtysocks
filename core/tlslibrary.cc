@@ -2,6 +2,7 @@
 #include <nss.h>
 #include <ssl.h>
 #include <sslproto.h>
+#include <sslexp.h>
 #include "tlsexception.hh"
 #include "tlslibrary.hh"
 
@@ -55,6 +56,7 @@ TLSLibrary::TLSLibrary(const string &configDir)
 	tlsCheck(SSL_ConfigServerSessionIDCache(SID_CACHE_ENTRIES, 0, 0, nullptr));
 
 #ifndef SSL_SetupAntiReplay_NotMandatory
-	//TODO: setup anti-replay
+	static const int AR_WINDOW = 30;
+	tlsCheck(SSL_SetupAntiReplay(AR_WINDOW * PR_USEC_PER_SEC, 7, 14));
 #endif
 }
