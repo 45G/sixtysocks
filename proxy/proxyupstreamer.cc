@@ -14,7 +14,7 @@ void ProxyUpstreamer::honorRequest()
 {
 	try
 	{
-		switch (request->getCode())
+		switch (request->code)
 		{
 		case SOCKS6_REQUEST_CONNECT:
 		{
@@ -33,12 +33,12 @@ void ProxyUpstreamer::honorRequest()
 	}
 	catch (SimpleReplyException &ex)
 	{
-		reply.setCode(ex.getCode());
+		reply.code = ex.getCode();
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
 	catch (std::exception &)
 	{
-		reply.setCode(SOCKS6_OPERATION_REPLY_FAILURE);
+		reply.code = SOCKS6_OPERATION_REPLY_FAILURE;
 		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
 }
@@ -46,10 +46,10 @@ void ProxyUpstreamer::honorRequest()
 void ProxyUpstreamer::honorConnect()
 {
 	//TODO: resolve
-	if (request->getAddress()->getType() == SOCKS6_ADDR_DOMAIN)
+	if (request->address.getType() == SOCKS6_ADDR_DOMAIN)
 		throw SimpleReplyException(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED);
 
-	S6U::SocketAddress addr(*request->getAddress(), request->getPort());
+	S6U::SocketAddress addr(request->address, request->port);
 	dstSock.fd.assign(socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (dstSock.fd < 0)
 		throw system_error(errno, system_category());
@@ -168,14 +168,14 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	{
 		try
 		{
-			reply.setCode(S6U::Socket::connectErrnoToReplyCode(dstSock.getConnectError()));
+			reply.code = S6U::Socket::connectErrnoToReplyCode(dstSock.getConnectError());
 		}
 		catch (system_error &)
 		{
-			reply.setCode(SOCKS6_OPERATION_REPLY_FAILURE);
+			reply.code = SOCKS6_OPERATION_REPLY_FAILURE;
 		}
 
-		if (reply.getCode() != SOCKS6_OPERATION_REPLY_SUCCESS)
+		if (reply.code != SOCKS6_OPERATION_REPLY_SUCCESS)
 		{
 			poller->assign(new SimpleProxyDownstreamer(this, &reply));
 			return;
@@ -192,9 +192,9 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		if (S6U::Socket::hasMPTCP(dstSock.fd) > 0)
 			reply.options.stack.mp.set(SOCKS6_STACK_LEG_PROXY_REMOTE, SOCKS6_MP_AVAILABLE);
 
-		reply.setCode(SOCKS6_OPERATION_REPLY_SUCCESS);
-		reply.setAddress(bindAddr.getAddress());
-		reply.setPort(bindAddr.getPort());
+		reply.code = SOCKS6_OPERATION_REPLY_SUCCESS;
+		reply.address = bindAddr.getAddress();
+		reply.port = bindAddr.getPort();
 		poller->assign(new ConnectProxyDownstreamer(this, &reply));
 
 		state = S_STREAM;
