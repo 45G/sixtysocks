@@ -148,7 +148,7 @@ void TLS::clientHandshake(StreamBuffer *buf)
 			tlsHandleErr(writeFD);
 
 		if (info.earlyDataAccepted)
-			buf->use(earlyWritten);
+			buf->unuse(earlyWritten);
 
 		state = S_LAISEZ_FAIRE;
 		[[fallthrough]];
