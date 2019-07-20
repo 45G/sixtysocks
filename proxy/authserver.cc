@@ -33,6 +33,7 @@ void AuthServer::check()
 			reply.options.session.signalReject();
 			return;
 		}
+		reply.options.session.signalOK();
 	}
 
 	/* authenticate */
