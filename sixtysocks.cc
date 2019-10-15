@@ -27,27 +27,19 @@ using namespace std;
 
 void usage()
 {
-	static const char *usageLines[] = {
-	//       12345678901234567890123456789012345678901234567890123456789012345678901234567890
-		"usage: sixtysocks [-j <thread count>] [-o <cpu offset>]",
-			"[-m <mode>] (\"proxify\"/\"proxy\")",
-			"[-l <listen port>] [-t <TLS listen port>]",
-			"[-U <username>] [-P <password>]",
-			"[-s <proxy IP>] [-p <proxy port>]",
-			"[-C <certificate DB>] [-n <key nickname>] [-S <SNI>]",
-			"[-D] (defer request until socket is readable)",
-		nullptr,
+	static const vector<string> USAGE_LINES = {
+	//         12345678901234567890123456789012345678901234567890123456789012345678901234567890
+		{ "usage: sixtysocks [-j <thread count>] [-o <cpu offset>]" },
+		{ "\t"    "[-m <mode>] (\"proxify\"/\"proxy\")" },
+		{ "\t"    "[-l <listen port>] [-t <TLS listen port>]" },
+		{ "\t"    "[-U <username>] [-P <password>]" },
+		{ "\t"    "[-s <proxy IP>] [-p <proxy port>]" },
+		{ "\t"    "[-C <certificate DB>] [-n <key nickname>] [-S <SNI>]" },
+		{ "\t"    "[-D] (defer request until socket is readable)" },
 	};
 	
-	const char **line = &usageLines[0];
-	
-	cerr << *line << endl;
-	line++;
-	while (*line != nullptr)
-	{
-		cerr << "\t" << *line << endl;
-		line++;
-	}
+	for (const string &line: USAGE_LINES)
+		cerr << line << endl;
 	
 	exit(EXIT_FAILURE);
 }
