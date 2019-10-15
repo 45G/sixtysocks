@@ -30,16 +30,24 @@ void usage()
 	static const vector<string> USAGE_LINES = {
 	//         12345678901234567890123456789012345678901234567890123456789012345678901234567890
 		{ "usage: sixtysocks [-j <thread count>] [-o <cpu offset>]" },
-		{ "\t"    "[-m <mode>] (\"proxify\"/\"proxy\")" },
-		{ "\t"    "[-l <listen port>] [-t <TLS listen port>]" },
-		{ "\t"    "[-U <username>] [-P <password>]" },
-		{ "\t"    "[-s <proxy IP>] [-p <proxy port>]" },
-		{ "\t"    "[-C <certificate DB>] [-n <key nickname>] [-S <SNI>]" },
-		{ "\t"    "[-D] (defer request until socket is readable)" },
+		{         "[-m <mode>] (\"proxify\"/\"proxy\")" },
+		{         "[-l <listen port>] [-t <TLS listen port>]" },
+		{         "[-U <username>] [-P <password>]" },
+		{         "[-s <proxy IP>] [-p <proxy port>]" },
+		{         "[-C <certificate DB>] [-n <key nickname>] [-S <SNI>]" },
+		{         "[-D] (defer request until socket is readable)" },
 	};
 	
+	bool first = true;
 	for (const string &line: USAGE_LINES)
+	{
+		if (!first)
+			cerr << "\t";
+		else
+			first = false;
+		
 		cerr << line << endl;
+	}
 	
 	exit(EXIT_FAILURE);
 }
