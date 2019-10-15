@@ -78,9 +78,6 @@ int main(int argc, char **argv)
 	string certDB;
 	string nick;
 	string sni;
-	std::unique_ptr<TLSLibrary> tlsLibrary;
-	std::unique_ptr<TLSContext> clientCtx;
-	std::unique_ptr<TLSContext> serverCtx;
 
 	//TODO: use stronger random (maybe /dev/urandom?)
 	srand(time(nullptr));
@@ -188,6 +185,10 @@ int main(int argc, char **argv)
 
 	try
 	{
+		std::unique_ptr<TLSLibrary> tlsLibrary;
+		std::unique_ptr<TLSContext> clientCtx;
+		std::unique_ptr<TLSContext> serverCtx;
+		
 		if (useTLS)
 		{
 			tlsLibrary.reset(new TLSLibrary(certDB));
