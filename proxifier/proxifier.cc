@@ -36,7 +36,7 @@ void Proxifier::start()
 		auto sessionSupplicant = make_shared<SessionSupplicant>(this);
 		poller->assign(new SessionSupplicationAgent(this, sessionSupplicant, clientCtx));
 
-		if (clientCtx != nullptr) /* TLS uses TFO */
+		if (clientCtx) /* TLS uses TFO */
 			supplicateTFO = false;
 	}
 	catch (exception &ex)

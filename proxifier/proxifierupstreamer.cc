@@ -23,7 +23,7 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSC
 	dstSock.fd.assign(socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (dstSock.fd < 0)
 		throw system_error(errno, system_category());
-	if (clientCtx != nullptr)
+	if (clientCtx)
 		dstSock.tls = new TLS(clientCtx, dstSock.fd);
 	
 	int rc = S6U::Socket::getOriginalDestination(srcSock.fd, &dest.storage);
@@ -47,7 +47,7 @@ void ProxifierUpstreamer::start()
 		req.options.stack.tfo.set(SOCKS6_STACK_LEG_PROXY_REMOTE, tfoPayload);
 
 	bool authenticate = proxifier->getUsername()->length() > 0;
-	if (session.get() != nullptr)
+	if (session)
 	{
 		req.options.session.setID(*session->getID());
 		authenticate = authenticate && session->isUntrusted();
@@ -56,11 +56,11 @@ void ProxifierUpstreamer::start()
 	if (authenticate)
 		req.options.userPassword.setCredentials(*proxifier->getUsername(), *proxifier->getPassword());
 
-	if (sessionSupplicant.get() != nullptr)
+	if (sessionSupplicant)
 		sessionSupplicant->process(&req);
 
 	S6U::RequestSafety::Recommendation recommendation = S6U::RequestSafety::recommend(req, dstSock.tls != nullptr, buf.usedSize());
-	if (recommendation.useToken && session.get() != nullptr)
+	if (recommendation.useToken && session)
 	{
 		optional<uint32_t> token = session->getToken();
 		if (token)

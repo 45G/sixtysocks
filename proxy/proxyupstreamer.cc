@@ -81,7 +81,7 @@ ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int *pSrcFD, TLSContext *serverCt
 	*pSrcFD = -1;
 	srcSock.keepAlive();
 	
-	if (serverCtx != nullptr)
+	if (serverCtx)
 		srcSock.tls = new TLS(serverCtx, srcSock.fd);
 }
 

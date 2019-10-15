@@ -34,7 +34,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			S6M::AuthenticationReply authRep(&bb);
 
 			auto session = upstreamer->getSession();
-			if (session.get() != nullptr)
+			if (session)
 			{
 				/* session still valid? */
 				if (authRep.options.session.rejected() || !authRep.options.session.isOK())
@@ -49,7 +49,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 			}
 			buf.unuse(bb.getUsed());
 			
-			if (supplicant.get() != nullptr)
+			if (supplicant)
 				supplicant->process(&authRep);
 		}
 		catch (S6M::EndOfBufferException &)

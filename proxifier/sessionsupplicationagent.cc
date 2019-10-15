@@ -14,7 +14,7 @@ SessionSupplicationAgent::SessionSupplicationAgent(Proxifier *proxifier, std::sh
 	sock.fd.assign(socket(proxyAddr->sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (sock.fd < 0)
 		throw system_error(errno, system_category());
-	if (clientCtx != nullptr)
+	if (clientCtx)
 		sock.tls = new TLS(clientCtx, sock.fd);
 	
 	S6M::Request req(SOCKS6_REQUEST_NOOP, S6U::Socket::QUAD_ZERO, 0);

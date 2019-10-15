@@ -112,7 +112,7 @@ struct Socket
 	int getConnectError()
 	{
 		/* not our problem */
-		if (tls != nullptr)
+		if (tls)
 			return 0;
 		
 		int err;
@@ -134,7 +134,7 @@ struct Socket
 		if (fd < 0)
 			throw std::system_error(errno, std::system_category());
 		tls = ws->tls;
-		if (tls != nullptr)
+		if (tls)
 			tls->setReadFD(fd);
 	}
 	
@@ -144,7 +144,7 @@ struct Socket
 		if (fd < 0)
 			throw std::system_error(errno, std::system_category());
 		tls = rs->tls;
-		if (tls != nullptr)
+		if (tls)
 			tls->setWriteFD(fd);
 	}
 	

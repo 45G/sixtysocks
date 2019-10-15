@@ -20,7 +20,7 @@ public:
 	
 	SyncedTokenBank *getTokenBank()
 	{
-		return tokenBank.get() != nullptr ? tokenBank.get() : nullptr;
+		return tokenBank.get();
 	}
 	
 	void makeBank(unsigned size)

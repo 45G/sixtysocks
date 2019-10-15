@@ -16,7 +16,7 @@ void AuthServer::check()
 
 	/* existing session */
 	auto rawID = req->options.session.getID();
-	if (rawID != nullptr)
+	if (rawID)
 	{
 		if (rawID->size() != sizeof(uint64_t))
 		{
@@ -60,7 +60,7 @@ void AuthServer::check()
 	}
 
 	/* idempotence stuff */
-	if (session.get() != nullptr)
+	if (session)
 	{
 		/* spend token */
 		auto token = req->options.idempotence.getToken();
@@ -84,7 +84,7 @@ void AuthServer::check()
 
 		/* advert */
 		SyncedTokenBank *bank = session->getTokenBank();
-		if (bank != nullptr)
+		if (bank)
 		{
 			auto window = bank->getWindow();
 			reply.options.idempotence.advertise(window.first, window.second);
