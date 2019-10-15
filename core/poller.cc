@@ -106,8 +106,8 @@ void Poller::stop()
 
 void Poller::join()
 {
-	for (int i = 0; i < (int)threads.size(); i++)
-		threads[i].join();
+	for (thread &t: threads)
+		t.join();
 }
 
 void Poller::threadFun(Poller *poller)
