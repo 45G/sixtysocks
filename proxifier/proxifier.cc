@@ -65,7 +65,7 @@ void Proxifier::handleNewConnection(int fd)
 
 	if (supplicationLock.try_lock())
 	{
-		if (session.get() == nullptr)
+		if (!session)
 			supplicant = make_shared<SessionSupplicant>(this);
 		else
 			supplicationLock.unlock();

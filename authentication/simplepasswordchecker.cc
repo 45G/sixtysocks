@@ -15,7 +15,7 @@ SimplePasswordChecker::SimplePasswordChecker(const std::string &user, const std:
 
 bool SimplePasswordChecker::check(const string *user, const string *password)
 {
-	if (user == nullptr)
+	if (!user)
 		return false;
 	return this->user == *user && this->password == *password;
 }

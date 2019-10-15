@@ -28,7 +28,7 @@ void AuthServer::check()
 		memcpy(&id, rawID->data(), sizeof(uint64_t));
 
 		session = upstreamer->getProxy()->getSession(id);
-		if (session.get() == nullptr)
+		if (!session)
 		{
 			reply.options.session.signalReject();
 			return;
@@ -38,7 +38,7 @@ void AuthServer::check()
 
 	/* authenticate */
 	auto checker = upstreamer->getProxy()->getPasswordChecker();
-	if (checker != nullptr && session.get() == nullptr)
+	if (checker && !session)
 	{
 		bool success = checker->check(req->options.userPassword.getUsername(), req->options.userPassword.getPassword());
 		reply.options.userPassword.setReply(success);
@@ -47,7 +47,7 @@ void AuthServer::check()
 	}
 
 	/* new session */
-	if (session.get() == nullptr && req->options.session.requested())
+	if (!session && req->options.session.requested())
 	{
 		session = upstreamer->getProxy()->spawnSession();
 
@@ -67,7 +67,7 @@ void AuthServer::check()
 		if (token)
 		{
 			/* got bank? */
-			if (session->getTokenBank() == nullptr)
+			if (!session->getTokenBank())
 			{
 				reply.options.idempotence.setReply(false);
 				return;

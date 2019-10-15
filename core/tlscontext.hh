@@ -28,11 +28,11 @@ public:
 		if (server)
 		{
 			cert.reset(PK11_FindCertFromNickname(nick.c_str(), nullptr));
-			if (cert.get() == nullptr)
+			if (!cert)
 				throw std::runtime_error("Can't find certificate");
 			
 			key.reset(PK11_FindKeyByAnyCert(cert.get(), nullptr));
-			if (key.get() == nullptr)
+			if (!key)
 				throw std::runtime_error("Can't find key");
 		}
 		else /* client */

@@ -97,12 +97,10 @@ void Poller::stop()
 {
 	alive = false;
 	
-	for (int i = 0; i < (int)fdEntries.size(); i++)
+	for (FDEntry &entry: fdEntries)
 	{
-		if (fdEntries[i].reactor == nullptr)
-			continue;
-		
-		fdEntries[i].reactor->deactivate();
+		if (entry.reactor)
+			entry.reactor->deactivate();
 	}
 }
 

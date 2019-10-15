@@ -72,7 +72,7 @@ struct Socket
 
 	void clientHandshake(StreamBuffer *buf)
 	{
-		if (tls == nullptr)
+		if (!tls)
 			return;
 
 		tls->clientHandshake(buf);
@@ -94,7 +94,7 @@ struct Socket
 	
 	void sockConnect(S6U::SocketAddress addr, StreamBuffer *buf, size_t maxTFOPayload, bool earlyDataIfTLS)
 	{
-		if (tls == nullptr)
+		if (!tls)
 		{
 			if (maxTFOPayload > 0)
 				tcpSendTFO(buf, maxTFOPayload, addr);
