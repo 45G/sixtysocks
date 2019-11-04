@@ -12,7 +12,7 @@ using namespace boost;
 
 static const size_t HEADROOM = 512; //more than enough for any request
 
-ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, UniqFD &&srcFD, TLSContext *clientCtx, std::shared_ptr<SessionSupplicant> sessionSupplicant)
+ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, UniqFD &&srcFD, std::shared_ptr<SessionSupplicant> sessionSupplicant)
 	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), session(proxifier->getSession()), sessionSupplicant(sessionSupplicant)
 {
 	buf.makeHeadroom(HEADROOM);
@@ -22,6 +22,8 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, UniqFD &&srcFD, T
 	dstSock.fd.assign(socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (dstSock.fd < 0)
 		throw system_error(errno, system_category());
+	
+	TLSContext *clientCtx = proxifier->getClientCtx();
 	if (clientCtx)
 		dstSock.tls = new TLS(clientCtx, dstSock.fd);
 	

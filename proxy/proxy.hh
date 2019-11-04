@@ -40,6 +40,11 @@ public:
 	SyncedTokenBank *createBank(const std::string &user, uint32_t size);
 	
 	SyncedTokenBank *getBank(const std::string &user);
+	
+	TLSContext *getServerCtx()
+	{
+		return serverCtx;
+	}
 };
 
 #endif // PROXY_HH

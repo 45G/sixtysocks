@@ -74,6 +74,11 @@ public:
 	{
 		supplicationLock.unlock();
 	}
+	
+	TLSContext *getClientCtx()
+	{
+		return clientCtx;
+	}
 };
 
 #endif // PROXIFIER_HH

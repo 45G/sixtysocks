@@ -12,7 +12,7 @@ void Proxy::handleNewConnection(int fd)
 	UniqFD ufd(fd);
 	try
 	{
-		poller->assign(new ProxyUpstreamer(this, move(ufd), serverCtx));
+		poller->assign(new ProxyUpstreamer(this, move(ufd)));
 	}
 	catch (exception &ex)
 	{

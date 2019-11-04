@@ -77,7 +77,7 @@ void Proxifier::handleNewConnection(int fd)
 	try
 	{
 
-		intrusive_ptr<ProxifierUpstreamer> upstreamer = new ProxifierUpstreamer(this, move(ufd), clientCtx, supplicant);
+		intrusive_ptr<ProxifierUpstreamer> upstreamer = new ProxifierUpstreamer(this, move(ufd), supplicant);
 		if (defer)
 			poller->assign(new ReadableDeferReactor(poller, fd, upstreamer));
 		else
