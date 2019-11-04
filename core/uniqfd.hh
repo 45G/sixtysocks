@@ -21,9 +21,18 @@ public:
 	
 	UniqFD(UniqFD &) = delete;
 	
-	UniqFD(UniqFD &&other)
+	template <typename T>
+	UniqFD(T &&other)
 		: fd(other.fd)
 	{
+		other.fd = -1;
+	}
+	
+	template <typename T>
+	void operator =(T &&other)
+	{
+		assert(fd == -1);
+		fd = other.fd;
 		other.fd = -1;
 	}
 

@@ -74,11 +74,10 @@ void ProxyUpstreamer::honorConnectStackOptions()
 	//TODO
 }
 
-ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, int *pSrcFD, TLSContext *serverCtx)
+ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, UniqFD &&srcFD, TLSContext *serverCtx)
 	: StreamReactor(proxy->getPoller()), proxy(proxy)
 {
-	srcSock.fd.assign(*pSrcFD);
-	*pSrcFD = -1;
+	srcSock.fd = UniqRecvFD(srcFD);
 	srcSock.keepAlive();
 	
 	if (serverCtx)

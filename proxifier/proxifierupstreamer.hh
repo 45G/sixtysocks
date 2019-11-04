@@ -31,7 +31,7 @@ class ProxifierUpstreamer: public StreamReactor
 	std::shared_ptr<SessionSupplicant> sessionSupplicant;
 	
 public:
-	ProxifierUpstreamer(Proxifier *proxifier, int *pSrcFD, TLSContext *clientCtx, std::shared_ptr<SessionSupplicant> sessionSupplicant);
+	ProxifierUpstreamer(Proxifier *proxifier, UniqFD &&srcFD, TLSContext *clientCtx, std::shared_ptr<SessionSupplicant> sessionSupplicant);
 
 	void start();
 	

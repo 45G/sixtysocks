@@ -8,6 +8,7 @@
 #include <netinet/tcp.h>
 #include <system_error>
 #include <iostream>
+#include <boost/intrusive_ptr.hpp>
 #include "proxifier.hh"
 #include "../core/poller.hh"
 #include "../core/readabledeferreactor.hh"
@@ -16,6 +17,7 @@
 #include "proxifierupstreamer.hh"
 
 using namespace std;
+using boost::intrusive_ptr;
 
 Proxifier::Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, bool defer, const string &username, const string &password, TLSContext *clientCtx)
 	: ListenReactor(poller, bindAddr), proxyAddr(proxyAddr), defer(defer),
@@ -61,6 +63,7 @@ void Proxifier::start()
 
 void Proxifier::handleNewConnection(int fd)
 {
+	UniqFD ufd(fd);
 	std::shared_ptr<SessionSupplicant> supplicant;
 
 	if (supplicationLock.try_lock())
@@ -70,12 +73,11 @@ void Proxifier::handleNewConnection(int fd)
 		else
 			supplicationLock.unlock();
 	}
-
-	int closeFD = fd;
+	
 	try
 	{
 
-		ProxifierUpstreamer *upstreamer = new ProxifierUpstreamer(this, &closeFD, clientCtx, supplicant);
+		intrusive_ptr<ProxifierUpstreamer> upstreamer = new ProxifierUpstreamer(this, move(ufd), clientCtx, supplicant);
 		if (defer)
 			poller->assign(new ReadableDeferReactor(poller, fd, upstreamer));
 		else
@@ -85,7 +87,4 @@ void Proxifier::handleNewConnection(int fd)
 	{
 		cerr << "Error handling new connection: " << ex.what() << endl;
 	}
-
-	if (closeFD != -1)
-		close(closeFD); // tolerable error
 }

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <iostream>
 #include "../core/poller.hh"
 #include "proxyupstreamer.hh"
 #include "proxy.hh"
@@ -8,13 +9,14 @@ using namespace tbb;
 
 void Proxy::handleNewConnection(int fd)
 {
+	UniqFD ufd(fd);
 	try
 	{
-		poller->assign(new ProxyUpstreamer(this, &fd, serverCtx));
+		poller->assign(new ProxyUpstreamer(this, move(ufd), serverCtx));
 	}
-	catch (exception &)
+	catch (exception &ex)
 	{
-		close(fd); // tolerable error
+		cerr << "Error handling new connection: " << ex.what() << endl;
 	}
 }
 

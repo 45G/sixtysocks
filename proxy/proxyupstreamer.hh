@@ -44,7 +44,7 @@ class ProxyUpstreamer: public StreamReactor
 	void honorConnectStackOptions();
 	
 public:
-	ProxyUpstreamer(Proxy *proxy, int *pSrcFD, TLSContext *serverCtx);
+	ProxyUpstreamer(Proxy *proxy, UniqFD &&srcFD, TLSContext *serverCtx);
 	
 	void start();
 	
