@@ -22,8 +22,8 @@ public:
 	UniqFD(UniqFD &) = delete;
 	
 	UniqFD(UniqFD &&other)
+		: fd(other.fd)
 	{
-		this->fd = other.fd;
 		other.fd = -1;
 	}
 
