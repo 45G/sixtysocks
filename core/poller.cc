@@ -75,8 +75,7 @@ void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 	if (rc < 0)
 		throw system_error(errno, system_category());
 	
-	fdEntries[fd].reactor = reactor;
-	fdEntries[fd].registered = true;
+	fdEntries[fd] = { reactor, true };
 }
 
 void Poller::remove(int fd, bool force)
@@ -88,8 +87,7 @@ void Poller::remove(int fd, bool force)
 	if (rc < 0 && errno != ENOENT)
 		throw system_error(errno, system_category());
 
-	fdEntries[fd].reactor = nullptr;
-	fdEntries[fd].registered = false;
+	fdEntries[fd] = { nullptr, false };
 }
 
 void Poller::stop()
