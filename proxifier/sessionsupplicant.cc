@@ -2,7 +2,6 @@
 #include "sessionsupplicant.hh"
 
 using namespace std;
-using namespace boost;
 
 SessionSupplicant::~SessionSupplicant()
 {

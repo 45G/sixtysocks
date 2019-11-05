@@ -3,7 +3,6 @@
 #include "connectproxydownstreamer.hh"
 
 using namespace std;
-using namespace boost;
 
 ConnectProxyDownstreamer::ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer, S6M::OperationReply *reply)
 	: StreamReactor(upstreamer->getPoller(), SS_SENDING), upstreamer(upstreamer)
