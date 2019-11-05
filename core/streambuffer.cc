@@ -8,7 +8,7 @@ void StreamBuffer::makeHeadroom(size_t size)
 	size_t dataSize = usedSize();
 
 	if (BUF_SIZE - dataSize < size)
-		throw NoRoomException();
+		throw runtime_error("No room in stream buffer");
 	if (size > head)
 	{
 		memmove(&buf[size], &buf[head], dataSize);

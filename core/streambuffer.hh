@@ -63,13 +63,6 @@ public:
 	void makeHeadroom(size_t size);
 	
 	void prepend(uint8_t *stuff, uint8_t size);
-	
-	class NoRoomException: public std::runtime_error
-	{
-	public:
-		NoRoomException()
-			: runtime_error("No room in stream buffer") {}
-	};
 };
 
 #endif // STREAMBUFFER_HH
