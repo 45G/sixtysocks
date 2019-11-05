@@ -13,6 +13,7 @@ SOURCES += \
     proxifier/proxifier.cc \
     proxifier/proxifierdownstreamer.cc \
     proxifier/proxifierupstreamer.cc \
+    proxifier/readabledeferreactor.cc \
     proxy/proxy.cc \
     proxy/proxyupstreamer.cc \
     proxy/simpleproxydownstreamer.cc \
@@ -26,7 +27,6 @@ SOURCES += \
     core/stickreactor.cc \
     core/tls.cc \
     core/tlsexception.cc \
-    core/readabledeferreactor.cc \
     core/tlslibrary.cc \
     external/nspr_stuff.c \
     proxifier/sessionsupplicant.cc \
@@ -40,6 +40,7 @@ HEADERS += \
     proxifier/proxifier.hh \
     proxifier/proxifierdownstreamer.hh \
     proxifier/proxifierupstreamer.hh \
+    proxifier/readabledeferreactor.hh \
     proxy/proxy.hh \
     proxy/proxyupstreamer.hh \
     proxy/simpleproxydownstreamer.hh \
@@ -58,7 +59,6 @@ HEADERS += \
     core/tlsexception.hh \
     core/socket.hh \
     core/tlslibrary.hh \
-    core/readabledeferreactor.hh \
     external/nspr_stuff.h \
     external/nspr_stuff.h \
     proxifier/clientsession.hh \

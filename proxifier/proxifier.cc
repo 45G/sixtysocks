@@ -11,7 +11,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include "proxifier.hh"
 #include "../core/poller.hh"
-#include "../core/readabledeferreactor.hh"
+#include "../proxifier/readabledeferreactor.hh"
 #include "sessionsupplicationagent.hh"
 #include "tfocookiesupplicationagent.hh"
 #include "proxifierupstreamer.hh"
