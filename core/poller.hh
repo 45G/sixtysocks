@@ -42,13 +42,6 @@ public:
 	void join();
 	
 	static void threadFun(Poller *poller);
-
-	class MaxFDsExceededException: public std::runtime_error
-	{
-	public:
-		MaxFDsExceededException()
-			: runtime_error("Maximum number of FDs exceeded") {}
-	};
 };
 
 #endif // POLLER_HH

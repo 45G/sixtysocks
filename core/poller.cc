@@ -59,7 +59,7 @@ void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 		return;
 
 	if (fd >= (int)fdEntries.size())
-		throw MaxFDsExceededException();
+		throw runtime_error("Maximum number of FDs exceeded");
 	
 	int epollOp;
 	if (fdEntries[fd].registered)
