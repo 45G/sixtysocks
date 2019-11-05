@@ -32,7 +32,7 @@ public:
 		if (size == 0)
 			return;
 
-		tokenBank.reset(new SyncedTokenBank((uint32_t)rand(), size, 0, size / 2));
+		tokenBank.reset(new SyncedTokenBank({ (uint32_t)rand(), size }, 0, size / 2));
 	}
 };
 

@@ -49,7 +49,7 @@ std::shared_ptr<ServerSession> Proxy::getSession(uint64_t id)
 SyncedTokenBank *Proxy::createBank(const string &user, uint32_t size)
 {
 	tbb::spin_mutex::scoped_lock lock(bankLock);
-	SyncedTokenBank *bank = new SyncedTokenBank((uint32_t)rand(), size, 0, size / 2);
+	SyncedTokenBank *bank = new SyncedTokenBank({ (uint32_t)rand(), size }, 0, size / 2);
 	
 	banks[user] = unique_ptr<SyncedTokenBank>(bank);
 	return bank;
