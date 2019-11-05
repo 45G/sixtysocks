@@ -24,6 +24,7 @@
 #include "core/tlscontext.hh"
 
 using namespace std;
+using boost::intrusive_ptr;
 
 void usage()
 {
@@ -73,7 +74,7 @@ int main(int argc, char **argv)
 	bool useTLS = false;
 	string username;
 	string password;
-	boost::intrusive_ptr<SimplePasswordChecker> passwordChecker;
+	intrusive_ptr<SimplePasswordChecker> passwordChecker;
 	bool defer = false;
 	string certDB;
 	string nick;
