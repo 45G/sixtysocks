@@ -186,9 +186,9 @@ int main(int argc, char **argv)
 
 	try
 	{
-		std::unique_ptr<TLSLibrary> tlsLibrary;
-		std::unique_ptr<TLSContext> clientCtx;
-		std::unique_ptr<TLSContext> serverCtx;
+		unique_ptr<TLSLibrary> tlsLibrary;
+		unique_ptr<TLSContext> clientCtx;
+		unique_ptr<TLSContext> serverCtx;
 		
 		if (useTLS)
 		{
