@@ -75,7 +75,7 @@ public:
 		supplicationLock.unlock();
 	}
 	
-	TLSContext *getClientCtx()
+	TLSContext *getClientCtx() const
 	{
 		return clientCtx;
 	}

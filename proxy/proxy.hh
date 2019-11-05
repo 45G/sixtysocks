@@ -41,7 +41,7 @@ public:
 	
 	SyncedTokenBank *getBank(const std::string &user);
 	
-	TLSContext *getServerCtx()
+	TLSContext *getServerCtx() const
 	{
 		return serverCtx;
 	}
