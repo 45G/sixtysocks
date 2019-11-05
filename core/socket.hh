@@ -157,10 +157,8 @@ struct Socket
 	}
 };
 
-typedef Socket<UniqFD> RWSocket;
-
+typedef Socket<UniqFD>     RWSocket;
 typedef Socket<UniqSendFD> WSocket;
-
 typedef Socket<UniqRecvFD> RSocket;
 
 
