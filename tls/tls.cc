@@ -31,13 +31,14 @@ static void PR_CALLBACK descriptorDeleter(PRFileDesc *fd)
 TLS::TLS(TLSContext *ctx, int fd)
 	: readFD(fd), writeFD(fd)
 {
-	PRFileDesc *lowerDesc = new PRFileDesc();
-	lowerDesc->identity = PR_NSPR_IO_LAYER;
-	lowerDesc->methods = &METHODS;
-	lowerDesc->lower = nullptr;
-	lowerDesc->higher = nullptr;
-	lowerDesc->secret = reinterpret_cast<PRFilePrivate *>(this);
-	lowerDesc->dtor = descriptorDeleter;
+	PRFileDesc *lowerDesc = new PRFileDesc({
+		.methods  = &METHODS,
+		.secret   = reinterpret_cast<PRFilePrivate *>(this),
+		.lower    = nullptr,
+		.higher   = nullptr,
+		.dtor     = descriptorDeleter,
+		.identity = PR_NSPR_IO_LAYER,
+	});
 
 	PRFileDesc *higherDesc = SSL_ImportFD(nullptr, lowerDesc);
 	if (!higherDesc)
