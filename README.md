@@ -5,7 +5,7 @@ SOCKS 6 proxy and proxifier (under heavy development)
 
 You will need the following packages:
  * qt5-qmake
- * Boost (libboost-dev(el), liboost_thread-dev(el))
+ * Boost (libboost-dev(el))
  * Mozilla NSS (libnss-dev(el))
  * Threading Building Blocks (libtbb-dev(el))
  * libsocks6msg ([https://github.com/45G/libsocks6msg])
