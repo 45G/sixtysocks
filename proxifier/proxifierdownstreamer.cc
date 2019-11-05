@@ -39,7 +39,7 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 				/* session still valid? */
 				if (authRep.options.session.rejected() || !authRep.options.session.isOK())
 					proxifier->killSession(upstreamer->getSession());
-				session->updateWallet(authRep.options.idempotence.advertisedBase(), authRep.options.idempotence.advertisedSize());
+				session->updateWallet(authRep.options.idempotence.getAdvertised());
 			}
 
 			if (authRep.code != SOCKS6_AUTH_REPLY_SUCCESS)

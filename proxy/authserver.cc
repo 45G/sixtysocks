@@ -87,7 +87,7 @@ void AuthServer::check()
 		if (bank)
 		{
 			auto window = bank->getWindow();
-			reply.options.idempotence.advertise(window.first, window.second);
+			reply.options.idempotence.advertise(window);
 		}
 	}
 

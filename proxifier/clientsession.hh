@@ -12,11 +12,11 @@ class ClientSession
 	std::unique_ptr<SyncedTokenWallet> wallet;
 	
 public:
-	ClientSession(const std::vector<uint8_t> &id, bool untrusted, uint32_t winBase = 0, uint32_t winSize = 0)
+	ClientSession(const std::vector<uint8_t> &id, bool untrusted, std::pair<uint32_t, uint32_t> window = { 0, 0 })
 		: id(id), untrusted(untrusted)
 	{
-		if (winSize > 0)
-			wallet.reset(new SyncedTokenWallet(winBase, winSize));
+		if (window.second > 0)
+			wallet.reset(new SyncedTokenWallet(window));
 	}
 
 	const std::vector<uint8_t> *getID() const
@@ -29,14 +29,14 @@ public:
 		return untrusted;
 	}
 	
-	void updateWallet(uint32_t winBase, uint32_t winSize)
+	void updateWallet(std::pair<uint32_t, uint32_t> window)
 	{
 		if (!wallet)
 			return;
-		if (winSize == 0)
+		if (window.second == 0)
 			return;
 		
-		wallet->updateWindow(winBase, winSize);
+		wallet->updateWindow(window);
 	}
 	
 	boost::optional<uint32_t> getToken()

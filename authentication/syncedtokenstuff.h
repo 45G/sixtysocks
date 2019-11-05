@@ -30,10 +30,7 @@ class SyncedTokenWallet: S6U::TokenWallet
 	mutable tbb::spin_mutex spinlock;
 
 public:
-	SyncedTokenWallet() {}
-	
-	SyncedTokenWallet(uint32_t base, uint32_t size)
-		: TokenWallet(base, size) {}
+	using S6U::TokenWallet::TokenWallet;
 	
 	boost::optional<uint32_t> extract()
 	{
@@ -41,10 +38,10 @@ public:
 		return S6U::TokenWallet::extract();
 	}
 	
-	void updateWindow(uint32_t newBase, uint32_t newSize)
+	void updateWindow(std::pair<uint32_t, uint32_t> window)
 	{
 		tbb::spin_mutex::scoped_lock lock(spinlock);
-		return S6U::TokenWallet::updateWindow(newBase, newSize);
+		return S6U::TokenWallet::updateWindow(window);
 	}
 	
 	void updateWindow(const S6M::OptionSet *optionSet)
