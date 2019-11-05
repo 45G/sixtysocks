@@ -2,7 +2,6 @@
 #include <errno.h>
 #include <sys/epoll.h>
 #include <pthread.h>
-#include <boost/foreach.hpp>
 #include "poller.hh"
 #include "reactor.hh"
 

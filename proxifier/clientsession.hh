@@ -39,7 +39,7 @@ public:
 		wallet->updateWindow(window);
 	}
 	
-	boost::optional<uint32_t> getToken()
+	std::optional<uint32_t> getToken()
 	{
 		if (!wallet)
 			return {};

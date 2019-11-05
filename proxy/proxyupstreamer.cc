@@ -57,7 +57,7 @@ void ProxyUpstreamer::honorConnect()
 
 	try
 	{
-		dstSock.sockConnect(addr, &buf, request->options.stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), false);
+		dstSock.sockConnect(addr, &buf, request->options.stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).value_or(0), false);
 	}
 	catch (system_error &err)
 	{
@@ -119,7 +119,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 
 		poller->assign(new AuthServer(this));
 
-		tfoPayload = std::min((size_t)request->options.stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).get_value_or(0), MSS);
+		tfoPayload = std::min((size_t)request->options.stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).value_or(0), MSS);
 		
 		if (buf.usedSize() < tfoPayload)
 		{

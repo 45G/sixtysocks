@@ -73,7 +73,7 @@ void AuthServer::check()
 				return;
 			}
 
-			bool success = session->getTokenBank()->withdraw(token.get());
+			bool success = session->getTokenBank()->withdraw(token.value());
 			reply.options.idempotence.setReply(success);
 			if (!success)
 				return;

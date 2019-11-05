@@ -1,6 +1,7 @@
 #ifndef SYNCEDTOKENSTUFF_H
 #define SYNCEDTOKENSTUFF_H
 
+#include <optional>
 #include <socks6util/idempotence.hh>
 #include <tbb/spin_mutex.h>
 
@@ -31,7 +32,7 @@ class SyncedTokenWallet: S6U::TokenWallet
 public:
 	using TokenWallet::TokenWallet;
 	
-	boost::optional<uint32_t> extract()
+	std::optional<uint32_t> extract()
 	{
 		tbb::spin_mutex::scoped_lock lock(spinlock);
 		return TokenWallet::extract();

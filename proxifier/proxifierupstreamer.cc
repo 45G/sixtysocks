@@ -8,7 +8,6 @@
 #include "proxifierupstreamer.hh"
 
 using namespace std;
-using boost::optional;
 
 static const size_t HEADROOM = 512; //more than enough for any request
 
@@ -66,7 +65,7 @@ void ProxifierUpstreamer::start()
 		optional<uint32_t> token = session->getToken();
 		if (token)
 		{
-			req.options.idempotence.setToken(token.get());
+			req.options.idempotence.setToken(token.value());
 			recommendation.tokenSpent(dstSock.tls != nullptr);
 		}
 	}
