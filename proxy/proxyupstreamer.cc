@@ -8,7 +8,6 @@
 #include "proxyupstreamer.hh"
 
 using namespace std;
-using namespace boost;
 
 void ProxyUpstreamer::honorRequest()
 {
@@ -77,7 +76,7 @@ void ProxyUpstreamer::honorConnectStackOptions()
 ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, UniqFD &&srcFD)
 	: StreamReactor(proxy->getPoller()), proxy(proxy)
 {
-	srcSock.fd = UniqRecvFD(srcFD);
+	srcSock.fd = move(srcFD);
 	srcSock.keepAlive();
 	
 	TLSContext *serverCtx = proxy->getServerCtx();

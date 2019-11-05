@@ -8,7 +8,7 @@
 #include "proxifierupstreamer.hh"
 
 using namespace std;
-using namespace boost;
+using boost::optional;
 
 static const size_t HEADROOM = 512; //more than enough for any request
 
@@ -17,7 +17,7 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, UniqFD &&srcFD, s
 {
 	buf.makeHeadroom(HEADROOM);
 
-	srcSock.fd = UniqRecvFD(srcFD);
+	srcSock.fd = move(srcFD);
 	
 	dstSock.fd.assign(socket(proxifier->getProxyAddr()->storage.ss_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (dstSock.fd < 0)

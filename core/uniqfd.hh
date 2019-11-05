@@ -7,6 +7,9 @@
 #include <sys/socket.h>
 #include <assert.h>
 
+class UniqSendFD;
+class UniqRecvFD;
+
 class UniqFD
 {
 protected:
@@ -19,26 +22,20 @@ public:
 	explicit UniqFD(int fd)
 		: fd(fd) {}
 	
-	UniqFD(UniqFD &) = delete;
+	UniqFD(const UniqFD &other) = delete;
 	
-	template <typename T>
-	UniqFD(T &&other)
+	UniqFD(UniqFD &&other)
 		: fd(other.fd)
 	{
 		other.fd = -1;
 	}
 	
-	template <typename T>
-	void operator =(T &&other)
-	{
-		assert(fd == -1);
-		fd = other.fd;
-		other.fd = -1;
-	}
+	void operator =(const UniqFD &other) = delete;
 
 	void assign(int fd)
 	{
 		assert(this->fd == -1);
+		
 		this->fd = fd;
 	}
 	
@@ -61,12 +58,25 @@ public:
 		if (fd != -1)
 			close(fd);
 	}
+	
+	friend class UniqSendFD;
+	friend class UniqRecvFD;
 };
 
 class UniqRecvFD: public UniqFD
 {
 public:
 	using UniqFD::UniqFD;
+	
+	UniqRecvFD &operator =(UniqFD &&other)
+	{
+		assert(this != &other);
+		assert(fd == -1);
+		
+		fd = other.fd;
+		other.fd = -1;
+		return *this;
+	}
 
 	void reset()
 	{
@@ -89,6 +99,16 @@ class UniqSendFD: public UniqFD
 {
 public:
 	using UniqFD::UniqFD;
+	
+	UniqSendFD &operator =(UniqFD &&other)
+	{
+		assert(this != &other);
+		assert(fd == -1);
+		
+		fd = other.fd;
+		other.fd = -1;
+		return *this;
+	}
 
 	void reset()
 	{
