@@ -7,7 +7,7 @@
 #include <prio.h>
 #include <private/pprio.h>
 #include "tlscontext.hh"
-#include "streambuffer.hh"
+#include "../core/streambuffer.hh"
 
 class Proxifier;
 

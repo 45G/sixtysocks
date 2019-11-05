@@ -10,7 +10,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include "poller.hh"
 #include "uniqfd.hh"
-#include "tls.hh"
+#include "../tls/tls.hh"
 
 template<typename UFD>
 struct Socket

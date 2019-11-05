@@ -20,8 +20,8 @@
 #include "proxifier/proxifier.hh"
 #include "proxy/proxy.hh"
 #include "authentication/simplepasswordchecker.hh"
-#include "core/tlslibrary.hh"
-#include "core/tlscontext.hh"
+#include "tls/tlslibrary.hh"
+#include "tls/tlscontext.hh"
 
 using namespace std;
 using boost::intrusive_ptr;

@@ -25,12 +25,12 @@ SOURCES += \
     proxy/authserver.cc \
     proxifier/tfocookiesupplicationagent.cc \
     core/stickreactor.cc \
-    core/tls.cc \
-    core/tlsexception.cc \
-    core/tlslibrary.cc \
-    external/nspr_stuff.c \
     proxifier/sessionsupplicant.cc \
-    proxifier/sessionsupplicationagent.cc
+    proxifier/sessionsupplicationagent.cc \
+    tls/nspr_stuff.c \
+    tls/tls.cc \
+    tls/tlsexception.cc \
+    tls/tlslibrary.cc
 
 HEADERS += \
     core/poller.hh \
@@ -51,20 +51,19 @@ HEADERS += \
     core/streambuffer.hh \
     authentication/syncedtokenstuff.h \
     proxy/authserver.hh \
-    core/tlscontext.hh \
     core/rescheduleexception.hh \
     proxifier/tfocookiesupplicationagent.hh \
     core/stickreactor.hh \
-    core/tls.hh \
-    core/tlsexception.hh \
     core/socket.hh \
-    core/tlslibrary.hh \
-    external/nspr_stuff.h \
-    external/nspr_stuff.h \
     proxifier/clientsession.hh \
     proxy/serversession.hh \
     proxifier/sessionsupplicant.hh \
-    proxifier/sessionsupplicationagent.hh
+    proxifier/sessionsupplicationagent.hh \
+    tls/nspr_stuff.h \
+    tls/tls.hh \
+    tls/tlscontext.hh \
+    tls/tlsexception.hh \
+    tls/tlslibrary.hh
 
 NSS_ROOT        = /usr/include/nss3/
 NSPR_ROOT       = /usr/include/nspr4/

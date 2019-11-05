@@ -5,11 +5,11 @@ extern "C"
 {
 #include <private/pprio.h>
 }
-#include "rescheduleexception.hh"
+#include "../core/rescheduleexception.hh"
 #include "tlsexception.hh"
-#include "poller.hh"
+#include "../core/poller.hh"
 #include "tls.hh"
-#include "../external/nspr_stuff.h"
+#include "nspr_stuff.h"
 
 using namespace std;
 

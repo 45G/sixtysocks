@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 #include <socks6util/socks6util.hh>
-#include "../core/tlscontext.hh"
+#include "../tls/tlscontext.hh"
 #include "../authentication/syncedtokenstuff.h"
 #include "../core/listenreactor.hh"
 #include "clientsession.hh"

@@ -6,7 +6,7 @@
 #include <string>
 #include <tbb/concurrent_hash_map.h>
 #include <socks6util/socks6util.hh>
-#include "core/tlscontext.hh"
+#include "../tls/tlscontext.hh"
 #include "../core/listenreactor.hh"
 #include "../authentication/passwordchecker.hh"
 #include "../authentication/syncedtokenstuff.h"
