@@ -48,8 +48,16 @@ void ProxyUpstreamer::honorConnect()
 	if (request->address.getType() == SOCKS6_ADDR_DOMAIN)
 		throw SimpleReplyException(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED);
 
-	S6U::SocketAddress addr(request->address, request->port);
-	dstSock.fd.assign(socket(addr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
+	/* resolve zero to loopback for port DNS port */
+	addr = [&]() {
+		if (request->address.isZero() && request->port == 53)
+			return S6M::Address(in_addr{ INADDR_LOOPBACK });
+		return request->address;
+	} ();
+	
+	S6U::SocketAddress sockAddr(addr, request->port);
+		
+	dstSock.fd.assign(socket(sockAddr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
 	if (dstSock.fd < 0)
 		throw system_error(errno, system_category());
 
@@ -57,7 +65,7 @@ void ProxyUpstreamer::honorConnect()
 
 	try
 	{
-		dstSock.sockConnect(addr, &buf, request->options.stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).value_or(0), false);
+		dstSock.sockConnect(sockAddr, &buf, request->options.stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).value_or(0), false);
 	}
 	catch (system_error &err)
 	{
@@ -119,7 +127,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 
 		poller->assign(new AuthServer(this));
 
-		tfoPayload = std::min((size_t)request->options.stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).value_or(0), MSS);
+		tfoPayload = std::min((size_t)request->options.stack.tfo.get().value_or(0), MSS);
 		
 		if (buf.usedSize() < tfoPayload)
 		{

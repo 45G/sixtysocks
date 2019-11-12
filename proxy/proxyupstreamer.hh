@@ -19,7 +19,9 @@ class ProxyUpstreamer: public StreamReactor
 		S_READING_REQ,
 		S_READING_TFO_PAYLOAD,
 		S_AWAITING_AUTH,
+		//S_RESOLVING,
 		S_CONNECTING,
+		//S_AWAINING_HUP,
 		S_STREAM,
 	};
 
@@ -27,7 +29,7 @@ class ProxyUpstreamer: public StreamReactor
 	
 	std::atomic<State> state { S_READING_REQ };
 	std::atomic<bool> authenticated { false };
-	size_t tfoPayload;
+	size_t tfoPayload = 0;
 	
 	std::shared_ptr<S6M::Request> request;
 	S6M::OperationReply reply { SOCKS6_OPERATION_REPLY_FAILURE };
@@ -36,6 +38,9 @@ class ProxyUpstreamer: public StreamReactor
 	
 	AuthServer *authServer = nullptr;
 	tbb::spin_mutex honorLock;
+	
+	/* resolve state */
+	S6M::Address addr;
 	
 	void honorRequest();
 
