@@ -54,7 +54,7 @@ void ProxifierUpstreamer::start()
 	}
 
 	if (authenticate)
-		req.options.userPassword.setCredentials(proxifier->getUsername(), proxifier->getPassword());
+		req.options.userPassword.setCredentials(*proxifier->getUsername(), *proxifier->getPassword());
 
 	if (sessionSupplicant)
 		sessionSupplicant->process(&req);

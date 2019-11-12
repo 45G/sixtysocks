@@ -21,7 +21,7 @@ using boost::intrusive_ptr;
 
 Proxifier::Proxifier(Poller *poller, const S6U::SocketAddress &proxyAddr, const S6U::SocketAddress &bindAddr, bool defer, const string &username, const string &password, TLSContext *clientCtx)
 	: ListenReactor(poller, bindAddr), proxyAddr(proxyAddr), defer(defer),
-	  username(make_shared<string>(username)), password(make_shared<string>(password)),
+	  username(username), password(password),
 	  clientCtx(clientCtx)
 {
 	// tolerable error

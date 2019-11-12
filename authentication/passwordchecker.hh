@@ -9,7 +9,7 @@
 class PasswordChecker: public boost::intrusive_ref_counter<PasswordChecker>
 {
 public:
-	virtual bool check(std::shared_ptr<std::string> user, std::shared_ptr<std::string> password) = 0;
+	virtual bool check(const std::string *user, const std::string *password) = 0;
 	
 	virtual ~PasswordChecker();
 };
