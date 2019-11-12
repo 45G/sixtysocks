@@ -8,6 +8,12 @@
 
 using namespace std;
 
+static void tlsCheck(SECStatus status)
+{
+	if (status != SECSuccess)
+		throw TLSException();
+}
+
 TLSLibrary::NSPRLibrary::NSPRLibrary()
 {
 	PR_Init(PR_USER_THREAD, PR_PRIORITY_NORMAL, 0);
@@ -21,20 +27,12 @@ TLSLibrary::NSPRLibrary::~NSPRLibrary()
 
 TLSLibrary::NSSLibrary::NSSLibrary(const string &configDir)
 {
-	SECStatus status = NSS_Init(configDir.c_str());
-	if (status != SECSuccess)
-		throw TLSException();
+	tlsCheck(NSS_Init(configDir.c_str()));
 }
 
 TLSLibrary::NSSLibrary::~NSSLibrary()
 {
 	NSS_Shutdown(); // might return error
-}
-
-static void tlsCheck(SECStatus status)
-{
-	if (status != SECSuccess)
-		throw TLSException();
 }
 
 TLSLibrary::TLSLibrary(const string &configDir)
