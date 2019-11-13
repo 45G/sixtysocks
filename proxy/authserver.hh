@@ -32,9 +32,6 @@ public:
 	void start();
 	
 	void deactivate();
-	
-	//TODO: in case long auth is implemented
-	//void mayRead();
 };
 
 #endif // AUTHSERVER_HH

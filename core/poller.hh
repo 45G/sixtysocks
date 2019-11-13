@@ -7,6 +7,7 @@
 #include <vector>
 #include <sys/epoll.h>
 #include <exception>
+#include <iostream>
 #include "reactor.hh"
 
 class Poller
@@ -42,6 +43,24 @@ public:
 	void join();
 	
 	static void threadFun(Poller *poller);
+	
+	template <typename T>
+	void runAs(Reactor *reactor, T functor)
+	{
+		try
+		{
+			functor();
+		}
+		catch (RescheduleException &resched)
+		{
+			add(reactor, resched.getFD(), resched.getEvents());
+		}
+		catch (std::exception &ex)
+		{
+			std::cerr << "Caught exception; killing reactor: " << ex.what() << std::endl;
+			reactor->deactivate();
+		}
+	}
 };
 
 #endif // POLLER_HH

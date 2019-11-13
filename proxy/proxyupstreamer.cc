@@ -49,11 +49,10 @@ void ProxyUpstreamer::honorConnect()
 		throw SimpleReplyException(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED);
 
 	/* resolve zero to loopback for port DNS port */
-	addr = [&]() {
-		if (request->address.isZero() && request->port == 53)
-			return S6M::Address(in_addr{ INADDR_LOOPBACK });
-		return request->address;
-	} ();
+	if (request->address.isZero() && request->port == 53)
+		addr = S6M::Address(in_addr{ INADDR_LOOPBACK });
+	else
+		addr = request->address;
 	
 	S6U::SocketAddress sockAddr(addr, request->port);
 		
@@ -62,23 +61,14 @@ void ProxyUpstreamer::honorConnect()
 		throw system_error(errno, system_category());
 
 	honorConnectStackOptions();
-
-	try
-	{
-		dstSock.sockConnect(sockAddr, &buf, request->options.stack.tfo.get(SOCKS6_STACK_LEG_PROXY_REMOTE).value_or(0), false);
-	}
-	catch (system_error &err)
-	{
-		throw SimpleReplyException(S6U::Socket::connectErrnoToReplyCode(err.code().value()));
-	}
-
-	poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
-	state = S_CONNECTING;
+	
+	state = S_READING_TFO_PAYLOAD;
+	process(-1, 0);
 }
 
 void ProxyUpstreamer::honorConnectStackOptions()
 {
-	//TODO
+	tfoPayload = std::min((size_t)request->options.stack.tfo.get().value_or(0), MSS);
 }
 
 ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, UniqFD &&srcFD)
@@ -126,49 +116,34 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		}
 
 		poller->assign(new AuthServer(this));
-
-		tfoPayload = std::min((size_t)request->options.stack.tfo.get().value_or(0), MSS);
+		break;
+	}
 		
-		if (buf.usedSize() < tfoPayload)
-		{
-			state = S_READING_TFO_PAYLOAD;
-			poller->add(this, srcSock.fd, Poller::IN_EVENTS);
-		}
-		else
-		{
-			honorLock.lock();
-			state = S_AWAITING_AUTH;
-			bool honor = authenticated;
-			honorLock.unlock();
-			
-			if (honor)
-				honorRequest();
-		}
-		break;
-	}
-	case S_AWAITING_AUTH:
-	{
-		// this point shouldn't be reached
-		break;
-	}
 	case S_READING_TFO_PAYLOAD:
 	{
 		ssize_t bytes = srcSock.sockRecv(&buf);
-		if (bytes == 0)
+		if (buf.usedSize() < tfoPayload && bytes != 0)
 		{
-			deactivate();
+			poller->add(this, srcSock.fd, Poller::IN_EVENTS);
 			return;
 		}
-		if (buf.usedSize() >= tfoPayload)
+		
+		S6U::SocketAddress sockAddr(addr, request->port);
+		try
 		{
-			honorLock.lock();
-			state = S_AWAITING_AUTH;
-			bool honor = authenticated;
-			honorLock.unlock();
-			
-			if (honor)
-				honorRequest();
+			dstSock.sockConnect(sockAddr, &buf, tfoPayload, false);
 		}
+		catch (system_error &)
+		{
+			//TODO: maybe check error code?
+			reply.code = SOCKS6_OPERATION_REPLY_FAILURE;
+			poller->assign(new SimpleProxyDownstreamer(this, &reply));
+			return;
+		}
+	
+		poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
+		state = S_CONNECTING;
+		
 		break;
 	}
 	case S_CONNECTING:
@@ -217,15 +192,4 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		break;
 	}
 	}
-}
-
-void ProxyUpstreamer::authDone()
-{
-	honorLock.lock();
-	authenticated = true;
-	bool honor = state == S_AWAITING_AUTH;
-	honorLock.unlock();
-	
-	if (honor)
-		honorRequest();
 }

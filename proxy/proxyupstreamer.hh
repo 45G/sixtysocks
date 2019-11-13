@@ -18,8 +18,6 @@ class ProxyUpstreamer: public StreamReactor
 	{
 		S_READING_REQ,
 		S_READING_TFO_PAYLOAD,
-		S_AWAITING_AUTH,
-		//S_RESOLVING,
 		S_CONNECTING,
 		//S_AWAINING_HUP,
 		S_STREAM,
@@ -28,7 +26,6 @@ class ProxyUpstreamer: public StreamReactor
 	boost::intrusive_ptr<Proxy> proxy;
 	
 	std::atomic<State> state { S_READING_REQ };
-	std::atomic<bool> authenticated { false };
 	size_t tfoPayload = 0;
 	
 	std::shared_ptr<S6M::Request> request;
@@ -37,7 +34,6 @@ class ProxyUpstreamer: public StreamReactor
 	boost::intrusive_ptr<ConnectProxyDownstreamer> downstreamer;
 	
 	AuthServer *authServer = nullptr;
-	tbb::spin_mutex honorLock;
 	
 	/* resolve state */
 	S6M::Address addr;
@@ -55,7 +51,10 @@ public:
 	
 	void process(int fd, uint32_t events);
 	
-	void authDone();
+	void authDone()
+	{
+		honorRequest();
+	}
 
 	std::shared_ptr<S6M::Request> getRequest() const
 	{

@@ -116,14 +116,9 @@ void AuthServer::sendReply()
 	}
 	else if (reply.code == SOCKS6_AUTH_REPLY_SUCCESS)
 	{
-		try
-		{
+		poller->runAs(upstreamer.get(), [&]{
 			upstreamer->authDone();
-		}
-		catch (RescheduleException &resched)
-		{
-			poller->add(upstreamer, resched.getFD(), resched.getEvents());
-		}
+		});
 	}
 	else
 	{

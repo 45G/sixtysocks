@@ -5,8 +5,6 @@
 #include "poller.hh"
 #include "reactor.hh"
 
-#include <iostream>
-
 using namespace std;
 using boost::intrusive_ptr;
 
