@@ -136,6 +136,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		
 	case S_READING_TFO_PAYLOAD:
 	{
+		//TODO: get rid of if (need extra state in enum)
 		if (buf.usedSize() < tfoPayload)
 		{
 			ssize_t bytes = srcSock.sockRecv(&buf);
