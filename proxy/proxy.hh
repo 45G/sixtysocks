@@ -11,9 +11,12 @@
 #include "../authentication/passwordchecker.hh"
 #include "../authentication/syncedtokenstuff.h"
 #include "serversession.hh"
+#include "resolver.hh"
 
 class Proxy: public ListenReactor
 {
+	boost::intrusive_ptr<Resolver> resolver = new Resolver(poller);
+	
 	std::unique_ptr<PasswordChecker> passwordChecker;
 	
 	tbb::concurrent_hash_map<uint64_t, std::shared_ptr<ServerSession>> sessions;
@@ -44,6 +47,11 @@ public:
 	TLSContext *getServerCtx() const
 	{
 		return serverCtx;
+	}
+	
+	Resolver *getResolver()
+	{
+		return resolver.get();
 	}
 };
 

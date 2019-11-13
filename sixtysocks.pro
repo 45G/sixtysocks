@@ -16,6 +16,7 @@ SOURCES += \
     proxifier/readabledeferreactor.cc \
     proxy/proxy.cc \
     proxy/proxyupstreamer.cc \
+    proxy/resolver.cc \
     proxy/simpleproxydownstreamer.cc \
     proxy/connectproxydownstreamer.cc \
     sixtysocks.cc \
@@ -43,6 +44,7 @@ HEADERS += \
     proxifier/readabledeferreactor.hh \
     proxy/proxy.hh \
     proxy/proxyupstreamer.hh \
+    proxy/resolver.hh \
     proxy/simpleproxydownstreamer.hh \
     proxy/connectproxydownstreamer.hh \
     authentication/passwordchecker.hh \
