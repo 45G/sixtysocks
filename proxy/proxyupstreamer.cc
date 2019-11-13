@@ -17,8 +17,8 @@ void ProxyUpstreamer::addrFixup()
 		return;
 	}
 	
-	/* redirect DNS locally*/
-	if (request->address.isZero() && request->port == 53)
+	/* redirect default services locally */
+	if (request->address.isZero() && Proxy::DEFAULT_SERVICES.find(request->port) != Proxy::DEFAULT_SERVICES.end())
 		addr = S6M::Address(in_addr{ INADDR_LOOPBACK });
 	else
 		addr = request->address;

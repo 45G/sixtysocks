@@ -26,6 +26,10 @@ class Proxy: public ListenReactor
 	TLSContext *serverCtx;
 
 public:
+	static const std::set<uint16_t> DEFAULT_SERVICES = {
+		53, /* DNS */
+	};
+
 	Proxy(Poller *poller, const S6U::SocketAddress &bindAddr, PasswordChecker *passwordChecker, TLSContext *serverCtx)
 		: ListenReactor(poller, bindAddr), passwordChecker(passwordChecker), serverCtx(serverCtx) {}
 	
