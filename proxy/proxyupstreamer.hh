@@ -38,11 +38,15 @@ class ProxyUpstreamer: public StreamReactor
 	/* resolve state */
 	S6M::Address addr;
 	
+	void addrFixup();
+	
 	void honorRequest();
 
 	void honorConnect();
 
 	void honorConnectStackOptions();
+	
+	void populateConnectStackOptions();
 	
 public:
 	ProxyUpstreamer(Proxy *proxy, UniqFD &&srcFD);
@@ -53,8 +57,10 @@ public:
 	
 	void authDone()
 	{
-		honorRequest();
+		addrFixup();
 	}
+	
+	void resolvDone(std::optional<S6M::Address> resolved);
 
 	std::shared_ptr<S6M::Request> getRequest() const
 	{

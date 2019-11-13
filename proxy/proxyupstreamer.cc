@@ -9,6 +9,23 @@
 
 using namespace std;
 
+void ProxyUpstreamer::addrFixup()
+{
+	if (request->address.getType() == SOCKS6_ADDR_DOMAIN)
+	{
+		proxy->getResolver()->resolve(this, *addr.getDomain());
+		return;
+	}
+	
+	/* redirect DNS locally*/
+	if (request->address.isZero() && request->port == 53)
+		addr = S6M::Address(in_addr{ INADDR_LOOPBACK });
+	else
+		addr = request->address;
+	
+	honorRequest();
+}
+
 void ProxyUpstreamer::honorRequest()
 {
 	try
@@ -44,16 +61,6 @@ void ProxyUpstreamer::honorRequest()
 
 void ProxyUpstreamer::honorConnect()
 {
-	//TODO: resolve
-	if (request->address.getType() == SOCKS6_ADDR_DOMAIN)
-		throw SimpleReplyException(SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED);
-
-	/* resolve zero to loopback for port DNS port */
-	if (request->address.isZero() && request->port == 53)
-		addr = S6M::Address(in_addr{ INADDR_LOOPBACK });
-	else
-		addr = request->address;
-	
 	S6U::SocketAddress sockAddr(addr, request->port);
 		
 	dstSock.fd.assign(socket(sockAddr.sockAddress.sa_family, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP));
@@ -69,6 +76,12 @@ void ProxyUpstreamer::honorConnect()
 void ProxyUpstreamer::honorConnectStackOptions()
 {
 	tfoPayload = std::min((size_t)request->options.stack.tfo.get().value_or(0), MSS);
+}
+
+void ProxyUpstreamer::populateConnectStackOptions()
+{
+	if (S6U::Socket::hasMPTCP(dstSock.fd) > 0)
+		reply.options.stack.mp.set(SOCKS6_STACK_LEG_PROXY_REMOTE, SOCKS6_MP_AVAILABLE);
 }
 
 ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, UniqFD &&srcFD)
@@ -171,12 +184,12 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		if (rc < 0)
 			throw system_error(errno, system_category());
 
-		if (S6U::Socket::hasMPTCP(dstSock.fd) > 0)
-			reply.options.stack.mp.set(SOCKS6_STACK_LEG_PROXY_REMOTE, SOCKS6_MP_AVAILABLE);
-
 		reply.code = SOCKS6_OPERATION_REPLY_SUCCESS;
 		reply.address = bindAddr.getAddress();
 		reply.port = bindAddr.getPort();
+		
+		populateConnectStackOptions();
+		
 		poller->assign(new ConnectProxyDownstreamer(this, &reply));
 
 		state = S_STREAM;
@@ -192,4 +205,17 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		break;
 	}
 	}
+}
+
+void ProxyUpstreamer::resolvDone(optional<S6M::Address> resolved)
+{
+	if (!resolved)
+	{
+		reply.code = SOCKS6_OPERATION_REPLY_HOST_UNREACH;
+		poller->assign(new SimpleProxyDownstreamer(this, &reply));
+		return;
+	}
+	
+	addr = *resolved;
+	honorRequest();
 }

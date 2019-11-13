@@ -5,6 +5,8 @@
 
 class Resolver: public Reactor
 {
+	std::atomic<uint16_t> tid { 0 };
+	
 public:
 	using Reactor::Reactor;
 	
