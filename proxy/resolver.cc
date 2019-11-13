@@ -10,5 +10,7 @@ void Resolver::process(int fd, uint32_t events)
 void Resolver::resolve(boost::intrusive_ptr<ProxyUpstreamer> upstreamer, const std::string &hostname)
 {
 	//TODO
-	upstreamer->resolvDone({});
+	poller->runAs(upstreamer.get(), [&]() {
+		upstreamer->resolvDone({});
+	});
 }

@@ -134,11 +134,16 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 		
 	case S_READING_TFO_PAYLOAD:
 	{
-		ssize_t bytes = srcSock.sockRecv(&buf);
-		if (buf.usedSize() < tfoPayload && bytes != 0)
+		if (buf.usedSize() < tfoPayload)
 		{
-			poller->add(this, srcSock.fd, Poller::IN_EVENTS);
-			return;
+			ssize_t bytes = srcSock.sockRecv(&buf);
+			if (bytes == 0)
+				return;
+			if (buf.usedSize() < tfoPayload)
+			{
+				poller->add(this, srcSock.fd, Poller::IN_EVENTS);
+				return;
+			}
 		}
 		
 		S6U::SocketAddress sockAddr(addr, request->port);
