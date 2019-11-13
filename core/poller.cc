@@ -127,18 +127,8 @@ void Poller::threadFun(Poller *poller)
 		if (!reactor->isActive())
 			return;
 		
-		try
-		{
+		poller->runAs(reactor.get(), [&](){
 			reactor->process(event.data.fd, event.events);
-		}
-		catch (RescheduleException &resched)
-		{
-			poller->add(reactor, resched.getFD(), resched.getEvents());
-		}
-		catch (exception &ex)
-		{
-			cerr << "Caught exception; killing reactor: " << ex.what() << endl;
-			reactor->deactivate();
-		}
+		});
 	}
 }
