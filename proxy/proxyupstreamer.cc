@@ -70,7 +70,9 @@ void ProxyUpstreamer::honorConnect()
 	honorConnectStackOptions();
 	
 	state = S_READING_TFO_PAYLOAD;
-	process(-1, 0);
+	poller->runAs(this, [&] {
+		process(-1, 0);	
+	});
 }
 
 void ProxyUpstreamer::honorConnectStackOptions()
