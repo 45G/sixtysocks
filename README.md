@@ -103,6 +103,6 @@ Just append the following arguments:
 
 ## Stuff that is notably missing
 
-* Hostname resolution
-* Anything else other than CONNECT functionality
+* Domain addresses: you'll have to resolve separately via SOCKS-provided DNS
+* Commands other than CONNECT
 * Expiration timers for sessions
