@@ -13,7 +13,9 @@ void ProxyUpstreamer::addrFixupAndHonorRequest()
 {
 	if (request->address.getType() == SOCKS6_ADDR_DOMAIN)
 	{
-		proxy->getResolver()->resolve(this, *addr.getDomain());
+		//proxy->getResolver()->resolve(this, *addr.getDomain());
+		reply.code = SOCKS6_OPERATION_REPLY_ADDR_NOT_SUPPORTED;
+		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 		return;
 	}
 	
