@@ -13,6 +13,9 @@ You will need the following packages:
  * Optional:
  ** Dnsmasq (or some other DNS server)
 
+Optionally, you will also need:
+ * dnsmasq (or some other local DNS proxy)
+
 Then run:
 
 ```
