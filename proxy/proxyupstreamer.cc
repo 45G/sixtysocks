@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void ProxyUpstreamer::addrFixup()
+void ProxyUpstreamer::addrFixupAndHonorRequest()
 {
 	if (request->address.getType() == SOCKS6_ADDR_DOMAIN)
 	{

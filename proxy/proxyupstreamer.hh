@@ -38,7 +38,7 @@ class ProxyUpstreamer: public StreamReactor
 	/* resolve state */
 	S6M::Address addr;
 	
-	void addrFixup();
+	void addrFixupAndHonorRequest();
 	
 	void honorRequest();
 
@@ -57,7 +57,7 @@ public:
 	
 	void authDone()
 	{
-		addrFixup();
+		addrFixupAndHonorRequest();
 	}
 	
 	void resolvDone(std::optional<S6M::Address> resolved);
