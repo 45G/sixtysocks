@@ -7,6 +7,10 @@
 using namespace std;
 using namespace tbb;
 
+const std::set<uint16_t> Proxy::DEFAULT_SERVICES = {
+	53, /* DNS */
+};
+
 void Proxy::handleNewConnection(int fd)
 {
 	UniqFD ufd(fd);
