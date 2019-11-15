@@ -10,8 +10,6 @@ You will need the following packages:
  * Threading Building Blocks (libtbb-dev(el))
  * libsocks6msg ([https://github.com/45G/libsocks6msg])
  * libsocks6util ([https://github.com/45G/libsocks6util])
- * Optional:
- ** Dnsmasq (or some other DNS server)
 
 Optionally, you will also need:
  * dnsmasq (or some other local DNS proxy)
