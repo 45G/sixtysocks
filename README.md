@@ -11,9 +11,6 @@ You will need the following packages:
  * libsocks6msg ([https://github.com/45G/libsocks6msg])
  * libsocks6util ([https://github.com/45G/libsocks6util])
 
-Optionally, you will also need:
- * dnsmasq (or some other local DNS proxy)
-
 Then run:
 
 ```
@@ -60,15 +57,15 @@ You'll need to get iptables to redirect the traffic that must be proxified to th
 In this example, all TCP traffic created by the user proxyme will be redirected to the local port 12345.
 
 ```
-iptables -t nat -N SIXTYSOCKS
+iptables -t nat    -N SIXTYSOCKS
 iptables -t mangle -N SIXTYSOCKS
 iptables -t mangle -N SIXTYSOCKS_MARK
 
 iptables -t nat -A SIXTYSOCKS -p tcp -m owner --uid-owner proxyme -j REDIRECT --to-ports 12345
 
-iptables -t nat -A OUTPUT -p tcp -j SIXTYSOCKS
-iptables -t mangle -A PREROUTING -j SIXTYSOCKS
-iptables -t mangle -A OUTPUT -j SIXTYSOCKS_MARK
+iptables -t nat    -A OUTPUT     -p tcp -j SIXTYSOCKS
+iptables -t mangle -A PREROUTING        -j SIXTYSOCKS
+iptables -t mangle -A OUTPUT            -j SIXTYSOCKS_MARK
 ```
 
 ### The proxifier
@@ -100,6 +97,9 @@ Just append the following arguments:
 -U username -P password
 ```
 
+### DNS (optional)
+
+Optionally, you can install Dnsmasq (or some other local DNS proxy). Sixtysocks will redirect all requests to 0.0.0.0:53 to 127.0.0.1:53.
 
 ## Stuff that is notably missing
 
