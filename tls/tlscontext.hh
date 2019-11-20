@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <memory>
+#include <iostream>
 #include <ssl.h>
 #include <keyhi.h>
 #include <pk11pub.h>
@@ -44,6 +45,8 @@ public:
 				throw std::runtime_error("Can't find key");
 
 			/* anti-replay */
+			try
+			{
 #ifndef SSL_SetupAntiReplay_NotMandatory
 #ifdef SSL_CreateAntiReplayContext
 			static const int AR_WINDOW = 1;
@@ -52,7 +55,11 @@ public:
 				throw TLSException();
 #endif
 #endif
-
+			}
+			catch (TLSException &ex)
+			{
+				std::cerr << ex.what() << std::endl;
+			}
 		}
 		else /* client */
 		{

@@ -61,9 +61,13 @@ TLS::TLS(TLSContext *ctx, int fd)
 		/* setup anti-replay */
 #ifndef SSL_SetupAntiReplay_NotMandatory
 #ifdef SSL_CreateAntiReplayContext
-		rc = SSL_SetAntiReplayContext(descriptor.get(), ctx->getAntiReplayCtx());
-		if (rc != SECSuccess)
-			throw TLSException();
+		auto antiReplayCtx = ctx->getAntiReplayCtx();
+		if (antiReplayCtx)
+		{
+			rc = SSL_SetAntiReplayContext(descriptor.get(), antiReplayCtx);
+			if (rc != SECSuccess)
+				throw TLSException();
+		}
 #endif
 #endif
 	}

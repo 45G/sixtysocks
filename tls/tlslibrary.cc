@@ -69,7 +69,7 @@ TLSLibrary::TLSLibrary(const string &configDir)
 	}
 	catch (TLSException &ex)
 	{
-		cerr << ex.what() <<endl;
+		cerr << ex.what() << endl;
 	}
 
 #endif /* SSL_SetupAntiReplay_NotMandatory */
