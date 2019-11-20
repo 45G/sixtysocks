@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <stdexcept>
 #include <socks6util/socks6util.hh>
+#include <iostream>
 extern "C"
 {
 #include <private/pprio.h>
@@ -57,6 +58,13 @@ TLS::TLS(TLSContext *ctx, int fd)
 		SECStatus rc = SSL_ConfigServerCert(descriptor.get(), ctx->getCert(), ctx->getKey(), nullptr, 0);
 		if (rc != SECSuccess)
 			throw TLSException();
+
+		/* setup anti-replay */
+#ifndef SSL_SetupAntiReplay_NotMandatory
+#ifdef SSL_CreateAntiReplayContext
+		SSL_SetAntiReplayContext(descriptor.get(), ctx->getAntiReplayCtx());
+#endif
+#endif
 	}
 	
 	if (ctx->isClient())
@@ -150,6 +158,8 @@ void TLS::clientHandshake(StreamBuffer *buf)
 
 		if (info.earlyDataAccepted)
 			buf->unuse(earlyWritten);
+
+		cout << (info.earlyDataAccepted ? "Early data" : "Late data") << endl;
 
 		state = S_LAISEZ_FAIRE;
 		[[fallthrough]];

@@ -7,6 +7,8 @@
 #include <ssl.h>
 #include <keyhi.h>
 #include <pk11pub.h>
+#include <sslexp.h>
+#include "tlsexception.hh"
 #include "tlslibrary.hh"
 
 class TLSContext
@@ -17,6 +19,12 @@ class TLSContext
 	std::string nick;
 	std::unique_ptr<CERTCertificate,  void (*)(CERTCertificate  *)> cert { nullptr, CERT_DestroyCertificate };
 	std::unique_ptr<SECKEYPrivateKey, void (*)(SECKEYPrivateKey *)> key  { nullptr, SECKEY_DestroyPrivateKey };
+#ifndef SSL_SetupAntiReplay_NotMandatory
+#ifdef SSL_CreateAntiReplayContext
+	//TODO: make unique_ptr
+	SSLAntiReplayContext *antiReplayCtx;
+#endif
+#endif
 	
 	/* client stuff */
 	std::string sni;
@@ -34,6 +42,17 @@ public:
 			key.reset(PK11_FindKeyByAnyCert(cert.get(), nullptr));
 			if (!key)
 				throw std::runtime_error("Can't find key");
+
+			/* anti-replay */
+#ifndef SSL_SetupAntiReplay_NotMandatory
+#ifdef SSL_CreateAntiReplayContext
+			static const int AR_WINDOW = 30;
+			SECStatus status = SSL_CreateAntiReplayContext(PR_Now(), AR_WINDOW * PR_USEC_PER_SEC, 7, 14, &antiReplayCtx);
+			if (status != SECSuccess)
+				throw TLSException();
+#endif
+#endif
+
 		}
 		else /* client */
 		{
@@ -42,7 +61,15 @@ public:
 		}
 	}
 
-	~TLSContext() {}
+	~TLSContext()
+	{
+#ifndef SSL_SetupAntiReplay_NotMandatory
+#ifdef SSL_CreateAntiReplayContext
+		if (antiReplayCtx)
+			SSL_ReleaseAntiReplayContext(antiReplayCtx); //might return error
+#endif
+#endif
+	}
 	
 	bool isServer() const
 	{
@@ -73,6 +100,15 @@ public:
 	{
 		return &sni;
 	}
+
+#ifndef SSL_SetupAntiReplay_NotMandatory
+#ifdef SSL_CreateAntiReplayContext
+	SSLAntiReplayContext *getAntiReplayCtx() const
+	{
+		return antiReplayCtx;
+	}
+#endif
+#endif
 };
 
 
