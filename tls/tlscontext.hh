@@ -46,7 +46,7 @@ public:
 			/* anti-replay */
 #ifndef SSL_SetupAntiReplay_NotMandatory
 #ifdef SSL_CreateAntiReplayContext
-			static const int AR_WINDOW = 30;
+			static const int AR_WINDOW = 1;
 			SECStatus status = SSL_CreateAntiReplayContext(PR_Now(), AR_WINDOW * PR_USEC_PER_SEC, 7, 14, &antiReplayCtx);
 			if (status != SECSuccess)
 				throw TLSException();
