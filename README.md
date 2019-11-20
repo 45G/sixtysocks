@@ -29,7 +29,7 @@ If you don't want to run SOCKS on top of TLS, you can skip this section.
 Start off by creating a self-signed certificate (you must provide a non-empty CN):
 
 ```
-openssl req -x509 -newkey rsa:4096 -keyout socks.pem -out socks.pem -days 365
+openssl req -x509 -newkey rsa:4096 -keyout socks.key -out socks.crt -days 365
 ```
 
 Next, create the database:
