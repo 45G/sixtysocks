@@ -7,19 +7,19 @@
 
 class ClientSession
 {
-	std::vector<uint8_t> id;
+	S6M::SessionID id;
 	bool untrusted;
 	std::unique_ptr<SyncedTokenWallet> wallet;
 	
 public:
-	ClientSession(const std::vector<uint8_t> &id, bool untrusted, std::pair<uint32_t, uint32_t> window = { 0, 0 })
+	ClientSession(const S6M::SessionID &id, bool untrusted, std::pair<uint32_t, uint32_t> window = { 0, 0 })
 		: id(id), untrusted(untrusted)
 	{
 		if (window.second > 0)
 			wallet.reset(new SyncedTokenWallet(window));
 	}
 
-	const std::vector<uint8_t> *getID() const
+	const S6M::SessionID *getID() const
 	{
 		return &id;
 	}

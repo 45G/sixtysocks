@@ -52,7 +52,7 @@ void AuthServer::check()
 		session = upstreamer->getProxy()->spawnSession();
 
 		uint64_t id = session->getID();
-		vector<uint8_t> rawID;
+		S6M::SessionID rawID;
 		rawID.resize(sizeof(uint64_t));
 		memcpy(rawID.data(), &id, sizeof(uint64_t));
 
