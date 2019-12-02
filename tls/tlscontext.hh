@@ -20,11 +20,9 @@ class TLSContext
 	std::string nick;
 	std::unique_ptr<CERTCertificate,  void (*)(CERTCertificate  *)> cert { nullptr, CERT_DestroyCertificate };
 	std::unique_ptr<SECKEYPrivateKey, void (*)(SECKEYPrivateKey *)> key  { nullptr, SECKEY_DestroyPrivateKey };
-#ifndef SSL_SetupAntiReplay_NotMandatory
 #ifdef SSL_CreateAntiReplayContext
 	//TODO: make unique_ptr
 	SSLAntiReplayContext *antiReplayCtx;
-#endif
 #endif
 	
 	/* client stuff */
@@ -47,13 +45,11 @@ public:
 			/* anti-replay */
 			try
 			{
-#ifndef SSL_SetupAntiReplay_NotMandatory
 #ifdef SSL_CreateAntiReplayContext
-			static const int AR_WINDOW = 1;
-			SECStatus status = SSL_CreateAntiReplayContext(PR_Now(), AR_WINDOW * PR_USEC_PER_SEC, 7, 14, &antiReplayCtx);
-			if (status != SECSuccess)
-				throw TLSException();
-#endif
+				static const int AR_WINDOW = 1;
+				SECStatus status = SSL_CreateAntiReplayContext(PR_Now(), AR_WINDOW * PR_USEC_PER_SEC, 7, 14, &antiReplayCtx);
+				if (status != SECSuccess)
+					throw TLSException();
 #endif
 			}
 			catch (TLSException &ex)
@@ -70,11 +66,9 @@ public:
 
 	~TLSContext()
 	{
-#ifndef SSL_SetupAntiReplay_NotMandatory
 #ifdef SSL_CreateAntiReplayContext
 		if (antiReplayCtx)
 			SSL_ReleaseAntiReplayContext(antiReplayCtx); //might return error
-#endif
 #endif
 	}
 	
@@ -108,13 +102,11 @@ public:
 		return &sni;
 	}
 
-#ifndef SSL_SetupAntiReplay_NotMandatory
 #ifdef SSL_CreateAntiReplayContext
 	SSLAntiReplayContext *getAntiReplayCtx() const
 	{
 		return antiReplayCtx;
 	}
-#endif
 #endif
 };
 

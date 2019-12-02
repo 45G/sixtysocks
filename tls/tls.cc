@@ -59,7 +59,6 @@ TLS::TLS(TLSContext *ctx, int fd)
 			throw TLSException();
 
 		/* setup anti-replay */
-#ifndef SSL_SetupAntiReplay_NotMandatory
 #ifdef SSL_CreateAntiReplayContext
 		auto antiReplayCtx = ctx->getAntiReplayCtx();
 		if (antiReplayCtx)
@@ -68,7 +67,6 @@ TLS::TLS(TLSContext *ctx, int fd)
 			if (rc != SECSuccess)
 				throw TLSException();
 		}
-#endif
 #endif
 	}
 	
