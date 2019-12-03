@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 	string username;
 	string password;
 	
-	intrusive_ptr<SimplePasswordChecker> passwordChecker;
+	intrusive_ptr<PasswordChecker> passwordChecker;
 	
 	bool defer = false;
 	
