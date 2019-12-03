@@ -17,7 +17,6 @@ class TLSContext
 	bool server;
 	
 	/* server stuff */
-	std::string nick;
 	std::unique_ptr<CERTCertificate,  void (*)(CERTCertificate  *)> cert { nullptr, CERT_DestroyCertificate };
 	std::unique_ptr<SECKEYPrivateKey, void (*)(SECKEYPrivateKey *)> key  { nullptr, SECKEY_DestroyPrivateKey };
 	
@@ -31,7 +30,7 @@ class TLSContext
 
 public:
 	TLSContext(bool server, const std::string &nick, const std::string &sni)
-		: server(server), nick(nick), sni(sni)
+		: server(server), sni(sni)
 	{
 		if (server)
 		{
@@ -75,11 +74,6 @@ public:
 	bool isClient() const
 	{
 		return !server;
-	}
-	
-	const std::string *getNick() const
-	{
-		return &nick;
 	}
 	
 	CERTCertificate *getCert()
