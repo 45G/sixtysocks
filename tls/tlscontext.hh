@@ -22,6 +22,7 @@ class TLSContext
 	
 #ifdef SSL_CreateAntiReplayContext
 	static void antiReplayCtxDeleter(SSLAntiReplayContext *antiReplayCtx);
+	
 	std::unique_ptr<SSLAntiReplayContext, void (*)(SSLAntiReplayContext *)> antiReplayCtx { nullptr, antiReplayCtxDeleter };
 #endif
 	
