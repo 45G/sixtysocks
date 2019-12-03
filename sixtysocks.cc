@@ -62,8 +62,6 @@ enum Mode
 
 int main(int argc, char **argv)
 {
-	char c;
-	opterr = 0;
 	int numThreads = 1;
 	int cpuOffset = -1;
 	Mode mode = M_NONE;
@@ -84,6 +82,8 @@ int main(int argc, char **argv)
 	srand(time(nullptr));
 
 	//TODO: fix this shit
+	opterr = 0;
+	char c;
 	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:C:S:n:D")) != -1)
 	{
 		switch (c)
