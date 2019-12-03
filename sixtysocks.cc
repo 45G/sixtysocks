@@ -64,16 +64,22 @@ int main(int argc, char **argv)
 {
 	int numThreads = 1;
 	int cpuOffset = -1;
+	
 	Mode mode = M_NONE;
+	
 	uint16_t port = 0;
 	uint16_t tlsPort = 0;
 	uint16_t proxyPort = 1080;
 	S6U::SocketAddress proxyAddr;
-	bool useTLS = false;
+	
 	string username;
 	string password;
+	
 	intrusive_ptr<SimplePasswordChecker> passwordChecker;
+	
 	bool defer = false;
+	
+	bool useTLS = false;
 	string certDB;
 	string nick;
 	string sni;
