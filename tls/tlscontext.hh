@@ -20,9 +20,10 @@ class TLSContext
 	std::string nick;
 	std::unique_ptr<CERTCertificate,  void (*)(CERTCertificate  *)> cert { nullptr, CERT_DestroyCertificate };
 	std::unique_ptr<SECKEYPrivateKey, void (*)(SECKEYPrivateKey *)> key  { nullptr, SECKEY_DestroyPrivateKey };
+	
 #ifdef SSL_CreateAntiReplayContext
-	//TODO: make unique_ptr
-	SSLAntiReplayContext *antiReplayCtx;
+	static void antiReplayCtxDeleter(SSLAntiReplayContext *antiReplayCtx);
+	std::unique_ptr<SSLAntiReplayContext, void (*)(SSLAntiReplayContext *)> antiReplayCtx { nullptr, antiReplayCtxDeleter };
 #endif
 	
 	/* client stuff */
@@ -47,7 +48,9 @@ public:
 			{
 #ifdef SSL_CreateAntiReplayContext
 				static const int AR_WINDOW = 1;
-				SECStatus status = SSL_CreateAntiReplayContext(PR_Now(), AR_WINDOW * PR_USEC_PER_SEC, 7, 14, &antiReplayCtx);
+				SSLAntiReplayContext *ctx;
+				SECStatus status = SSL_CreateAntiReplayContext(PR_Now(), AR_WINDOW * PR_USEC_PER_SEC, 7, 14, &ctx);
+				antiReplayCtx.reset(ctx);
 				if (status != SECSuccess)
 					throw TLSException();
 #endif
@@ -62,14 +65,6 @@ public:
 			if (sni == "")
 				throw std::invalid_argument("SNI is required");
 		}
-	}
-
-	~TLSContext()
-	{
-#ifdef SSL_CreateAntiReplayContext
-		if (antiReplayCtx)
-			SSL_ReleaseAntiReplayContext(antiReplayCtx); //might return error
-#endif
 	}
 	
 	bool isServer() const
@@ -105,7 +100,7 @@ public:
 #ifdef SSL_CreateAntiReplayContext
 	SSLAntiReplayContext *getAntiReplayCtx() const
 	{
-		return antiReplayCtx;
+		return antiReplayCtx.get();
 	}
 #endif
 };

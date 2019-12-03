@@ -30,6 +30,7 @@ SOURCES += \
     proxifier/sessionsupplicationagent.cc \
     tls/nspr_stuff.c \
     tls/tls.cc \
+    tls/tlscontext.cc \
     tls/tlsexception.cc \
     tls/tlslibrary.cc
 
