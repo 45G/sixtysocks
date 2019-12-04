@@ -8,53 +8,6 @@
 #include <nspr.h>
 #include "nspr_stuff.h"
 
-/* from priometh.c */
-
-PRIntn _PR_InvalidInt(void)
-{
-    PR_NOT_REACHED("I/O method is invalid");
-    PR_SetError(PR_INVALID_METHOD_ERROR, 0);
-    return -1;
-}  /* _PR_InvalidInt */
-
-PRInt16 _PR_InvalidInt16(void)
-{
-    PR_NOT_REACHED("I/O method is invalid");
-    PR_SetError(PR_INVALID_METHOD_ERROR, 0);
-    return -1;
-}  /* _PR_InvalidInt */
-
-PRInt64 _PR_InvalidInt64(void)
-{
-    PRInt64 rv;
-    LL_I2L(rv, -1);
-    PR_NOT_REACHED("I/O method is invalid");
-    PR_SetError(PR_INVALID_METHOD_ERROR, 0);
-    return rv;
-}  /* _PR_InvalidInt */
-
-/*
- * An invalid method that returns PRStatus
- */
-
-PRStatus _PR_InvalidStatus(void)
-{
-    PR_NOT_REACHED("I/O method is invalid");
-    PR_SetError(PR_INVALID_METHOD_ERROR, 0);
-    return PR_FAILURE;
-}  /* _PR_InvalidDesc */
-
-/*
- * An invalid method that returns a pointer
- */
-
-PRFileDesc *_PR_InvalidDesc(void)
-{
-    PR_NOT_REACHED("I/O method is invalid");
-    PR_SetError(PR_INVALID_METHOD_ERROR, 0);
-    return NULL;
-}  /* _PR_InvalidDesc */
-
 /* from unix_errors.c */
 
 void _MD_unix_map_default_error(int err)

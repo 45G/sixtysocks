@@ -11,17 +11,6 @@ extern "C"
 {
 #endif
 
-PRIntn _PR_InvalidInt(void);
-
-PRInt16 _PR_InvalidInt16(void);
-
-PRInt64 _PR_InvalidInt64(void);
-
-PRStatus _PR_InvalidStatus(void);
-
-PRFileDesc *_PR_InvalidDesc(void);
-
-
 void _MD_unix_map_recv_error(int err);
 
 void _MD_unix_map_send_error(int err);
