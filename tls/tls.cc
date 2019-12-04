@@ -214,9 +214,6 @@ T invalidFn()
 template <typename T>
 constexpr auto invalid = (T)invalidFn<typename decltype(function{declval<T>()})::result_type>;
 
-//template <typename T>
-//using invalid = (T)(&invalidFn<typename decltype(function{std::declval<T>()})::result_type>);
-
 const PRIOMethods TLS::METHODS = {
 	.file_type       = PR_DESC_SOCKET_TCP,
 	.close           = dClose,
