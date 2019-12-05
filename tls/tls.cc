@@ -198,55 +198,53 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 
 //TODO: cull this
 static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
-	{ EACCES,          PR_NO_ACCESS_RIGHTS_ERROR },
-	{ EAGAIN,          PR_WOULD_BLOCK_ERROR },
-	{ EBADF,           PR_BAD_DESCRIPTOR_ERROR },
+	{ EACCES,          PR_NO_ACCESS_RIGHTS_ERROR }, /* needed */
+	{ EAGAIN,          PR_WOULD_BLOCK_ERROR }, /* needed */
+	{ EBADF,           PR_BAD_DESCRIPTOR_ERROR }, /* needed */
 #ifdef EBADMSG
 	{ EBADMSG,         PR_IO_ERROR },
 #endif
 	{ ECONNABORTED,    PR_CONNECT_ABORTED_ERROR },
-	{ ECONNREFUSED,    PR_CONNECT_REFUSED_ERROR },
-	{ ECONNRESET,      PR_CONNECT_RESET_ERROR },
+	{ ECONNREFUSED,    PR_CONNECT_REFUSED_ERROR }, /* maybe */
+	{ ECONNRESET,      PR_CONNECT_RESET_ERROR }, /* needed */
 	{ EDEADLK,         PR_DEADLOCK_ERROR },
 	{ EEXIST,          PR_FILE_EXISTS_ERROR },
-	{ EFAULT,          PR_ACCESS_FAULT_ERROR },
+	{ EFAULT,          PR_ACCESS_FAULT_ERROR }, /* needed */
 	{ EHOSTUNREACH,    PR_HOST_UNREACHABLE_ERROR },
 	{ EHOSTDOWN,       PR_HOST_UNREACHABLE_ERROR },
 	{ EINPROGRESS,     PR_IN_PROGRESS_ERROR },
-	{ EINTR,           PR_PENDING_INTERRUPT_ERROR },
-	{ EINVAL,          PR_INVALID_ARGUMENT_ERROR },
+	{ EINTR,           PR_PENDING_INTERRUPT_ERROR }, /* needed */
+	{ EINVAL,          PR_INVALID_ARGUMENT_ERROR }, /* needed */
 	{ EIO,             PR_IO_ERROR },
-	{ EISCONN,         PR_IS_CONNECTED_ERROR },
 	{ ELOOP,           PR_LOOP_ERROR },
 	{ EMFILE,          PR_PROC_DESC_TABLE_FULL_ERROR },
-	{ EMSGSIZE,        PR_INVALID_ARGUMENT_ERROR },
+	{ EMSGSIZE,        PR_INVALID_ARGUMENT_ERROR }, /* needed */
 #ifdef EMULTIHOP
 	{ EMULTIHOP,       PR_REMOTE_FILE_ERROR },
 #endif
 	{ ENAMETOOLONG,    PR_NAME_TOO_LONG_ERROR },
 	{ ENETUNREACH,     PR_NETWORK_UNREACHABLE_ERROR },
-	{ ENFILE,          PR_SYS_DESC_TABLE_FULL_ERROR },
 #ifdef ENOBUFS
-	{ ENOBUFS,         PR_INSUFFICIENT_RESOURCES_ERROR },
+	{ ENOBUFS,         PR_INSUFFICIENT_RESOURCES_ERROR }, /* needed */
 #endif
 #ifdef ENOLINK
 	{ ENOLINK,         PR_REMOTE_FILE_ERROR },
 #endif
-	{ ENOMEM,          PR_OUT_OF_MEMORY_ERROR },
+	{ ENOMEM,          PR_OUT_OF_MEMORY_ERROR }, /* needed */
 	{ ENOPROTOOPT,     PR_INVALID_ARGUMENT_ERROR },
 #ifdef ENOSR
 	{ ENOSR,           PR_INSUFFICIENT_RESOURCES_ERROR },
 #endif
 	{ ENOSYS,          PR_NOT_IMPLEMENTED_ERROR },
-	{ ENOTCONN,        PR_NOT_CONNECTED_ERROR },
-	{ ENOTSOCK,        PR_NOT_SOCKET_ERROR },
+	{ ENOTCONN,        PR_NOT_CONNECTED_ERROR }, /* needed */
+	{ ENOTSOCK,        PR_NOT_SOCKET_ERROR }, /* needed */
 	{ ENXIO,           PR_FILE_NOT_FOUND_ERROR },
 	{ EOPNOTSUPP,      PR_NOT_TCP_SOCKET_ERROR },
 #ifdef EOVERFLOW
 	{ EOVERFLOW,       PR_BUFFER_OVERFLOW_ERROR },
 #endif
 	{ EPERM,           PR_NO_ACCESS_RIGHTS_ERROR },
-	{ EPIPE,           PR_CONNECT_RESET_ERROR },
+	{ EPIPE,           PR_CONNECT_RESET_ERROR }, /* needed */
 #ifdef EPROTO
 	{ EPROTO,          PR_IO_ERROR },
 #endif
@@ -255,7 +253,7 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ ERANGE,          PR_INVALID_METHOD_ERROR },
 	{ ESPIPE,          PR_INVALID_METHOD_ERROR },
 	{ ETIMEDOUT,       PR_IO_TIMEOUT_ERROR },
-	{ EWOULDBLOCK,     PR_WOULD_BLOCK_ERROR },
+	{ EWOULDBLOCK,     PR_WOULD_BLOCK_ERROR }, /* needed */
 };
 
 static const unordered_map<int, PRErrorCode> ALT_ENOMEM_ERRORS = {
