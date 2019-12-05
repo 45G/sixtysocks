@@ -14,45 +14,6 @@ extern "C"
 
 void mapDefaultError(int err);
 
-inline void _MD_unix_map_read_error(int err)
-{
-	PRErrorCode prError;
-	
-	switch (err) {
-	case EINVAL:
-		prError = PR_INVALID_METHOD_ERROR;
-		break;
-	case ENXIO:
-		prError = PR_INVALID_ARGUMENT_ERROR;
-		break;
-	default:
-		mapDefaultError(err);
-		return;
-	}
-	PR_SetError(prError, err);
-}
-
-inline void _MD_unix_map_write_error(int err)
-{
-	PRErrorCode prError;
-	
-	switch (err) {
-	case EINVAL:
-		prError = PR_INVALID_METHOD_ERROR;
-		break;
-	case ENXIO:
-		prError = PR_INVALID_METHOD_ERROR;
-		break;
-	case ETIMEDOUT:
-		prError = PR_REMOTE_FILE_ERROR;
-		break;
-	default:
-		mapDefaultError(err);
-		return;
-	}
-	PR_SetError(prError, err);
-}
-
 inline void _MD_unix_map_socket_error(int err)
 {
 	PRErrorCode prError;
