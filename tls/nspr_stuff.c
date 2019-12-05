@@ -10,11 +10,6 @@
 
 /* from unix_errors.c */
 
-void _MD_unix_map_opendir_error(int err)
-{
-    _MD_unix_map_default_error(err);
-}
-
 void _MD_unix_map_closedir_error(int err)
 {
     PRErrorCode prError;
@@ -263,31 +258,6 @@ void _MD_unix_map_socketavailable_error(int err)
     PR_SetError(PR_BAD_DESCRIPTOR_ERROR, err);
 }
 
-void _MD_unix_map_recv_error(int err)
-{
-    _MD_unix_map_default_error(err);
-}
-
-void _MD_unix_map_recvfrom_error(int err)
-{
-    _MD_unix_map_default_error(err);
-}
-
-void _MD_unix_map_send_error(int err)
-{
-    _MD_unix_map_default_error(err);
-}
-
-void _MD_unix_map_sendto_error(int err)
-{
-    _MD_unix_map_default_error(err);
-}
-
-void _MD_unix_map_writev_error(int err)
-{
-    _MD_unix_map_default_error(err);
-}
-
 void _MD_unix_map_accept_error(int err)
 {
     PRErrorCode prError;
@@ -341,16 +311,6 @@ void _MD_unix_map_bind_error(int err)
 	    return;
     }
     PR_SetError(prError, err);
-}
-
-void _MD_unix_map_listen_error(int err)
-{
-    _MD_unix_map_default_error(err);
-}
-
-void _MD_unix_map_shutdown_error(int err)
-{
-    _MD_unix_map_default_error(err);
 }
 
 void _MD_unix_map_socketpair_error(int err)
@@ -488,16 +448,6 @@ void _MD_unix_map_mmap_error(int err)
 	    return;
     }
     PR_SetError(prError, err);
-}
-
-void _MD_unix_map_gethostname_error(int err)
-{
-    _MD_unix_map_default_error(err);
-}
-
-void _MD_unix_map_select_error(int err)
-{
-    _MD_unix_map_default_error(err);
 }
 
 #if defined(_PR_POLL_AVAILABLE) || defined(_PR_NEED_FAKE_POLL)

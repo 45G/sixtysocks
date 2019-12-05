@@ -364,7 +364,7 @@ PRInt32 PR_CALLBACK TLS::dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn
 
 	int rc = recv(tls->readFD, buf, amount, flags);
 	if (rc < 0)
-		_MD_unix_map_recv_error(errno);
+		_MD_unix_map_default_error(errno);
 	
 	blockDirection = BD_IN;
 
@@ -384,7 +384,7 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 
 	ssize_t rc = send(tls->writeFD, buf, amount, flags);
 	if (rc < 0)
-		_MD_unix_map_send_error(errno);
+		_MD_unix_map_default_error(errno);
 	
 	blockDirection = BD_OUT;
 

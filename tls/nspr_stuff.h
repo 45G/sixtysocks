@@ -11,10 +11,6 @@ extern "C"
 {
 #endif
 
-void _MD_unix_map_recv_error(int err);
-
-void _MD_unix_map_send_error(int err);
-
 void _MD_unix_map_connect_error(int err);
 
 void _MD_unix_map_getsockname_error(int err);
@@ -22,8 +18,6 @@ void _MD_unix_map_getsockname_error(int err);
 void _MD_unix_map_getpeername_error(int err);
 
 void _MD_unix_map_default_error(int err);
-
-void _MD_unix_map_opendir_error(int err);
 
 void _MD_unix_map_closedir_error(int err);
 
@@ -57,25 +51,15 @@ void _MD_unix_map_socket_error(int err);
 
 void _MD_unix_map_socketavailable_error(int err);
 
-void _MD_unix_map_recv_error(int err);
+void _MD_unix_map_default_error(int err);
 
-void _MD_unix_map_recvfrom_error(int err);
-
-void _MD_unix_map_send_error(int err);
-
-void _MD_unix_map_sendto_error(int err);
-
-void _MD_unix_map_writev_error(int err);
+void _MD_unix_map_default_error(int err);
 
 void _MD_unix_map_accept_error(int err);
 
 void _MD_unix_map_connect_error(int err);
 
 void _MD_unix_map_bind_error(int err);
-
-void _MD_unix_map_listen_error(int err);
-
-void _MD_unix_map_shutdown_error(int err);
 
 void _MD_unix_map_socketpair_error(int err);
 
@@ -90,10 +74,6 @@ void _MD_unix_map_setsockopt_error(int err);
 void _MD_unix_map_open_error(int err);
 
 void _MD_unix_map_mmap_error(int err);
-
-void _MD_unix_map_gethostname_error(int err);
-
-void _MD_unix_map_select_error(int err);
 
 void _MD_unix_map_flock_error(int err);
 
