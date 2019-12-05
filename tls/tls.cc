@@ -289,45 +289,45 @@ T invalidFn()
 }
 
 template <typename T>
-constexpr auto INVALID = (T)invalidFn<typename decltype(function{declval<T>()})::result_type>;
+constexpr auto INVALID_FN = (T)invalidFn<typename decltype(function{declval<T>()})::result_type>;
 
 const PRIOMethods TLS::METHODS = {
 	.file_type       = PR_DESC_SOCKET_TCP,
 	.close           = dClose,
 	.read            = dRead,
 	.write           = dWrite,
-	.available       = INVALID<PRAvailableFN>,       /* wasSocketAvailable */
-	.available64     = INVALID<PRAvailable64FN>,     /* wasSocketAvailable64 */
-	.fsync           = INVALID<PRFsyncFN>,           /* wasSocketSync */
-	.seek            = INVALID<PRSeekFN>,
-	.seek64          = INVALID<PRSeek64FN>,
-	.fileInfo        = INVALID<PRFileInfoFN>,
-	.fileInfo64      = INVALID<PRFileInfo64FN>,
-	.writev          = INVALID<PRWritevFN>,          /* wasSocketWritev */
-	.connect         = INVALID<PRConnectFN>,         /* wasSocketConnect */
-	.accept          = INVALID<PRAcceptFN>,          /* wasSocketAccept */
-	.bind            = INVALID<PRBindFN>,            /* wasSocketBind */
-	.listen          = INVALID<PRListenFN>,          /* wasSocketListen */
-	.shutdown        = INVALID<PRShutdownFN>,        /* wasSocketShutdown */
+	.available       = INVALID_FN<PRAvailableFN>,       /* wasSocketAvailable */
+	.available64     = INVALID_FN<PRAvailable64FN>,     /* wasSocketAvailable64 */
+	.fsync           = INVALID_FN<PRFsyncFN>,           /* wasSocketSync */
+	.seek            = INVALID_FN<PRSeekFN>,
+	.seek64          = INVALID_FN<PRSeek64FN>,
+	.fileInfo        = INVALID_FN<PRFileInfoFN>,
+	.fileInfo64      = INVALID_FN<PRFileInfo64FN>,
+	.writev          = INVALID_FN<PRWritevFN>,          /* wasSocketWritev */
+	.connect         = INVALID_FN<PRConnectFN>,         /* wasSocketConnect */
+	.accept          = INVALID_FN<PRAcceptFN>,          /* wasSocketAccept */
+	.bind            = INVALID_FN<PRBindFN>,            /* wasSocketBind */
+	.listen          = INVALID_FN<PRListenFN>,          /* wasSocketListen */
+	.shutdown        = INVALID_FN<PRShutdownFN>,        /* wasSocketShutdown */
 	.recv            = dRecv,
 	.send            = dSend,
-	.recvfrom        = INVALID<PRRecvfromFN>,
-	.sendto          = INVALID<PRSendtoFN>,
-	.poll            = INVALID<PRPollFN>,            /* wasSocketPoll */
-	.acceptread      = INVALID<PRAcceptreadFN>,      /* wasSocketAcceptRead */
-	.transmitfile    = INVALID<PRTransmitfileFN>,    /* wasSocketTransmitFile */
+	.recvfrom        = INVALID_FN<PRRecvfromFN>,
+	.sendto          = INVALID_FN<PRSendtoFN>,
+	.poll            = INVALID_FN<PRPollFN>,            /* wasSocketPoll */
+	.acceptread      = INVALID_FN<PRAcceptreadFN>,      /* wasSocketAcceptRead */
+	.transmitfile    = INVALID_FN<PRTransmitfileFN>,    /* wasSocketTransmitFile */
 	.getsockname     = dGetName,
 	.getpeername     = dGetPeerName,
-	.reserved_fn_6   = INVALID<PRReservedFN>,
-	.reserved_fn_5   = INVALID<PRReservedFN>,
+	.reserved_fn_6   = INVALID_FN<PRReservedFN>,
+	.reserved_fn_5   = INVALID_FN<PRReservedFN>,
 	.getsocketoption = dGetSocketOption,             /* was_PR_SocketGetSocketOption */
-	.setsocketoption = INVALID<PRSetsocketoptionFN>, /* was_PR_SocketSetSocketOption */
-	.sendfile        = INVALID<PRSendfileFN>,        /* wasSocketSendFile */
-	.connectcontinue = INVALID<PRConnectcontinueFN>, //TODO
-	.reserved_fn_3   = INVALID<PRReservedFN>,
-	.reserved_fn_2   = INVALID<PRReservedFN>,
-	.reserved_fn_1   = INVALID<PRReservedFN>,
-	.reserved_fn_0   = INVALID<PRReservedFN>
+	.setsocketoption = INVALID_FN<PRSetsocketoptionFN>, /* was_PR_SocketSetSocketOption */
+	.sendfile        = INVALID_FN<PRSendfileFN>,        /* wasSocketSendFile */
+	.connectcontinue = INVALID_FN<PRConnectcontinueFN>, //TODO
+	.reserved_fn_3   = INVALID_FN<PRReservedFN>,
+	.reserved_fn_2   = INVALID_FN<PRReservedFN>,
+	.reserved_fn_1   = INVALID_FN<PRReservedFN>,
+	.reserved_fn_0   = INVALID_FN<PRReservedFN>
 };
 
 PRStatus PR_CALLBACK TLS::dClose(PRFileDesc *fd)
