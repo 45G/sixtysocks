@@ -260,25 +260,20 @@ static const unordered_map<int, PRErrorCode> ALT_ENOMEM_ERRORS = {
 
 static inline void mapError(int err)
 {
-	PR_SetError(PR_UNKNOWN_ERROR, err);
+	auto it = DEFAULT_ERRORS.find(err);
+	if (it != DEFAULT_ERRORS.end())
+		PR_SetError(it->second, err);
+	else
+		PR_SetError(PR_UNKNOWN_ERROR, err);
 }
 
-static inline void mapError(int err, const unordered_map<int, PRErrorCode> &table)
+static inline void mapError(int err, const unordered_map<int, PRErrorCode> &override)
 {
-	auto it = table.find(err);
-	if (it != table.end())
+	auto it = override.find(err);
+	if (it != override.end())
 		PR_SetError(it->second, err);
 	else
 		mapError(err);
-}
-
-static inline void mapError(int err, const unordered_map<int, PRErrorCode> &table1, const unordered_map<int, PRErrorCode> &table2)
-{
-	auto it = table1.find(err);
-	if (it != table1.end())
-		PR_SetError(it->second, err);
-	else
-		mapError(err, table2);
 }
 
 template <typename T>
@@ -353,7 +348,7 @@ PRInt32 PR_CALLBACK TLS::dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn
 
 	int rc = recv(tls->readFD, buf, amount, flags);
 	if (rc < 0)
-		mapError(errno, DEFAULT_ERRORS);
+		mapError(errno);
 	
 	blockDirection = BD_IN;
 
@@ -373,7 +368,7 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 
 	ssize_t rc = send(tls->writeFD, buf, amount, flags);
 	if (rc < 0)
-		mapError(errno, DEFAULT_ERRORS);
+		mapError(errno);
 	
 	blockDirection = BD_OUT;
 
@@ -393,7 +388,7 @@ PRStatus PR_CALLBACK TLS::dGetName(PRFileDesc *fd, PRNetAddr *addr)
 	int rc = getsockname(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
 	{
-		mapError(errno, ALT_ENOMEM_ERRORS, DEFAULT_ERRORS);
+		mapError(errno, ALT_ENOMEM_ERRORS);
 		return PR_FAILURE;
 	}
 
@@ -410,7 +405,7 @@ PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 	socklen_t addrLen = sizeof(PRNetAddr);
 	int rc = getpeername(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
-		mapError(errno, ALT_ENOMEM_ERRORS, DEFAULT_ERRORS);
+		mapError(errno, ALT_ENOMEM_ERRORS);
 
 	return PR_SUCCESS;
 }
