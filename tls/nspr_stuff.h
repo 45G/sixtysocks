@@ -73,61 +73,6 @@ inline void _MD_unix_map_socketavailable_error(int err)
 	PR_SetError(PR_BAD_DESCRIPTOR_ERROR, err);
 }
 
-inline void _MD_unix_map_accept_error(int err)
-{
-	PRErrorCode prError;
-	
-	switch (err) {
-	case ENODEV:
-		prError = PR_NOT_TCP_SOCKET_ERROR;
-		break;
-	default:
-		mapDefaultError(err);
-		return;
-	}
-	PR_SetError(prError, err);
-}
-
-inline void _MD_unix_map_connect_error(int err)
-{
-	PRErrorCode prError;
-	
-	switch (err) {
-#if defined(UNIXWARE)
-	/*
-	 * On some platforms, if we connect to a port on the local host
-	 * (the loopback address) that no process is listening on, we get
-	 * EIO instead of ECONNREFUSED.
-	 */
-	case EIO:
-		prError = PR_CONNECT_REFUSED_ERROR;
-		break;
-#endif
-	case ENXIO:
-		prError = PR_IO_ERROR;
-		break;
-	default:
-		mapDefaultError(err);
-		return;
-	}
-	PR_SetError(prError, err);
-}
-
-inline void _MD_unix_map_bind_error(int err)
-{
-	PRErrorCode prError;
-	
-	switch (err) {
-	case EINVAL:
-		prError = PR_SOCKET_ADDRESS_IS_BOUND_ERROR;
-		break;
-	default:
-		mapDefaultError(err);
-		return;
-	}
-	PR_SetError(prError, err);
-}
-
 inline void _MD_unix_map_socketpair_error(int err)
 {
 	PRErrorCode prError;
