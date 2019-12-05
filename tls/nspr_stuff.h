@@ -79,42 +79,6 @@ inline void _MD_unix_map_getpeername_error(int err)
 	PR_SetError(prError, err);
 }
 
-inline void _MD_unix_map_getsockopt_error(int err)
-{
-	PRErrorCode prError;
-	
-	switch (err) {
-	case EINVAL:
-		prError = PR_BUFFER_OVERFLOW_ERROR;
-		break;
-	case ENOMEM:
-		prError = PR_INSUFFICIENT_RESOURCES_ERROR;
-		break;
-	default:
-		mapDefaultError(err);
-		return;
-	}
-	PR_SetError(prError, err);
-}
-
-inline void _MD_unix_map_setsockopt_error(int err)
-{
-	PRErrorCode prError;
-	
-	switch (err) {
-	case EINVAL:
-		prError = PR_BUFFER_OVERFLOW_ERROR;
-		break;
-	case ENOMEM:
-		prError = PR_INSUFFICIENT_RESOURCES_ERROR;
-		break;
-	default:
-		mapDefaultError(err);
-		return;
-	}
-	PR_SetError(prError, err);
-}
-
 #ifdef __cplusplus
 }
 #endif
