@@ -260,8 +260,6 @@ static const unordered_map<int, PRErrorCode> ALT_ENOMEM_ERRORS = {
 
 static inline void mapError(int err)
 {
-	(void)err;
-	
 	PR_SetError(PR_UNKNOWN_ERROR, err);
 }
 
