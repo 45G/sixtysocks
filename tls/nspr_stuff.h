@@ -12,7 +12,7 @@ extern "C"
 {
 #endif
 
-inline void mapDefaultError(int err);
+void mapDefaultError(int err);
 
 inline void _MD_unix_map_closedir_error(int err)
 {
