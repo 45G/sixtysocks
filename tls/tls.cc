@@ -329,7 +329,7 @@ const PRIOMethods TLS::METHODS = {
 	.reserved_fn_0   = INVALID_FN<PRReservedFN>
 };
 
-PRStatus PR_CALLBACK TLS::dClose(PRFileDesc *fd)
+PRStatus PR_CALLBACK TLS::dClose(PRFileDesc *fd) noexcept
 {
 	fd->secret = nullptr;
 	fd->dtor(fd);
@@ -337,7 +337,7 @@ PRStatus PR_CALLBACK TLS::dClose(PRFileDesc *fd)
 	return PR_SUCCESS;
 }
 
-PRInt32 PR_CALLBACK TLS::dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout)
+PRInt32 PR_CALLBACK TLS::dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout) noexcept
 {
 	(void)timeout;
 
@@ -352,12 +352,12 @@ PRInt32 PR_CALLBACK TLS::dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn
 	return rc;
 }
 
-PRInt32 PR_CALLBACK TLS::dRead(PRFileDesc *fd, void *buf, PRInt32 amount)
+PRInt32 PR_CALLBACK TLS::dRead(PRFileDesc *fd, void *buf, PRInt32 amount) noexcept
 {
 	return dRecv(fd, buf, amount, MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
 }
 
-PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout)
+PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout) noexcept
 {
 	(void)timeout;
 
@@ -372,12 +372,12 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 	return rc;
 }
 
-PRInt32 PR_CALLBACK TLS::dWrite(PRFileDesc *fd, const void *buf, PRInt32 amount)
+PRInt32 PR_CALLBACK TLS::dWrite(PRFileDesc *fd, const void *buf, PRInt32 amount) noexcept
 {
 	return dSend(fd, buf, amount, MSG_NOSIGNAL, PR_INTERVAL_NO_TIMEOUT);
 }
 
-PRStatus PR_CALLBACK TLS::dGetName(PRFileDesc *fd, PRNetAddr *addr)
+PRStatus PR_CALLBACK TLS::dGetName(PRFileDesc *fd, PRNetAddr *addr) noexcept
 {
 	TLS *tls = reinterpret_cast<TLS *>(fd->secret);
 
@@ -395,7 +395,7 @@ PRStatus PR_CALLBACK TLS::dGetName(PRFileDesc *fd, PRNetAddr *addr)
 	return PR_SUCCESS;
 }
 
-PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
+PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr) noexcept
 {
 	TLS *tls = reinterpret_cast<TLS *>(fd->secret);
 
@@ -407,7 +407,7 @@ PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 	return PR_SUCCESS;
 }
 
-PRStatus PR_CALLBACK TLS::dGetSocketOption(PRFileDesc *fd, PRSocketOptionData *data)
+PRStatus PR_CALLBACK TLS::dGetSocketOption(PRFileDesc *fd, PRSocketOptionData *data) noexcept
 {
 	(void)fd;
 	
