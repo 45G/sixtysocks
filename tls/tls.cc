@@ -258,7 +258,7 @@ static const unordered_map<int, PRErrorCode> ALT_ENOMEM_ERRORS = {
 	{ ENOMEM, PR_INSUFFICIENT_RESOURCES_ERROR },
 };
 
-static inline void mapError(int err)
+static inline void mapError(int err = errno)
 {
 	auto it = DEFAULT_ERRORS.find(err);
 	if (it != DEFAULT_ERRORS.end())
@@ -267,7 +267,7 @@ static inline void mapError(int err)
 		PR_SetError(PR_UNKNOWN_ERROR, err);
 }
 
-static inline void mapError(int err, const unordered_map<int, PRErrorCode> &override)
+static inline void mapError(const unordered_map<int, PRErrorCode> &override, int err = errno)
 {
 	auto it = override.find(err);
 	if (it != override.end())
@@ -348,7 +348,7 @@ PRInt32 PR_CALLBACK TLS::dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn
 
 	int rc = recv(tls->readFD, buf, amount, flags);
 	if (rc < 0)
-		mapError(errno);
+		mapError();
 	
 	blockDirection = BD_IN;
 
@@ -368,7 +368,7 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 
 	ssize_t rc = send(tls->writeFD, buf, amount, flags);
 	if (rc < 0)
-		mapError(errno);
+		mapError();
 	
 	blockDirection = BD_OUT;
 
@@ -388,7 +388,7 @@ PRStatus PR_CALLBACK TLS::dGetName(PRFileDesc *fd, PRNetAddr *addr)
 	int rc = getsockname(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
 	{
-		mapError(errno, ALT_ENOMEM_ERRORS);
+		mapError(ALT_ENOMEM_ERRORS);
 		return PR_FAILURE;
 	}
 
@@ -405,7 +405,7 @@ PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 	socklen_t addrLen = sizeof(PRNetAddr);
 	int rc = getpeername(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
-		mapError(errno, ALT_ENOMEM_ERRORS);
+		mapError(ALT_ENOMEM_ERRORS);
 
 	return PR_SUCCESS;
 }
