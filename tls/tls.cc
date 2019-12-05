@@ -283,7 +283,7 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ EXDEV,           PR_NOT_SAME_DEVICE_ERROR },
 };
 
-void _MD_unix_map_default_error(int err)
+void mapDefaultError(int err)
 {
 	PRErrorCode prErr = PR_UNKNOWN_ERROR;
 	auto it = DEFAULT_ERRORS.find(err);
@@ -364,7 +364,7 @@ PRInt32 PR_CALLBACK TLS::dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn
 
 	int rc = recv(tls->readFD, buf, amount, flags);
 	if (rc < 0)
-		_MD_unix_map_default_error(errno);
+		mapDefaultError(errno);
 	
 	blockDirection = BD_IN;
 
@@ -384,7 +384,7 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 
 	ssize_t rc = send(tls->writeFD, buf, amount, flags);
 	if (rc < 0)
-		_MD_unix_map_default_error(errno);
+		mapDefaultError(errno);
 	
 	blockDirection = BD_OUT;
 
