@@ -216,7 +216,6 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ EINTR,           PR_PENDING_INTERRUPT_ERROR }, /* needed */
 	{ EINVAL,          PR_INVALID_ARGUMENT_ERROR }, /* needed */
 	{ EIO,             PR_IO_ERROR },
-	{ ELOOP,           PR_LOOP_ERROR },
 	{ EMFILE,          PR_PROC_DESC_TABLE_FULL_ERROR },
 	{ EMSGSIZE,        PR_INVALID_ARGUMENT_ERROR }, /* needed */
 #ifdef EMULTIHOP
