@@ -204,10 +204,6 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ EADDRNOTAVAIL,   PR_ADDRESS_NOT_AVAILABLE_ERROR },
 	{ EAFNOSUPPORT,    PR_ADDRESS_NOT_SUPPORTED_ERROR },
 	{ EAGAIN,          PR_WOULD_BLOCK_ERROR },
-	/* On QNX and Neutrino, EALREADY is defined as EBUSY. */
-#if EALREADY != EBUSY
-	{ EALREADY,        PR_ALREADY_INITIATED_ERROR },
-#endif
 	{ EBADF,           PR_BAD_DESCRIPTOR_ERROR },
 #ifdef EBADMSG
 	{ EBADMSG,         PR_IO_ERROR },
@@ -264,7 +260,6 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ ESPIPE,          PR_INVALID_METHOD_ERROR },
 	{ ETIMEDOUT,       PR_IO_TIMEOUT_ERROR },
 	{ EWOULDBLOCK,     PR_WOULD_BLOCK_ERROR },
-	{ EXDEV,           PR_NOT_SAME_DEVICE_ERROR },
 };
 
 void mapDefaultError(int err)
