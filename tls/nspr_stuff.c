@@ -450,36 +450,6 @@ void _MD_unix_map_mmap_error(int err)
     PR_SetError(prError, err);
 }
 
-#if defined(_PR_POLL_AVAILABLE) || defined(_PR_NEED_FAKE_POLL)
-void _MD_unix_map_poll_error(int err)
-{
-    PRErrorCode prError;
-
-    switch (err) {
-	case EAGAIN:
-	    prError = PR_INSUFFICIENT_RESOURCES_ERROR;
-	    break;
-	default:
-	    _MD_unix_map_default_error(err);
-	    return;
-    }
-    PR_SetError(prError, err);
-}
-
-void _MD_unix_map_poll_revents_error(int err)
-{
-    if (err & POLLNVAL)
-	PR_SetError(PR_BAD_DESCRIPTOR_ERROR, EBADF);
-    else if (err & POLLHUP)
-	PR_SetError(PR_CONNECT_RESET_ERROR, EPIPE);
-    else if (err & POLLERR)
-	PR_SetError(PR_IO_ERROR, EIO);
-    else
-	PR_SetError(PR_UNKNOWN_ERROR, err);
-}
-#endif /* _PR_POLL_AVAILABLE || _PR_NEED_FAKE_POLL */
-
-
 void _MD_unix_map_flock_error(int err)
 {
     PRErrorCode prError;
