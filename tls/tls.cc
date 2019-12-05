@@ -199,9 +199,6 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 //TODO: cull this
 static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ EACCES,          PR_NO_ACCESS_RIGHTS_ERROR },
-	{ EADDRINUSE,      PR_ADDRESS_IN_USE_ERROR },
-	{ EADDRNOTAVAIL,   PR_ADDRESS_NOT_AVAILABLE_ERROR },
-	{ EAFNOSUPPORT,    PR_ADDRESS_NOT_SUPPORTED_ERROR },
 	{ EAGAIN,          PR_WOULD_BLOCK_ERROR },
 	{ EBADF,           PR_BAD_DESCRIPTOR_ERROR },
 #ifdef EBADMSG
