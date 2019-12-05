@@ -221,7 +221,7 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 #ifdef EMULTIHOP
 	{ EMULTIHOP,       PR_REMOTE_FILE_ERROR },
 #endif
-	{ ENETUNREACH,     PR_NETWORK_UNREACHABLE_ERROR },
+	{ ENETUNREACH,     PR_NETWORK_UNREACHABLE_ERROR },  /* needed */
 #ifdef ENOBUFS
 	{ ENOBUFS,         PR_INSUFFICIENT_RESOURCES_ERROR }, /* needed */
 #endif
@@ -237,7 +237,7 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ ENOTCONN,        PR_NOT_CONNECTED_ERROR }, /* needed */
 	{ ENOTSOCK,        PR_NOT_SOCKET_ERROR }, /* needed */
 	{ ENXIO,           PR_FILE_NOT_FOUND_ERROR },
-	{ EOPNOTSUPP,      PR_NOT_TCP_SOCKET_ERROR },
+	{ EOPNOTSUPP,      PR_NOT_TCP_SOCKET_ERROR }, /* needed */
 #ifdef EOVERFLOW
 	{ EOVERFLOW,       PR_BUFFER_OVERFLOW_ERROR },
 #endif
@@ -250,7 +250,7 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ EPROTOTYPE,      PR_ADDRESS_NOT_SUPPORTED_ERROR },
 	{ ERANGE,          PR_INVALID_METHOD_ERROR },
 	{ ESPIPE,          PR_INVALID_METHOD_ERROR },
-	{ ETIMEDOUT,       PR_IO_TIMEOUT_ERROR },
+	{ ETIMEDOUT,       PR_IO_TIMEOUT_ERROR },  /* needed */
 	{ EWOULDBLOCK,     PR_WOULD_BLOCK_ERROR }, /* needed */
 };
 
