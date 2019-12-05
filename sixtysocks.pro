@@ -61,7 +61,6 @@ HEADERS += \
     proxy/serversession.hh \
     proxifier/sessionsupplicant.hh \
     proxifier/sessionsupplicationagent.hh \
-    tls/nspr_stuff.h \
     tls/tls.hh \
     tls/tlscontext.hh \
     tls/tlsexception.hh \

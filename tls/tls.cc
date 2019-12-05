@@ -9,7 +9,6 @@ extern "C"
 #include "tlsexception.hh"
 #include "../core/poller.hh"
 #include "tls.hh"
-#include "nspr_stuff.h"
 
 using namespace std;
 
@@ -262,13 +261,48 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ EWOULDBLOCK,     PR_WOULD_BLOCK_ERROR },
 };
 
-void mapDefaultError(int err)
+static const unordered_map<int, PRErrorCode> ALT_ENOMEM_ERRORS = {
+	{ ENOMEM, PR_INSUFFICIENT_RESOURCES_ERROR },
+};
+
+static inline void mapError(int err)
 {
-	PRErrorCode prErr = PR_UNKNOWN_ERROR;
-	auto it = DEFAULT_ERRORS.find(err);
-	if (it != DEFAULT_ERRORS.end())
-		prErr = it->second;
-	PR_SetError(prErr, err);
+	(void)err;
+	
+	PR_SetError(PR_UNKNOWN_ERROR, err);
+}
+
+static inline void mapError(int err, const unordered_map<int, PRErrorCode> &table)
+{
+	auto it = table.find(err);
+	if (it != table.end())
+		PR_SetError(it->second, err);
+	else
+		mapError(err);
+}
+
+static inline void mapError(int err, const unordered_map<int, PRErrorCode> &table1, const unordered_map<int, PRErrorCode> &table2)
+{
+	auto it = table1.find(err);
+	if (it != table1.end())
+		PR_SetError(it->second, err);
+	else
+		mapError(err, table2);
+}
+
+static inline void mapDefaultError(int err)
+{
+	mapError(err, DEFAULT_ERRORS);
+}
+
+static inline void mapGetsocknameError(int err)
+{
+	mapError(err, ALT_ENOMEM_ERRORS, DEFAULT_ERRORS);
+}
+
+static inline void mapGetpeernameError(int err)
+{
+	mapError(err, ALT_ENOMEM_ERRORS, DEFAULT_ERRORS);
 }
 
 template <typename T>
@@ -383,7 +417,7 @@ PRStatus PR_CALLBACK TLS::dGetName(PRFileDesc *fd, PRNetAddr *addr)
 	int rc = getsockname(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
 	{
-		_MD_unix_map_getsockname_error(errno);
+		mapGetsocknameError(errno);
 		return PR_FAILURE;
 	}
 
@@ -400,7 +434,7 @@ PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 	socklen_t addrLen = sizeof(PRNetAddr);
 	int rc = getpeername(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
-		_MD_unix_map_getpeername_error(errno);
+		mapGetpeernameError(errno);
 
 	return PR_SUCCESS;
 }
