@@ -99,22 +99,6 @@ void _MD_unix_map_flock_error(int err);
 
 void _MD_unix_map_lockf_error(int err);
 
-#ifdef AIX
-void _MD_aix_map_sendfile_error(int err);
-#endif /* AIX */
-
-#ifdef HPUX11
-void _MD_hpux_map_sendfile_error(int err);
-#endif /* HPUX11 */
-
-#ifdef SOLARIS
-void _MD_solaris_map_sendfile_error(int err);
-#endif /* SOLARIS */
-
-#ifdef LINUX
-void _MD_linux_map_sendfile_error(int err);
-#endif /* LINUX */
-
 #ifdef __cplusplus
 }
 #endif
