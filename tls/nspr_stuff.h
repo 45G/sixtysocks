@@ -14,41 +14,6 @@ extern "C"
 
 void mapDefaultError(int err);
 
-inline void _MD_unix_map_socket_error(int err)
-{
-	PRErrorCode prError;
-	
-	switch (err) {
-	case ENOMEM:
-		prError = PR_INSUFFICIENT_RESOURCES_ERROR;
-		break;
-	default:
-		mapDefaultError(err);
-		return;
-	}
-	PR_SetError(prError, err);
-}
-
-inline void _MD_unix_map_socketavailable_error(int err)
-{
-	PR_SetError(PR_BAD_DESCRIPTOR_ERROR, err);
-}
-
-inline void _MD_unix_map_socketpair_error(int err)
-{
-	PRErrorCode prError;
-	
-	switch (err) {
-	case ENOMEM:
-		prError = PR_INSUFFICIENT_RESOURCES_ERROR;
-		break;
-	default:
-		mapDefaultError(err);
-		return;
-	}
-	PR_SetError(prError, err);
-}
-
 inline void _MD_unix_map_getsockname_error(int err)
 {
 	PRErrorCode prError;
