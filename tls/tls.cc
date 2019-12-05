@@ -221,7 +221,6 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 #ifdef EMULTIHOP
 	{ EMULTIHOP,       PR_REMOTE_FILE_ERROR },
 #endif
-	{ ENAMETOOLONG,    PR_NAME_TOO_LONG_ERROR },
 	{ ENETUNREACH,     PR_NETWORK_UNREACHABLE_ERROR },
 #ifdef ENOBUFS
 	{ ENOBUFS,         PR_INSUFFICIENT_RESOURCES_ERROR }, /* needed */
