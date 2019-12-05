@@ -28,7 +28,6 @@ SOURCES += \
     core/stickreactor.cc \
     proxifier/sessionsupplicant.cc \
     proxifier/sessionsupplicationagent.cc \
-    tls/nspr_stuff.c \
     tls/tls.cc \
     tls/tlscontext.cc \
     tls/tlsexception.cc \
