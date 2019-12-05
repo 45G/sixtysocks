@@ -290,21 +290,6 @@ static inline void mapError(int err, const unordered_map<int, PRErrorCode> &tabl
 		mapError(err, table2);
 }
 
-static inline void mapDefaultError(int err)
-{
-	mapError(err, DEFAULT_ERRORS);
-}
-
-static inline void mapGetsocknameError(int err)
-{
-	mapError(err, ALT_ENOMEM_ERRORS, DEFAULT_ERRORS);
-}
-
-static inline void mapGetpeernameError(int err)
-{
-	mapError(err, ALT_ENOMEM_ERRORS, DEFAULT_ERRORS);
-}
-
 template <typename T>
 T invalidFn()
 {
@@ -377,7 +362,7 @@ PRInt32 PR_CALLBACK TLS::dRecv(PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn
 
 	int rc = recv(tls->readFD, buf, amount, flags);
 	if (rc < 0)
-		mapDefaultError(errno);
+		mapError(errno, DEFAULT_ERRORS);
 	
 	blockDirection = BD_IN;
 
@@ -397,7 +382,7 @@ PRInt32 PR_CALLBACK TLS::dSend(PRFileDesc *fd, const void *buf, PRInt32 amount, 
 
 	ssize_t rc = send(tls->writeFD, buf, amount, flags);
 	if (rc < 0)
-		mapDefaultError(errno);
+		mapError(errno, DEFAULT_ERRORS);
 	
 	blockDirection = BD_OUT;
 
@@ -417,7 +402,7 @@ PRStatus PR_CALLBACK TLS::dGetName(PRFileDesc *fd, PRNetAddr *addr)
 	int rc = getsockname(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
 	{
-		mapGetsocknameError(errno);
+		mapError(errno, ALT_ENOMEM_ERRORS, DEFAULT_ERRORS);
 		return PR_FAILURE;
 	}
 
@@ -434,7 +419,7 @@ PRStatus PR_CALLBACK TLS::dGetPeerName(PRFileDesc *fd, PRNetAddr *addr)
 	socklen_t addrLen = sizeof(PRNetAddr);
 	int rc = getpeername(tls->readFD, (struct sockaddr *) addr, &addrLen);
 	if (rc < 0)
-		mapGetpeernameError(errno);
+		mapError(errno, ALT_ENOMEM_ERRORS, DEFAULT_ERRORS);
 
 	return PR_SUCCESS;
 }
