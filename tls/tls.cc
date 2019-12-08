@@ -12,10 +12,8 @@ extern "C"
 
 using namespace std;
 
-static SECStatus canFalseStartCallback(PRFileDesc *fd, void *arg, PRBool *canFalseStart)
+static SECStatus alwaysFalseStart(PRFileDesc *, void *, PRBool *canFalseStart)
 {
-	(void)fd; (void)arg;
-
 	*canFalseStart = PR_TRUE;
 	return SECSuccess;
 }
@@ -77,7 +75,7 @@ TLS::TLS(TLSContext *ctx, int fd)
 			throw TLSException();
 		
 		/* false start */
-		rc = SSL_SetCanFalseStartCallback(descriptor.get(), canFalseStartCallback, nullptr);
+		rc = SSL_SetCanFalseStartCallback(descriptor.get(), alwaysFalseStart, nullptr);
 		if (rc != SECSuccess)
 			throw TLSException();
 	}
