@@ -197,18 +197,20 @@ size_t TLS::tlsRead(StreamBuffer *buf)
 //TODO: cull this
 static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ EACCES,       PR_NO_ACCESS_RIGHTS_ERROR }, /* needed */
+	{ EADDRINUSE,   PR_ADDRESS_IN_USE_ERROR }, /* needed */
+	{ EADDRNOTAVAIL, PR_ADDRESS_NOT_AVAILABLE_ERROR }, /* needed */
 	{ EAGAIN,       PR_WOULD_BLOCK_ERROR }, /* needed */
 	{ EBADF,        PR_BAD_DESCRIPTOR_ERROR }, /* needed */
 #ifdef EBADMSG
 	{ EBADMSG,      PR_IO_ERROR },
 #endif
 	{ ECONNABORTED, PR_CONNECT_ABORTED_ERROR },
-	{ ECONNREFUSED, PR_CONNECT_REFUSED_ERROR },
+	{ ECONNREFUSED, PR_CONNECT_REFUSED_ERROR }, /* needed */
 	{ ECONNRESET,   PR_CONNECT_RESET_ERROR }, /* needed */
 	{ EFAULT,       PR_ACCESS_FAULT_ERROR }, /* needed */
-	{ EHOSTUNREACH, PR_HOST_UNREACHABLE_ERROR },
+	{ EHOSTUNREACH, PR_HOST_UNREACHABLE_ERROR }, /* needed */
 	{ EHOSTDOWN,    PR_HOST_UNREACHABLE_ERROR },
-	{ EINPROGRESS,  PR_IN_PROGRESS_ERROR },
+	{ EINPROGRESS,  PR_IN_PROGRESS_ERROR }, /* needed */
 	{ EINTR,        PR_PENDING_INTERRUPT_ERROR }, /* needed */
 	{ EINVAL,       PR_INVALID_ARGUMENT_ERROR }, /* needed */
 	{ EMSGSIZE,     PR_INVALID_ARGUMENT_ERROR }, /* needed */
@@ -224,11 +226,8 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 #ifdef EOVERFLOW
 	{ EOVERFLOW,    PR_BUFFER_OVERFLOW_ERROR },
 #endif
-	{ EPERM,        PR_NO_ACCESS_RIGHTS_ERROR },
+	{ EPERM,        PR_NO_ACCESS_RIGHTS_ERROR }, /* needed */
 	{ EPIPE,        PR_CONNECT_RESET_ERROR }, /* needed */
-#ifdef EPROTO
-	{ EPROTO,       PR_IO_ERROR },
-#endif
 	{ ERANGE,       PR_INVALID_METHOD_ERROR },
 	{ ESPIPE,       PR_INVALID_METHOD_ERROR },
 	{ ETIMEDOUT,    PR_IO_TIMEOUT_ERROR },  /* needed */
