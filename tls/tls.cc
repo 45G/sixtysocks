@@ -223,9 +223,6 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ ENOTCONN,      PR_NOT_CONNECTED_ERROR }, /* needed */
 	{ ENOTSOCK,      PR_NOT_SOCKET_ERROR }, /* needed */
 	{ EOPNOTSUPP,    PR_NOT_TCP_SOCKET_ERROR }, /* needed */
-#ifdef EOVERFLOW
-	{ EOVERFLOW,     PR_BUFFER_OVERFLOW_ERROR },
-#endif
 	{ EPERM,         PR_NO_ACCESS_RIGHTS_ERROR }, /* needed */
 	{ EPIPE,         PR_CONNECT_RESET_ERROR }, /* needed */
 	{ ETIMEDOUT,     PR_IO_TIMEOUT_ERROR },  /* needed */
