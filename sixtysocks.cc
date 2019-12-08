@@ -193,17 +193,17 @@ int main(int argc, char **argv)
 	try
 	{
 		optional<TLSLibrary> tlsLibrary;
-		optional<TLSContext> clientCtx;
-		optional<TLSContext> serverCtx;
+		unique_ptr<TLSContext> clientCtx;
+		unique_ptr<TLSContext> serverCtx;
 		
 		if (useTLS)
 		{
 			tlsLibrary.emplace(certDB);
 
 			if (mode == M_PROXIFIER)
-				clientCtx.emplace(false, "",   sni);
+				clientCtx.reset(new TLSContext(false, "",   sni));
 			else /* M_PROXY */
-				serverCtx.emplace(true,  nick, "");
+				serverCtx.reset(new TLSContext(true,  nick, ""));
 		}
 
 		Poller poller(numThreads, cpuOffset);
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
 			bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
 			bindAddr.ipv4.sin_port        = htons(port);
 
-			poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, defer, username, password, &*clientCtx));
+			poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, defer, username, password, clientCtx.get()));
 		}
 		else /* M_PROXY */
 		{
@@ -236,7 +236,7 @@ int main(int argc, char **argv)
 				bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
 				bindAddr.ipv4.sin_port        = htons(tlsPort);
 
-				poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), &*serverCtx));
+				poller.assign(new Proxy(&poller, bindAddr, passwordChecker.get(), serverCtx.get()));
 			}
 		}
 
