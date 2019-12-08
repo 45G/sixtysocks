@@ -221,7 +221,7 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 #ifdef ENOSR
 	{ ENOSR,        PR_INSUFFICIENT_RESOURCES_ERROR },
 #endif
-	{ ENOSYS,       PR_NOT_IMPLEMENTED_ERROR },
+	{ ENOSYS,       PR_NOT_IMPLEMENTED_ERROR }, /* needed */
 	{ ENOTCONN,     PR_NOT_CONNECTED_ERROR }, /* needed */
 	{ ENOTSOCK,     PR_NOT_SOCKET_ERROR }, /* needed */
 	{ EOPNOTSUPP,   PR_NOT_TCP_SOCKET_ERROR }, /* needed */
