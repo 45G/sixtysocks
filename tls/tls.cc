@@ -217,10 +217,6 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ ENOBUFS,      PR_INSUFFICIENT_RESOURCES_ERROR }, /* needed */
 #endif
 	{ ENOMEM,       PR_OUT_OF_MEMORY_ERROR }, /* needed */
-	{ ENOPROTOOPT,  PR_INVALID_ARGUMENT_ERROR },
-#ifdef ENOSR
-	{ ENOSR,        PR_INSUFFICIENT_RESOURCES_ERROR },
-#endif
 	{ ENOSYS,       PR_NOT_IMPLEMENTED_ERROR }, /* needed */
 	{ ENOTCONN,     PR_NOT_CONNECTED_ERROR }, /* needed */
 	{ ENOTSOCK,     PR_NOT_SOCKET_ERROR }, /* needed */
