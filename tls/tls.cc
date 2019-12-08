@@ -86,16 +86,6 @@ TLS::TLS(TLSContext *ctx, int fd)
 		throw TLSException();
 }
 
-void TLS::setReadFD(int fd)
-{
-	this->readFD = fd;
-}
-
-void TLS::setWriteFD(int fd)
-{
-	this->writeFD = fd;
-}
-
 enum BlockDirection
 {
 	BD_IN,

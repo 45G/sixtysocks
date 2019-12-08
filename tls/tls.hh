@@ -42,9 +42,15 @@ class TLS: public boost::intrusive_ref_counter<TLS>
 public:
 	TLS(TLSContext *ctx, int fd);
 	
-	void setReadFD(int fd);
+	void setReadFD(int fd)
+	{
+		this->readFD = fd;
+	}
 	
-	void setWriteFD(int fd);
+	void setWriteFD(int fd)
+	{
+		this->writeFD = fd;
+	}
 	
 	void tlsDisableEarlyData();
 
