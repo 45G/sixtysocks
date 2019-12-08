@@ -24,6 +24,9 @@ class TLSLibrary
 
 public:
 	TLSLibrary(const std::string &configDir);
+	
+	auto operator =(const TLSLibrary &other) = delete;
+	auto operator =(TLSLibrary &&other)      = delete;
 };
 
 #endif // TLSLIBRARY_HH
