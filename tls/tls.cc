@@ -201,9 +201,6 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 	{ EADDRNOTAVAIL, PR_ADDRESS_NOT_AVAILABLE_ERROR }, /* needed */
 	{ EAGAIN,        PR_WOULD_BLOCK_ERROR }, /* needed */
 	{ EBADF,         PR_BAD_DESCRIPTOR_ERROR }, /* needed */
-#ifdef EBADMSG
-	{ EBADMSG,       PR_IO_ERROR },
-#endif
 	{ ECONNABORTED,  PR_CONNECT_ABORTED_ERROR }, /* needed */
 	{ ECONNREFUSED,  PR_CONNECT_REFUSED_ERROR }, /* needed */
 	{ ECONNRESET,    PR_CONNECT_RESET_ERROR }, /* needed */
