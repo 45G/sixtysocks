@@ -233,8 +233,6 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 #ifdef EPROTO
 	{ EPROTO,          PR_IO_ERROR },
 #endif
-	{ EPROTONOSUPPORT, PR_PROTOCOL_NOT_SUPPORTED_ERROR },
-	{ EPROTOTYPE,      PR_ADDRESS_NOT_SUPPORTED_ERROR },
 	{ ERANGE,          PR_INVALID_METHOD_ERROR },
 	{ ESPIPE,          PR_INVALID_METHOD_ERROR },
 	{ ETIMEDOUT,       PR_IO_TIMEOUT_ERROR },  /* needed */
