@@ -204,12 +204,12 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 #ifdef EBADMSG
 	{ EBADMSG,       PR_IO_ERROR },
 #endif
-	{ ECONNABORTED,  PR_CONNECT_ABORTED_ERROR },
+	{ ECONNABORTED,  PR_CONNECT_ABORTED_ERROR }, /* needed */
 	{ ECONNREFUSED,  PR_CONNECT_REFUSED_ERROR }, /* needed */
 	{ ECONNRESET,    PR_CONNECT_RESET_ERROR }, /* needed */
 	{ EFAULT,        PR_ACCESS_FAULT_ERROR }, /* needed */
 	{ EHOSTUNREACH,  PR_HOST_UNREACHABLE_ERROR }, /* needed */
-	{ EHOSTDOWN,     PR_HOST_UNREACHABLE_ERROR },
+	{ EHOSTDOWN,     PR_HOST_UNREACHABLE_ERROR }, /* needed */
 	{ EINPROGRESS,   PR_IN_PROGRESS_ERROR }, /* needed */
 	{ EINTR,         PR_PENDING_INTERRUPT_ERROR }, /* needed */
 	{ EINVAL,        PR_INVALID_ARGUMENT_ERROR }, /* needed */
@@ -228,8 +228,6 @@ static const unordered_map<int, PRErrorCode> DEFAULT_ERRORS = {
 #endif
 	{ EPERM,         PR_NO_ACCESS_RIGHTS_ERROR }, /* needed */
 	{ EPIPE,         PR_CONNECT_RESET_ERROR }, /* needed */
-	{ ERANGE,        PR_INVALID_METHOD_ERROR },
-	{ ESPIPE,        PR_INVALID_METHOD_ERROR },
 	{ ETIMEDOUT,     PR_IO_TIMEOUT_ERROR },  /* needed */
 	{ EWOULDBLOCK,   PR_WOULD_BLOCK_ERROR }, /* needed */
 };
