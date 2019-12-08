@@ -192,13 +192,13 @@ int main(int argc, char **argv)
 
 	try
 	{
-		unique_ptr<TLSLibrary> tlsLibrary;
+		optional<TLSLibrary> tlsLibrary;
 		unique_ptr<TLSContext> clientCtx;
 		unique_ptr<TLSContext> serverCtx;
 		
 		if (useTLS)
 		{
-			tlsLibrary.reset(new TLSLibrary(certDB));
+			tlsLibrary.emplace(certDB);
 
 			if (mode == M_PROXIFIER)
 				clientCtx.reset(new TLSContext(false, "",   sni));
