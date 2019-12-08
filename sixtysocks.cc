@@ -192,7 +192,7 @@ int main(int argc, char **argv)
 
 	try
 	{
-		optional<TLSLibrary> tlsLibrary;
+		optional<TLSLibrary>   tlsLibrary;
 		unique_ptr<TLSContext> clientCtx;
 		unique_ptr<TLSContext> serverCtx;
 		
