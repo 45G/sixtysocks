@@ -9,6 +9,7 @@ class SessionSupplicant
 {
 	Proxifier *proxifier;
 	bool done = false;
+	
 public:
 	SessionSupplicant(Proxifier *proxifier)
 		: proxifier(proxifier) {}
