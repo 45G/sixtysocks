@@ -54,7 +54,6 @@ TLSLibrary::TLSLibrary(const string &configDir)
 	static const int  SID_CACHE_ENTRIES = 1024;
 	tlsCheck(SSL_ConfigServerSessionIDCache(SID_CACHE_ENTRIES, 0, 0, nullptr));
 
-	//TODO: revisit anti-replay
 	try
 	{
 #ifdef SSL_CreateAntiReplayContext
