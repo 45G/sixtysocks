@@ -12,13 +12,13 @@ extern "C"
 
 using namespace std;
 
-static SECStatus alwaysFalseStart(PRFileDesc *, void *, PRBool *canFalseStart)
+static SECStatus alwaysFalseStart(PRFileDesc *, void *, PRBool *canFalseStart) noexcept
 {
 	*canFalseStart = PR_TRUE;
 	return SECSuccess;
 }
 
-static void PR_CALLBACK descriptorDeleter(PRFileDesc *fd)
+static void PR_CALLBACK descriptorDeleter(PRFileDesc *fd) noexcept
 {
 	if (fd->higher)
 		fd->higher->lower = nullptr;
@@ -219,7 +219,7 @@ static const unordered_map<int, PRErrorCode> ALT_ENOMEM_ERRORS = {
 	{ ENOMEM, PR_INSUFFICIENT_RESOURCES_ERROR },
 };
 
-static inline void mapError(int err = errno)
+static inline void mapError(int err = errno) noexcept
 {
 	auto it = DEFAULT_ERRORS.find(err);
 	if (it != DEFAULT_ERRORS.end())
@@ -228,7 +228,7 @@ static inline void mapError(int err = errno)
 		PR_SetError(PR_UNKNOWN_ERROR, err);
 }
 
-static inline void mapError(const unordered_map<int, PRErrorCode> &override, int err = errno)
+static inline void mapError(const unordered_map<int, PRErrorCode> &override, int err = errno) noexcept
 {
 	auto it = override.find(err);
 	if (it != override.end())
@@ -238,7 +238,7 @@ static inline void mapError(const unordered_map<int, PRErrorCode> &override, int
 }
 
 template <typename T>
-T invalidFn()
+T invalidFn() noexcept
 {
 	PR_SetError(PR_INVALID_METHOD_ERROR, 0);
 	
