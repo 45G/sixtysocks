@@ -7,12 +7,10 @@
 class TLSException: public std::exception
 {
 	PRErrorCode err;
-public:
-	TLSException(PRErrorCode err)
-		: err(err) {}
 	
-	TLSException()
-		: err(PR_GetError()) {}
+public:
+	TLSException(PRErrorCode err = PR_GetError())
+		: err(err) {}
 
 	const char *what() const throw();
 };
