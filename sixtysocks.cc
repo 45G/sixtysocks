@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 	string username;
 	string password;
 	
-	intrusive_ptr<PasswordChecker> passwordChecker;
+	unique_ptr<PasswordChecker> passwordChecker;
 	
 	bool defer = false;
 	
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
 		usage();
 
 	if (mode == M_PROXY && username.length() > 0)
-		passwordChecker = new SimplePasswordChecker(username, password);
+		passwordChecker.reset(new SimplePasswordChecker(username, password));
 
 	if (!useTLS)
 		tlsPort = 0;
