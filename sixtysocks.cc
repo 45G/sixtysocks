@@ -24,7 +24,6 @@
 #include "tls/tlscontext.hh"
 
 using namespace std;
-using boost::intrusive_ptr;
 
 void usage()
 {
