@@ -33,6 +33,8 @@ public:
 
 	Proxy(Poller *poller, const S6U::SocketAddress &bindAddr, PasswordChecker *passwordChecker, TLSContext *serverCtx)
 		: ListenReactor(poller, bindAddr), passwordChecker(passwordChecker), serverCtx(serverCtx) {}
+
+	void start();
 	
 	void handleNewConnection(int fd);
 

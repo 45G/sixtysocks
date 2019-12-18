@@ -12,6 +12,12 @@ const std::set<uint16_t> Proxy::DEFAULT_SERVICES = {
 	53, /* DNS */
 };
 
+void Proxy::start()
+{
+	ListenReactor::start();
+	timeoutReactor->start();
+}
+
 void Proxy::handleNewConnection(int fd)
 {
 	UniqFD ufd(fd);
