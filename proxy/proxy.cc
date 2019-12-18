@@ -13,10 +13,10 @@ const std::set<uint16_t> Proxy::DEFAULT_SERVICES = {
 
 void Proxy::handleNewConnection(int fd)
 {
-	UniqFD ufd(fd);
-	try
-	{
-		poller->assign(new ProxyUpstreamer(this, move(ufd)));
+    UniqFD ufd(fd);
+    try
+    {
+        poller->assign(new ProxyUpstreamer(this, move(ufd)));
 	}
 	catch (exception &ex)
 	{

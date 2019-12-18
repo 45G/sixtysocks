@@ -101,11 +101,14 @@ ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, UniqFD &&srcFD)
 
 void ProxyUpstreamer::start()
 {
+	proxy->getTimeoutReactor()->add(&timer);
 	process(-1, 0);
 }
 
 void ProxyUpstreamer::process(int fd, uint32_t events)
 {
+	timer.refresh();
+
 	switch ((State)state)
 	{
 	case S_READING_REQ:

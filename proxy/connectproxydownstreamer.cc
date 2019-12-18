@@ -13,6 +13,12 @@ ConnectProxyDownstreamer::ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer, 
 	dstSock.duplicate(upstreamer->getSrcSock());
 }
 
+void ConnectProxyDownstreamer::process(int fd, uint32_t events)
+{
+	upstreamer->getTimer()->refresh();
+	StreamReactor::process(fd, events);
+}
+
 void ConnectProxyDownstreamer::deactivate()
 {
 	StreamReactor::deactivate();

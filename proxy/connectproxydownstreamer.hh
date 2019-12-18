@@ -22,6 +22,8 @@ class ConnectProxyDownstreamer: public StreamReactor
 public:
 	ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer, S6M::OperationReply *reply);
 
+	void process(int fd, uint32_t events);
+
 	void deactivate();
 };
 

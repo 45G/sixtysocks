@@ -12,6 +12,8 @@
 #include "../authentication/syncedtokenstuff.h"
 #include "serversession.hh"
 #include "resolver.hh"
+#include "../core/timeoutreactor.hh"
+#include "timeouts.hh"
 
 class Proxy: public ListenReactor
 {
@@ -24,6 +26,8 @@ class Proxy: public ListenReactor
 	tbb::spin_mutex bankLock;
 	
 	TLSContext *serverCtx;
+
+	boost::intrusive_ptr<TimeoutReactor> timeoutReactor { new TimeoutReactor(poller, { T_IDLE_CONNECTION }) };
 
 public:
 	static const std::set<uint16_t> DEFAULT_SERVICES;
@@ -54,6 +58,11 @@ public:
 	Resolver *getResolver()
 	{
 		return resolver.get();
+	}
+
+	TimeoutReactor *getTimeoutReactor() const
+	{
+		return timeoutReactor.get();
 	}
 };
 

@@ -5,6 +5,8 @@
 #include <boost/intrusive_ptr.hpp>
 #include <socks6msg/socks6msg.hh>
 #include "core/streamreactor.hh"
+#include "../core/timer.hh"
+#include "timeouts.hh"
 
 class Proxy;
 class ConnectProxyDownstreamer;
@@ -34,7 +36,9 @@ class ProxyUpstreamer: public StreamReactor
 	boost::intrusive_ptr<ConnectProxyDownstreamer> downstreamer;
 	
 	AuthServer *authServer = nullptr;
-	
+
+	ReactorInactivityTimer timer { T_IDLE_CONNECTION, this };
+
 	/* resolve state */
 	S6M::Address addr;
 	
@@ -85,6 +89,11 @@ public:
 			return code;
 		}
 	};
+
+	ReactorInactivityTimer *getTimer()
+	{
+		return &timer;
+	}
 };
 
 #endif // PROXYUPSTREAMER_HH
