@@ -65,6 +65,7 @@ HEADERS += \
     proxy/serversession.hh \
     proxifier/sessionsupplicant.hh \
     proxifier/sessionsupplicationagent.hh \
+    proxy/timeouts.hh \
     tls/tls.hh \
     tls/tlscontext.hh \
     tls/tlsexception.hh \
