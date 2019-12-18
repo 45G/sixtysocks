@@ -10,6 +10,8 @@ SOURCES += \
     core/poller.cc \
     core/reactor.cc \
     core/streamreactor.cc \
+    core/timeoutreactor.cc \
+    core/timer.cc \
     proxifier/proxifier.cc \
     proxifier/proxifierdownstreamer.cc \
     proxifier/proxifierupstreamer.cc \
@@ -38,6 +40,8 @@ HEADERS += \
     core/listenreactor.hh \
     core/reactor.hh \
     core/streamreactor.hh \
+    core/timeoutreactor.hh \
+    core/timer.hh \
     proxifier/proxifier.hh \
     proxifier/proxifierdownstreamer.hh \
     proxifier/proxifierupstreamer.hh \
