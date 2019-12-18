@@ -107,8 +107,6 @@ void ProxyUpstreamer::start()
 
 void ProxyUpstreamer::process(int fd, uint32_t events)
 {
-	timer.refresh();
-
 	switch ((State)state)
 	{
 	case S_READING_REQ:
@@ -153,6 +151,8 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 				return;
 			}
 		}
+
+		timer.refresh();
 		
 		S6U::SocketAddress sockAddr(addr, request->port);
 		try
@@ -214,6 +214,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_STREAM:
 	{
+		timer.refresh();
 		StreamReactor::process(fd, events);
 		break;
 	}
