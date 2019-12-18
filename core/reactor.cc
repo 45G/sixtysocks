@@ -12,5 +12,3 @@ void Reactor::deactivate()
 	tbb::spin_mutex::scoped_lock scopedLock(deactivationLock);
 	active = false;
 }
-
-Reactor::~Reactor() {}

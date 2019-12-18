@@ -46,7 +46,7 @@ public:
 		return poller;
 	}
 	
-	virtual ~Reactor();
+	virtual ~Reactor() = default;
 
 	friend class Poller;
 };
