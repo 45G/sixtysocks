@@ -22,7 +22,6 @@ SOURCES += \
     proxy/simpleproxydownstreamer.cc \
     proxy/connectproxydownstreamer.cc \
     sixtysocks.cc \
-    authentication/passwordchecker.cc \
     authentication/simplepasswordchecker.cc \
     core/streambuffer.cc \
     proxy/authserver.cc \
