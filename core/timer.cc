@@ -3,6 +3,16 @@
 
 Timer::~Timer()
 {
+	cancel();
+}
+
+void Timer::refresh()
+{
+	tracker->refresh(this);
+}
+
+void Timer::cancel()
+{
 	tracker->cancel(this);
 }
 

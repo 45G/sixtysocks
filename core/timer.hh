@@ -24,6 +24,10 @@ public:
 
 	virtual ~Timer();
 
+	void refresh();
+
+	void cancel();
+
 	friend class TimeoutReactor;
 };
 
@@ -32,6 +36,9 @@ class ReactorInactivityTimer: public Timer
 	Reactor *reactor;
 
 public:
+	ReactorInactivityTimer(int interval, Reactor *reactor)
+		: Timer(interval), reactor(reactor) {}
+
 	void trigger();
 };
 
