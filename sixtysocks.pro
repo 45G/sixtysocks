@@ -55,7 +55,6 @@ HEADERS += \
     authentication/simplepasswordchecker.hh \
     core/uniqfd.hh \
     core/streambuffer.hh \
-    authentication/syncedtokenstuff.h \
     proxy/authserver.hh \
     core/rescheduleexception.hh \
     proxifier/tfocookiesupplicationagent.hh \

@@ -3,14 +3,14 @@
 
 #include <memory>
 #include <random>
-#include "../authentication/syncedtokenstuff.h"
+#include <socks6util/socks6util.hh>
 
 class ServerSession
 {
 	uint64_t id { ((uint64_t)rand()) | ((uint64_t)rand() << 32) };
 	
 	tbb::spin_mutex bankCreationLock;
-	std::unique_ptr<SyncedTokenBank> tokenBank;
+	std::unique_ptr<S6U::SyncedTokenBank> tokenBank;
 	
 public:
 	uint64_t getID() const
@@ -18,7 +18,7 @@ public:
 		return id;
 	}
 	
-	SyncedTokenBank *getTokenBank()
+	S6U::SyncedTokenBank *getTokenBank()
 	{
 		return tokenBank.get();
 	}
@@ -32,7 +32,7 @@ public:
 		if (size == 0)
 			return;
 
-		tokenBank.reset(new SyncedTokenBank({ (uint32_t)rand(), size }, 0, size / 2));
+		tokenBank.reset(new S6U::SyncedTokenBank({ (uint32_t)rand(), size }, 0, size / 2));
 	}
 };
 

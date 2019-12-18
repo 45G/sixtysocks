@@ -8,6 +8,7 @@
 #include "authserver.hh"
 
 using namespace std;
+using namespace S6U;
 
 void AuthServer::check()
 {

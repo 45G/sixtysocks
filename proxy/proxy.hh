@@ -9,7 +9,6 @@
 #include "../tls/tlscontext.hh"
 #include "../core/listenreactor.hh"
 #include "../authentication/passwordchecker.hh"
-#include "../authentication/syncedtokenstuff.h"
 #include "serversession.hh"
 #include "resolver.hh"
 #include "../core/timeoutreactor.hh"
@@ -22,7 +21,7 @@ class Proxy: public ListenReactor
 	std::unique_ptr<PasswordChecker> passwordChecker;
 	
 	tbb::concurrent_hash_map<uint64_t, std::shared_ptr<ServerSession>> sessions;
-	std::unordered_map<std::string, std::unique_ptr<SyncedTokenBank>> banks;
+	std::unordered_map<std::string, std::unique_ptr<S6U::SyncedTokenBank>> banks;
 	tbb::spin_mutex bankLock;
 	
 	TLSContext *serverCtx;
@@ -46,9 +45,9 @@ public:
 	
 	std::shared_ptr<ServerSession> getSession(uint64_t id);
 	
-	SyncedTokenBank *createBank(const std::string &user, uint32_t size);
+	S6U::SyncedTokenBank *createBank(const std::string &user, uint32_t size);
 	
-	SyncedTokenBank *getBank(const std::string &user);
+	S6U::SyncedTokenBank *getBank(const std::string &user);
 	
 	TLSContext *getServerCtx() const
 	{

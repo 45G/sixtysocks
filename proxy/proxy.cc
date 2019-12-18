@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace tbb;
+using namespace S6U;
 
 const std::set<uint16_t> Proxy::DEFAULT_SERVICES = {
 	53, /* DNS */
