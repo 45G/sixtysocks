@@ -44,7 +44,12 @@ void TimeoutReactor::start()
 
 void TimeoutReactor::process(int fd, uint32_t events)
 {
-	(void)fd; (void)events;
+	(void)events;
+
+	uint64_t res;
+	int rc = read(fd, &res, sizeof(res));
+	if (rc < 0)
+		throw system_error(errno, system_category());
 
 	auto now = system_clock().now();
 
@@ -58,7 +63,7 @@ void TimeoutReactor::process(int fd, uint32_t events)
 		while (!queue->first.empty())
 		{
 			Timer *timer = &(queue->first.front());
-			if (timer->arm + milliseconds(timeout) < now)
+			if (duration_cast<milliseconds>(now - timer->arm).count() < timeout)
 				break;
 
 			timer->trigger();
