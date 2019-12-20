@@ -29,7 +29,7 @@ void usage()
 {
 	static const vector<string> USAGE_LINES = {
 	//         12345678901234567890123456789012345678901234567890123456789012345678901234567890
-		{ "usage: sixtysocks [-j <thread count>] [-o <cpu offset>]" },
+		{ "usage: sixtysocks [-j <thread count>]" },
 		{         "[-m <mode>] (\"proxify\"/\"proxy\")" },
 		{         "[-l <listen port>] [-t <TLS listen port>]" },
 		{         "[-U <username>] [-P <password>]" },
@@ -62,7 +62,6 @@ enum Mode
 int main(int argc, char **argv)
 {
 	int numThreads = 1;
-	int cpuOffset = -1;
 	
 	Mode mode = M_NONE;
 	
@@ -89,7 +88,7 @@ int main(int argc, char **argv)
 	//TODO: fix this shit
 	opterr = 0;
 	char c;
-	while ((c = getopt(argc, argv, "j:o:m:l:t:U:P:s:p:C:S:n:D")) != -1)
+	while ((c = getopt(argc, argv, "j:m:l:t:U:P:s:p:C:S:n:D")) != -1)
 	{
 		switch (c)
 		{
@@ -97,10 +96,6 @@ int main(int argc, char **argv)
 			numThreads = atoi(optarg);
 			if (numThreads < 0)
 				usage();
-			break;
-			
-		case 'o':
-			cpuOffset = atoi(optarg);
 			break;
 			
 		case 'm':
@@ -185,10 +180,6 @@ int main(int argc, char **argv)
 	if (mode == M_PROXY && port == 0 && tlsPort == 0)
 		usage();
 
-	
-//	if (cpuOffset + numThreads > (int)thread::hardware_concurrency())
-//		usage();
-
 	try
 	{
 		optional<TLSLibrary>   tlsLibrary;
@@ -205,7 +196,7 @@ int main(int argc, char **argv)
 				serverCtx.reset(new TLSContext(true,  nick, ""));
 		}
 
-		Poller poller(numThreads, cpuOffset);
+		Poller poller(numThreads);
 		//poller.start();
 
 		if (mode == M_PROXIFIER)

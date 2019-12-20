@@ -8,7 +8,7 @@
 using namespace std;
 using boost::intrusive_ptr;
 
-Poller::Poller(int numThreads, int cpuOffset, size_t expectedFDs)
+Poller::Poller(int numThreads, size_t expectedFDs)
 {
 	threads.reserve(numThreads);
 	epollFD = epoll_create(1); // number doesn't matter
@@ -30,23 +30,6 @@ Poller::Poller(int numThreads, int cpuOffset, size_t expectedFDs)
 //		if (rc > 0)
 //			throw system_error(rc, system_category());
 //	}
-}
-
-void Poller::assign(intrusive_ptr<Reactor> reactor)
-{
-	try
-	{
-		reactor->start();
-	}
-	catch (RescheduleException &resched)
-	{
-		add(reactor, resched.getFD(), resched.getEvents());
-	}
-	catch (exception &ex)
-	{
-		cerr << "Caught exception; killing reactor: " << ex.what() << endl;
-		reactor->deactivate();
-	}
 }
 
 void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)

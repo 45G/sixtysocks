@@ -30,19 +30,7 @@ public:
 	static const uint32_t IN_EVENTS  = EPOLLIN | EPOLLRDHUP;
 	static const uint32_t OUT_EVENTS = EPOLLOUT;
 	
-	Poller(int numThreads, int cpuOffset, size_t expectedFDs = 1 << 17);
-
-	void assign(boost::intrusive_ptr<Reactor> reactor);
-	
-	void add(boost::intrusive_ptr<Reactor> reactor, int fd, uint32_t events);
-	
-	void remove(int fd, bool force = false);
-	
-	void stop();
-	
-	void join();
-	
-	static void threadFun(Poller *poller);
+	Poller(int numThreads, size_t expectedFDs = 1 << 17);
 	
 	template <typename T>
 	void runAs(Reactor *reactor, T functor)
@@ -61,6 +49,23 @@ public:
 			reactor->deactivate();
 		}
 	}
+	
+	void assign(boost::intrusive_ptr<Reactor> reactor)
+	{
+		runAs(reactor.get(), [&]() {
+			reactor->start();
+		});
+	}
+	
+	void add(boost::intrusive_ptr<Reactor> reactor, int fd, uint32_t events);
+	
+	void remove(int fd, bool force = false);
+	
+	void stop();
+	
+	void join();
+	
+	static void threadFun(Poller *poller);
 };
 
 #endif // POLLER_HH
