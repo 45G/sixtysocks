@@ -104,5 +104,4 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 void ProxifierDownstreamer::deactivate()
 {
 	StreamReactor::deactivate();
-	upstreamer->deactivate();
 }
