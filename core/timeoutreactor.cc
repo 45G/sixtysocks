@@ -68,6 +68,8 @@ void TimeoutReactor::process(int fd, uint32_t events)
 			queue.pop_front();
 		}
 	}
+	
+	poller->add(this, fd, Poller::IN_EVENTS);
 }
 
 void TimeoutReactor::deactivate()
