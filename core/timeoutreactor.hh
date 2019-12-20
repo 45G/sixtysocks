@@ -32,9 +32,9 @@ public:
 		timer->tracker = this;
 		timer->arm = now;
 
-		auto *queue = &timers[timer->interval];
-		tbb::spin_mutex::scoped_lock scopedLock(queue->second);
-		queue->first.push_back(*timer);
+		auto &[queue, lock] = timers[timer->interval];
+		tbb::spin_mutex::scoped_lock scopedLock(lock);
+		queue.push_back(*timer);
 	}
 
 	void refresh(Timer *timer, std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock().now())
@@ -44,12 +44,12 @@ public:
 
 		timer->arm = now;
 
-		auto *queue = &timers[timer->interval];
-		tbb::spin_mutex::scoped_lock scopedLock(queue->second);
+		auto &[queue, lock] = timers[timer->interval];
+		tbb::spin_mutex::scoped_lock scopedLock(lock);
 		if (!timer->is_linked())
 			return;
-		queue->first.erase(queue->first.iterator_to(*timer));
-		queue->first.push_back(*timer);
+		queue.erase(queue.iterator_to(*timer));
+		queue.push_back(*timer);
 	}
 
 	void cancel(Timer *timer)
@@ -57,11 +57,11 @@ public:
 		assert(timers.find(timer->interval) != timers.end());
 		assert(timer->tracker == this);
 
-		auto *queue = &timers[timer->interval];
-		tbb::spin_mutex::scoped_lock scopedLock(queue->second);
+		auto &[queue, lock] = timers[timer->interval];
+		tbb::spin_mutex::scoped_lock scopedLock(lock);
 		if (!timer->is_linked())
 			return;
-		queue->first.erase(queue->first.iterator_to(*timer));
+		queue.erase(queue.iterator_to(*timer));
 	}
 
 	void start();

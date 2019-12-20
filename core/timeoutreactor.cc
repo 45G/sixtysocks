@@ -53,21 +53,19 @@ void TimeoutReactor::process(int fd, uint32_t events)
 
 	auto now = system_clock().now();
 
-	for (auto &entry: timers)
+	for (auto &[timeout, entry]: timers)
 	{
-		int timeout = entry.first;
-		auto *queue = &(entry.second);
+		auto &[queue, lock] = entry;
+		spin_mutex::scoped_lock scopedLock(lock);
 
-		spin_mutex::scoped_lock scopedLock(queue->second);
-
-		while (!queue->first.empty())
+		while (!queue.empty())
 		{
-			Timer *timer = &(queue->first.front());
+			Timer *timer = &(queue.front());
 			if (duration_cast<milliseconds>(now - timer->arm).count() < timeout)
 				break;
 
 			timer->trigger();
-			queue->first.pop_front();
+			queue.pop_front();
 		}
 	}
 }
