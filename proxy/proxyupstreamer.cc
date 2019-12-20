@@ -96,7 +96,7 @@ ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, UniqFD &&srcFD)
 	
 	TLSContext *serverCtx = proxy->getServerCtx();
 	if (serverCtx)
-		srcSock.tls = new TLS(serverCtx, srcSock.fd);
+		srcSock.tls = make_shared<TLS>(serverCtx, srcSock.fd);
 }
 
 void ProxyUpstreamer::start()

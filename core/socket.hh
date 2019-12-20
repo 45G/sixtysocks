@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/tcp.h>
 #include <system_error>
-#include <boost/intrusive_ptr.hpp>
+#include <memory>
 #include "poller.hh"
 #include "uniqfd.hh"
 #include "../tls/tls.hh"
@@ -16,7 +16,7 @@ template<typename UFD>
 struct Socket
 {
 	UFD fd;
-	boost::intrusive_ptr<TLS> tls;
+	std::shared_ptr<TLS> tls;
 	
 	size_t tcpRecv(StreamBuffer *buf)
 	{

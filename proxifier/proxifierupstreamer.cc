@@ -24,7 +24,7 @@ ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, UniqFD &&srcFD, s
 	
 	TLSContext *clientCtx = proxifier->getClientCtx();
 	if (clientCtx)
-		dstSock.tls = new TLS(clientCtx, dstSock.fd);
+		dstSock.tls = make_shared<TLS>(clientCtx, dstSock.fd);
 	
 	int rc = S6U::Socket::getOriginalDestination(srcSock.fd, &dest.storage);
 	if (rc < 0)

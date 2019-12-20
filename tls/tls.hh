@@ -1,7 +1,6 @@
 #ifndef TLS_HH
 #define TLS_HH
 
-#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <socks6util/socks6util.hh>
 #include <ssl.h>
 #include <prio.h>
@@ -11,7 +10,7 @@
 
 class Proxifier;
 
-class TLS: public boost::intrusive_ref_counter<TLS>
+class TLS
 {
 	static PRStatus PR_CALLBACK dClose          (PRFileDesc *fd) noexcept;
 	static PRInt32  PR_CALLBACK dRecv           (PRFileDesc *fd, void *buf, PRInt32 amount, PRIntn flags, PRIntervalTime timeout) noexcept;

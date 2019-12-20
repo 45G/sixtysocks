@@ -15,7 +15,7 @@ SessionSupplicationAgent::SessionSupplicationAgent(Proxifier *proxifier, std::sh
 	if (sock.fd < 0)
 		throw system_error(errno, system_category());
 	if (clientCtx)
-		sock.tls = new TLS(clientCtx, sock.fd);
+		sock.tls = make_shared<TLS>(clientCtx, sock.fd);
 	
 	S6M::Request req(SOCKS6_REQUEST_NOOP, S6U::Socket::QUAD_ZERO, 0);
 	if (proxifier->getUsername()->length() > 0)
