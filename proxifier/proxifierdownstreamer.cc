@@ -100,8 +100,3 @@ void ProxifierDownstreamer::process(int fd, uint32_t events)
 		break;
 	}
 }
-
-void ProxifierDownstreamer::deactivate()
-{
-	StreamReactor::deactivate();
-}

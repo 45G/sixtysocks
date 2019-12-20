@@ -18,9 +18,3 @@ void ConnectProxyDownstreamer::process(int fd, uint32_t events)
 	upstreamer->getTimer()->refresh();
 	StreamReactor::process(fd, events);
 }
-
-void ConnectProxyDownstreamer::deactivate()
-{
-	StreamReactor::deactivate();
-	upstreamer->deactivate();
-}

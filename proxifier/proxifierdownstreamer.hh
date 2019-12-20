@@ -27,8 +27,6 @@ public:
 	ProxifierDownstreamer(ProxifierUpstreamer *upstreamer);
 	
 	void process(int fd, uint32_t events);
-
-	void deactivate();
 };
 
 #endif // PROXIFIERDOWNSTREAMER_HH
