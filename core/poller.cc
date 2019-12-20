@@ -110,7 +110,7 @@ void Poller::threadFun(Poller *poller)
 		if (!reactor->isActive())
 			return;
 		
-		poller->runAs(reactor.get(), [&]() {
+		poller->runAs(reactor, [&]() {
 			reactor->process(event.data.fd, event.events);
 		});
 	}

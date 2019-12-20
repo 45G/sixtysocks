@@ -33,7 +33,7 @@ public:
 	Poller(int numThreads, size_t expectedFDs = 1 << 17);
 	
 	template <typename T>
-	void runAs(Reactor *reactor, T functor)
+	void runAs(boost::intrusive_ptr<Reactor> reactor, T functor)
 	{
 		try
 		{
@@ -52,7 +52,7 @@ public:
 	
 	void assign(boost::intrusive_ptr<Reactor> reactor)
 	{
-		runAs(reactor.get(), [&]() {
+		runAs(reactor, [&]() {
 			reactor->start();
 		});
 	}
