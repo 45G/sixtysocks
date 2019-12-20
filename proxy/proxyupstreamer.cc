@@ -46,6 +46,7 @@ void ProxyUpstreamer::honorRequest()
 		default:
 			reply.code = SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED;
 			poller->assign(new SimpleProxyDownstreamer(this, &reply));
+			break;
 		}
 	}
 	catch (std::exception &)
