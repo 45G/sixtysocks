@@ -29,13 +29,12 @@ void usage()
 {
 	static const vector<string> USAGE_LINES = {
 	//         12345678901234567890123456789012345678901234567890123456789012345678901234567890
-		{ "usage: sixtysocks [-j <thread count>]" },
-		{         "[-m <mode>] (\"proxify\"/\"proxy\")" },
+		{ "usage: sixtysocks [-j <thread count>] [-m <mode>] (\"proxify\"/\"proxy\")" },
 		{         "[-l <listen port>] [-t <TLS listen port>]" },
+		{         "[-s <proxy IP>] [-p <proxy port>] (proxifier only)" },
 		{         "[-U <username>] [-P <password>]" },
-		{         "[-s <proxy IP>] [-p <proxy port>]" },
 		{         "[-C <certificate DB>] [-n <key nickname>] [-S <SNI>]" },
-		{         "[-D] (defer request until socket is readable)" },
+		{         "[-D] (defer request until socket is readable; proxifier only)" },
 	};
 	
 	bool first = true;
