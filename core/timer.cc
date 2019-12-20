@@ -3,7 +3,8 @@
 
 Timer::~Timer()
 {
-	cancel();
+	if (tracker)
+		cancel();
 }
 
 void Timer::refresh()
