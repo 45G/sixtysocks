@@ -40,6 +40,16 @@ public:
 	{
 		return active;
 	}
+	
+	template <typename T>
+	bool runIfActive(T lambda)
+	{
+		tbb::spin_mutex::scoped_lock scopedLock(deactivationLock);
+		if (!isActive())
+			return false;
+		lambda();
+		return true;
+	}
 
 	Poller *getPoller() const
 	{
@@ -47,8 +57,6 @@ public:
 	}
 	
 	virtual ~Reactor() = default;
-
-	friend class Poller;
 };
 
 #endif // REACTOR_HH

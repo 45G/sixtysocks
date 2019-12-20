@@ -51,29 +51,29 @@ void Poller::assign(intrusive_ptr<Reactor> reactor)
 
 void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 {
-	tbb::spin_mutex::scoped_lock scopedLock(reactor->deactivationLock);
-
-	if (fd < 0 || !reactor->isActive())
-		return;
-
-	if (fd >= (int)fdEntries.size())
-		throw runtime_error("Maximum number of FDs exceeded");
+	reactor->runIfActive([&]() {
+		if (fd < 0)
+			return;
 	
-	int epollOp;
-	if (fdEntries[fd].registered)
-		epollOp = EPOLL_CTL_MOD;
-	else
-		epollOp = EPOLL_CTL_ADD;
-	
-	epoll_event event;
-	event.events = events | EPOLLONESHOT;
-	event.data.fd = fd;
-	
-	int rc = epoll_ctl(epollFD, epollOp, fd, &event);
-	if (rc < 0)
-		throw system_error(errno, system_category());
-	
-	fdEntries[fd] = { reactor, true };
+		if (fd >= (int)fdEntries.size())
+			throw runtime_error("Maximum number of FDs exceeded");
+		
+		int epollOp;
+		if (fdEntries[fd].registered)
+			epollOp = EPOLL_CTL_MOD;
+		else
+			epollOp = EPOLL_CTL_ADD;
+		
+		epoll_event event;
+		event.events = events | EPOLLONESHOT;
+		event.data.fd = fd;
+		
+		int rc = epoll_ctl(epollFD, epollOp, fd, &event);
+		if (rc < 0)
+			throw system_error(errno, system_category());
+		
+		fdEntries[fd] = { reactor, true };
+	});
 }
 
 void Poller::remove(int fd, bool force)
