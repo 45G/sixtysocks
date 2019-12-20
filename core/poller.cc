@@ -74,18 +74,18 @@ void Poller::remove(int fd, bool force)
 void Poller::stop()
 {
 	alive = false;
-	
-	for (FDEntry &entry: fdEntries)
-	{
-		if (entry.reactor)
-			entry.reactor->deactivate();
-	}
 }
 
 void Poller::join()
 {
 	for (thread &t: threads)
 		t.join();
+	
+	for (FDEntry &entry: fdEntries)
+	{
+		if (entry.reactor)
+			entry.reactor->deactivate();
+	}
 }
 
 void Poller::threadFun(Poller *poller)
