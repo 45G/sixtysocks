@@ -35,24 +35,18 @@ void ProxyUpstreamer::honorRequest()
 		switch (request->code)
 		{
 		case SOCKS6_REQUEST_CONNECT:
-		{
 			honorConnect();
 			break;
-		}
+			
 		case SOCKS6_REQUEST_NOOP:
-		{
-			throw SimpleReplyException(SOCKS6_OPERATION_REPLY_SUCCESS);
-		}
+			reply.code = SOCKS6_OPERATION_REPLY_SUCCESS;
+			poller->assign(new SimpleProxyDownstreamer(this, &reply));
+			break;
+			
 		default:
-		{
-			throw SimpleReplyException(SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED);
+			reply.code = SOCKS6_OPERATION_REPLY_CMD_NOT_SUPPORTED;
+			poller->assign(new SimpleProxyDownstreamer(this, &reply));
 		}
-		}
-	}
-	catch (SimpleReplyException &ex)
-	{
-		reply.code = ex.getCode();
-		poller->assign(new SimpleProxyDownstreamer(this, &reply));
 	}
 	catch (std::exception &)
 	{

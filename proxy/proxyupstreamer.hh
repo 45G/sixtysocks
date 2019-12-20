@@ -76,20 +76,6 @@ public:
 		return proxy.get();
 	}
 	
-	class SimpleReplyException: public std::exception
-	{
-		SOCKS6OperationReplyCode code;
-		
-	public:
-		SimpleReplyException(SOCKS6OperationReplyCode code)
-			: code(code) {}
-		
-		SOCKS6OperationReplyCode getCode() const
-		{
-			return code;
-		}
-	};
-
 	ReactorInactivityTimer *getTimer()
 	{
 		return &timer;
