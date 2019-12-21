@@ -6,6 +6,7 @@ CONFIG -= qt
 QMAKE_CXXFLAGS += -std=c++17
 
 SOURCES += \
+    core/fdxstreamreactor.cc \
     core/listenreactor.cc \
     core/poller.cc \
     core/reactor.cc \
@@ -35,6 +36,7 @@ SOURCES += \
     tls/tlslibrary.cc
 
 HEADERS += \
+    core/fdxstreamreactor.hh \
     core/poller.hh \
     core/listenreactor.hh \
     core/reactor.hh \
