@@ -9,7 +9,7 @@
 
 using namespace std;
 
-static const size_t HEADROOM = 512; //more than enough for any request
+static const size_t HEADROOM = 17 * 1024; //more than enough for any request
 
 ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, UniqFD &&srcFD, std::shared_ptr<SessionSupplicant> sessionSupplicant)
 	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), session(proxifier->getSession()), sessionSupplicant(sessionSupplicant)
