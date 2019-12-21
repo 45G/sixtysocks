@@ -11,32 +11,27 @@ class AuthenticationReactor;
 class FDXStreamReactor: public Reactor
 {
 protected:
-	RSocket srcSock;
-	WSocket dstSock;
-	
-	StreamBuffer buf;
-	
 	enum StreamState
 	{
 		SS_RECEIVING,
 		SS_SENDING,
 	};
-
-	StreamState streamState = SS_RECEIVING;
+	
+	struct Stream
+	{
+		RSocket srcSock;
+		WSocket dstSock;
+		
+		StreamBuffer buf;
+		
+		StreamState state = SS_RECEIVING;
+	};
+	
+	Stream stream;
 
 public:
 	FDXStreamReactor(Poller *poller)
 		: Reactor(poller){}
-	
-	RSocket *getSrcSock()
-	{
-		return &srcSock;
-	}
-	
-	WSocket *getDstSock()
-	{
-		return &dstSock;
-	}
 	
 	void process(int fd, uint32_t events);
 	

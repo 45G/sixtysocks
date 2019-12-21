@@ -9,37 +9,37 @@ void FDXStreamReactor::process(int fd, uint32_t events)
 {
 	(void)fd; (void)events;
 
-	switch (streamState)
+	switch (stream.state)
 	{
 	case SS_RECEIVING:
 	{
-		ssize_t bytes = srcSock.sockRecv(&buf);
-		if (bytes == 0 && buf.usedSize() == 0)
+		ssize_t bytes = stream.srcSock.sockRecv(&stream.buf);
+		if (bytes == 0 && stream.buf.usedSize() == 0)
 		{
 			deactivate();
 			return;
 		}
 
-		streamState = SS_SENDING;
+		stream.state = SS_SENDING;
 		[[fallthrough]];
 	}
 	case SS_SENDING:
 	{
-		ssize_t bytes = dstSock.sockSend(&buf);
+		ssize_t bytes = stream.dstSock.sockSend(&stream.buf);
 		if (bytes == 0)
 		{
 			deactivate();
 			return;
 		}
 
-		if (buf.usedSize() == 0)
+		if (stream.buf.usedSize() == 0)
 		{
-			streamState = SS_RECEIVING;
-			poller->add(this, srcSock.fd, Poller::IN_EVENTS);
+			stream.state = SS_RECEIVING;
+			poller->add(this, stream.srcSock.fd, Poller::IN_EVENTS);
 		}
 		else
 		{
-			poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
+			poller->add(this, stream.dstSock.fd, Poller::OUT_EVENTS);
 		}
 
 		break;
@@ -51,25 +51,25 @@ void FDXStreamReactor::deactivate()
 {
 	Reactor::deactivate();
 	
-	poller->remove(srcSock.fd);
-	poller->remove(dstSock.fd);
+	poller->remove(stream.srcSock.fd);
+	poller->remove(stream.dstSock.fd);
 }
 
 void FDXStreamReactor::start()
 {
-	if (buf.usedSize() > 0)
-		streamState = SS_SENDING;
+	if (stream.buf.usedSize() > 0)
+		stream.state = SS_SENDING;
 	else
-		streamState = SS_RECEIVING;
+		stream.state = SS_RECEIVING;
 	
-	switch (streamState)
+	switch (stream.state)
 	{
 	case SS_RECEIVING:
-		poller->add(this, srcSock.fd, Poller::IN_EVENTS);
+		poller->add(this, stream.srcSock.fd, Poller::IN_EVENTS);
 		break;
 
 	case SS_SENDING:
-		poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
+		poller->add(this, stream.dstSock.fd, Poller::OUT_EVENTS);
 		break;
 	}
 }
@@ -78,8 +78,8 @@ FDXStreamReactor::~FDXStreamReactor()
 {
 	try
 	{
-		poller->remove(srcSock.fd);
-		poller->remove(dstSock.fd);
+		poller->remove(stream.srcSock.fd);
+		poller->remove(stream.dstSock.fd);
 	}
 	catch(...) {}
 }
