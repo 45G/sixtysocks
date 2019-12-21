@@ -5,7 +5,7 @@
 using namespace std;
 
 ConnectProxyDownstreamer::ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer, S6M::OperationReply *reply)
-	: StreamReactor(upstreamer->getPoller(), SS_SENDING), upstreamer(upstreamer)
+	: StreamReactor(upstreamer->getPoller()), upstreamer(upstreamer)
 {
 	buf.use(reply->pack(buf.getTail(), buf.availSize()));
 	

@@ -22,11 +22,11 @@ protected:
 		SS_SENDING,
 	};
 
-	StreamState streamState;
+	StreamState streamState = SS_RECEIVING;
 
 public:
-	StreamReactor(Poller *poller, StreamState streamState = SS_RECEIVING)
-		: Reactor(poller), streamState(streamState) {}
+	StreamReactor(Poller *poller)
+		: Reactor(poller){}
 	
 	RSocket *getSrcSock()
 	{

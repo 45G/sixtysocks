@@ -5,7 +5,7 @@
 using namespace std;
 
 SimpleProxyDownstreamer::SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, const S6M::OperationReply *reply)
-	: StreamReactor(upstreamer->getPoller(), SS_SENDING)
+	: StreamReactor(upstreamer->getPoller())
 {
 	buf.use(reply->pack(buf.getTail(), buf.availSize()));
 
@@ -13,7 +13,7 @@ SimpleProxyDownstreamer::SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, co
 }
 
 SimpleProxyDownstreamer::SimpleProxyDownstreamer(ProxyUpstreamer *upstreamer, const SOCKS6Version *version)
-	: StreamReactor(upstreamer->getPoller(), SS_SENDING)
+	: StreamReactor(upstreamer->getPoller())
 {
 	if (buf.availSize() < sizeof(*version))
 		throw runtime_error("buffer too small");

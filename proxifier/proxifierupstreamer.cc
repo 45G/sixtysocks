@@ -12,7 +12,7 @@ using namespace std;
 static const size_t HEADROOM = 17 * 1024; //more than enough for any request
 
 ProxifierUpstreamer::ProxifierUpstreamer(Proxifier *proxifier, UniqFD &&srcFD, std::shared_ptr<SessionSupplicant> sessionSupplicant)
-	: StreamReactor(proxifier->getPoller(), SS_SENDING), proxifier(proxifier), session(proxifier->getSession()), sessionSupplicant(sessionSupplicant)
+	: StreamReactor(proxifier->getPoller()), proxifier(proxifier), session(proxifier->getSession()), sessionSupplicant(sessionSupplicant)
 {
 	buf.makeHeadroom(HEADROOM);
 
@@ -78,7 +78,7 @@ void ProxifierUpstreamer::start()
 	/* connect */
 	dstSock.sockConnect(*proxifier->getProxyAddr(), &buf, recommendation.tfoPayload, recommendation.earlyData);
 
-	poller->add(this, dstSock.fd, Poller::OUT_EVENTS);
+	StreamReactor::start();
 }
 
 void ProxifierUpstreamer::process(int fd, uint32_t events)
