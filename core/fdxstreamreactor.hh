@@ -27,7 +27,13 @@ protected:
 		StreamState state = SS_RECEIVING;
 	};
 	
-	Stream stream;
+	Stream upStream;
+	Stream downStream;
+	
+	void streamProcess(Stream *stream, int fd, uint32_t events);
+	
+	virtual void upStreamProcess(  int fd, uint32_t events);
+	virtual void downStreamProcess(int fd, uint32_t events);
 
 public:
 	FDXStreamReactor(Poller *poller)
@@ -38,6 +44,10 @@ public:
 	void deactivate();
 
 	void start();
+	
+	void upStreamStart();
+	
+	void downStreamStart();
 
 	~FDXStreamReactor();
 
