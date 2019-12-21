@@ -78,7 +78,7 @@ void Poller::add(intrusive_ptr<Reactor> reactor, int fd, uint32_t events)
 
 void Poller::remove(int fd, bool force)
 {
-	if ((!fdEntries[fd].registered || fd < 0) && !force)
+	if ((fd < 0 || !fdEntries[fd].registered) && !force)
 		return;
 
 	int rc = epoll_ctl(epollFD, EPOLL_CTL_DEL, fd, nullptr);
