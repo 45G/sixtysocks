@@ -66,6 +66,11 @@ void StreamReactor::deactivate()
 
 void StreamReactor::start()
 {
+	if (buf.usedSize() > 0)
+		streamState = SS_SENDING;
+	else
+		streamState = SS_RECEIVING;
+	
 	switch (streamState)
 	{
 	case SS_RECEIVING:
