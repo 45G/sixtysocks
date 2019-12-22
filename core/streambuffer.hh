@@ -34,16 +34,6 @@ public:
 			tail = 0;
 		}
 	}
-
-//	void unuseTail(size_t count)
-//	{
-//		tail -= count;
-//		if (head == tail)
-//		{
-//			head = 0;
-//			tail = 0;
-//		}
-//	}
 	
 	uint8_t *getTail()
 	{
