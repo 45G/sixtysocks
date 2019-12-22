@@ -13,8 +13,9 @@ SimplePasswordChecker::SimplePasswordChecker(const std::string &user, const std:
 	}
 }
 
-bool SimplePasswordChecker::check(const string *user, const string *password)
+bool SimplePasswordChecker::check(std::pair<const string *, const string *> creds)
 {
+	auto [user, password] = creds;
 	if (!user)
 		return false;
 	return this->user == *user && this->password == *password;

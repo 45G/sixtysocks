@@ -11,7 +11,7 @@ class SimplePasswordChecker: public PasswordChecker
 public:
 	SimplePasswordChecker(const std::string &user, const std::string &password);
 	
-	bool check(const std::string *user, const std::string *password);
+	bool check(std::pair<const std::string *, const std::string *> creds);
 };
 
 #endif // SIMPLEPASSWORDCHECKER_HH

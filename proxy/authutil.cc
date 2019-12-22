@@ -38,7 +38,7 @@ AuthenticationReply authenticate(Request *req, Proxy *proxy)
 	auto checker = proxy->getPasswordChecker();
 	if (checker && !session)
 	{
-		bool success = checker->check(req->options.userPassword.getUsername(), req->options.userPassword.getPassword());
+		bool success = checker->check(req->options.userPassword.getCredentials());
 		reply.options.userPassword.setReply(success);
 		if (!success)
 			return reply;
