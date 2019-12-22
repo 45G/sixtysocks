@@ -47,22 +47,22 @@ void FDXStreamReactor::streamProcess(Stream *stream, int fd, uint32_t events)
 	}
 }
 
-void FDXStreamReactor::upStreamProcess(int fd, uint32_t events)
+void FDXStreamReactor::upstreamProcess(int fd, uint32_t events)
 {
-	streamProcess(&upStream, fd, events);
+	streamProcess(&upstream, fd, events);
 }
 
-void FDXStreamReactor::downStreamProcess(int fd, uint32_t events)
+void FDXStreamReactor::downstreamProcess(int fd, uint32_t events)
 {
-	streamProcess(&downStream, fd, events);
+	streamProcess(&downstream, fd, events);
 }
 
 void FDXStreamReactor::process(int fd, uint32_t events)
 {
-	if (fd == upStream.srcSock.fd || fd == upStream.dstSock.fd)
-		upStreamProcess(fd, events);
-	else if (fd == downStream.srcSock.fd || fd == downStream.dstSock.fd)
-		downStreamProcess(fd, events);
+	if (fd == upstream.srcSock.fd || fd == upstream.dstSock.fd)
+		upstreamProcess(fd, events);
+	else if (fd == downstream.srcSock.fd || fd == downstream.dstSock.fd)
+		downstreamProcess(fd, events);
 	else
 		assert(false);
 }
@@ -71,7 +71,7 @@ void FDXStreamReactor::deactivate()
 {
 	Reactor::deactivate();
 	
-	for (Stream *stream: { &upStream, &downStream })
+	for (Stream *stream: { &upstream, &downstream })
 	{
 		poller->remove(stream->srcSock.fd);
 		poller->remove(stream->dstSock.fd);
@@ -85,38 +85,38 @@ void FDXStreamReactor::start()
 
 void FDXStreamReactor::upStreamStart()
 {
-	if (upStream.buf.usedSize() > 0)
-		upStream.state = SS_SENDING;
+	if (upstream.buf.usedSize() > 0)
+		upstream.state = SS_SENDING;
 	else
-		upStream.state = SS_RECEIVING;
+		upstream.state = SS_RECEIVING;
 	
-	switch (upStream.state)
+	switch (upstream.state)
 	{
 	case SS_RECEIVING:
-		poller->add(this, upStream.srcSock.fd, Poller::IN_EVENTS);
+		poller->add(this, upstream.srcSock.fd, Poller::IN_EVENTS);
 		break;
 
 	case SS_SENDING:
-		poller->add(this, upStream.dstSock.fd, Poller::OUT_EVENTS);
+		poller->add(this, upstream.dstSock.fd, Poller::OUT_EVENTS);
 		break;
 	}
 }
 
 void FDXStreamReactor::downStreamStart()
 {
-	if (downStream.buf.usedSize() > 0)
-		downStream.state = SS_SENDING;
+	if (downstream.buf.usedSize() > 0)
+		downstream.state = SS_SENDING;
 	else
-		downStream.state = SS_RECEIVING;
+		downstream.state = SS_RECEIVING;
 	
-	switch (downStream.state)
+	switch (downstream.state)
 	{
 	case SS_RECEIVING:
-		poller->add(this, downStream.srcSock.fd, Poller::IN_EVENTS);
+		poller->add(this, downstream.srcSock.fd, Poller::IN_EVENTS);
 		break;
 
 	case SS_SENDING:
-		poller->add(this, downStream.dstSock.fd, Poller::OUT_EVENTS);
+		poller->add(this, downstream.dstSock.fd, Poller::OUT_EVENTS);
 		break;
 	}
 }
@@ -125,7 +125,7 @@ FDXStreamReactor::~FDXStreamReactor()
 {
 	try
 	{
-		for (Stream *stream: { &upStream, &downStream })
+		for (Stream *stream: { &upstream, &downstream })
 		{
 			poller->remove(stream->srcSock.fd);
 			poller->remove(stream->dstSock.fd);

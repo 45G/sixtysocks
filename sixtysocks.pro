@@ -19,6 +19,7 @@ SOURCES += \
     proxifier/readabledeferreactor.cc \
     proxy/authutil.cc \
     proxy/proxy.cc \
+    proxy/proxyconnection.cc \
     proxy/proxyupstreamer.cc \
     proxy/resolver.cc \
     proxy/simpleproxydownstreamer.cc \
@@ -49,6 +50,7 @@ HEADERS += \
     proxifier/readabledeferreactor.hh \
     proxy/authutil.hh \
     proxy/proxy.hh \
+    proxy/proxyconnection.hh \
     proxy/proxyupstreamer.hh \
     proxy/resolver.hh \
     proxy/simpleproxydownstreamer.hh \

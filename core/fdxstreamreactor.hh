@@ -27,13 +27,13 @@ protected:
 		StreamState state = SS_RECEIVING;
 	};
 	
-	Stream upStream;
-	Stream downStream;
+	Stream upstream;
+	Stream downstream;
 	
 	void streamProcess(Stream *stream, int fd, uint32_t events);
 	
-	virtual void upStreamProcess(  int fd, uint32_t events);
-	virtual void downStreamProcess(int fd, uint32_t events);
+	virtual void upstreamProcess(  int fd, uint32_t events);
+	virtual void downstreamProcess(int fd, uint32_t events);
 
 public:
 	FDXStreamReactor(Poller *poller)
