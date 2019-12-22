@@ -15,7 +15,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 {
 	sock.duplicate(upstreamer->getSrcSock());
 	
-	reply = AuthUtil::authenticate(upstreamer->getRequest().get(), upstreamer->getProxy());
+	reply = AuthUtil::authenticate(&upstreamer->getRequest()->options, upstreamer->getProxy());
 	
 	buf.use(reply.pack(buf.getTail(), buf.availSize()));
 }

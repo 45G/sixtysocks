@@ -7,7 +7,7 @@
 namespace AuthUtil
 {
 
-S6M::AuthenticationReply authenticate(S6M::Request *req, Proxy *proxy);
+S6M::AuthenticationReply authenticate(S6M::OptionSet *opts, Proxy *proxy);
 
 }
 

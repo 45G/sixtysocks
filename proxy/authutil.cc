@@ -7,13 +7,13 @@ using namespace S6U;
 namespace AuthUtil
 {
 
-AuthenticationReply authenticate(Request *req, Proxy *proxy)
+AuthenticationReply authenticate(OptionSet *opts, Proxy *proxy)
 {
 	AuthenticationReply reply { SOCKS6_AUTH_REPLY_FAILURE };
 	shared_ptr<ServerSession> session;
 
 	/* existing session */
-	auto rawID = req->options.session.getID();
+	auto rawID = opts->session.getID();
 	if (rawID)
 	{
 		if (rawID->size() != sizeof(uint64_t))
@@ -38,14 +38,14 @@ AuthenticationReply authenticate(Request *req, Proxy *proxy)
 	auto checker = proxy->getPasswordChecker();
 	if (checker && !session)
 	{
-		bool success = checker->check(req->options.userPassword.getCredentials());
+		bool success = checker->check(opts->userPassword.getCredentials());
 		reply.options.userPassword.setReply(success);
 		if (!success)
 			return reply;
 	}
 
 	/* new session */
-	if (!session && req->options.session.requested())
+	if (!session && opts->session.requested())
 	{
 		session = proxy->spawnSession();
 
@@ -61,7 +61,7 @@ AuthenticationReply authenticate(Request *req, Proxy *proxy)
 	if (session)
 	{
 		/* spend token */
-		auto token = req->options.idempotence.getToken();
+		auto token = opts->idempotence.getToken();
 		if (token)
 		{
 			/* got bank? */
@@ -78,7 +78,7 @@ AuthenticationReply authenticate(Request *req, Proxy *proxy)
 		}
 
 		/* new bank */
-		session->makeBank(req->options.idempotence.requestedSize());
+		session->makeBank(opts->idempotence.requestedSize());
 
 		/* advert */
 		SyncedTokenBank *bank = session->getTokenBank();
