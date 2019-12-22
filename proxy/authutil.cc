@@ -1,13 +1,15 @@
 #include "authutil.hh"
 
 using namespace std;
+using namespace S6M;
+using namespace S6U;
 
 namespace AuthUtil
 {
 
-S6M::AuthenticationReply authenticate(S6M::Request *req, Proxy *proxy)
+AuthenticationReply authenticate(Request *req, Proxy *proxy)
 {
-	S6M::AuthenticationReply reply { SOCKS6_AUTH_REPLY_FAILURE };
+	AuthenticationReply reply { SOCKS6_AUTH_REPLY_FAILURE };
 	shared_ptr<ServerSession> session;
 
 	/* existing session */
@@ -48,7 +50,7 @@ S6M::AuthenticationReply authenticate(S6M::Request *req, Proxy *proxy)
 		session = proxy->spawnSession();
 
 		uint64_t id = session->getID();
-		S6M::SessionID rawID;
+		SessionID rawID;
 		rawID.resize(sizeof(uint64_t));
 		memcpy(rawID.data(), &id, sizeof(uint64_t));
 
@@ -79,7 +81,7 @@ S6M::AuthenticationReply authenticate(S6M::Request *req, Proxy *proxy)
 		session->makeBank(req->options.idempotence.requestedSize());
 
 		/* advert */
-		S6U::SyncedTokenBank *bank = session->getTokenBank();
+		SyncedTokenBank *bank = session->getTokenBank();
 		if (bank)
 		{
 			auto window = bank->getWindow();
