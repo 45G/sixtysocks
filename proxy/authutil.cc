@@ -57,38 +57,39 @@ AuthenticationReply authenticate(OptionSet *opts, Proxy *proxy)
 		reply.options.session.setID(rawID);
 	}
 
-	/* idempotence stuff */
-	if (session)
+	/* idempotence stuff; it depends on having a valid session */
+	if (!session)
 	{
-		/* spend token */
-		auto token = opts->idempotence.getToken();
-		if (token)
-		{
-			/* got bank? */
-			if (!session->getTokenBank())
-			{
-				reply.options.idempotence.setReply(false);
-				return reply;
-			}
-
-			bool success = session->getTokenBank()->withdraw(token.value());
-			reply.options.idempotence.setReply(success);
-			if (!success)
-				return reply;
-		}
-
-		/* new bank */
-		session->makeBank(opts->idempotence.requestedSize());
-
-		/* advert */
-		SyncedTokenBank *bank = session->getTokenBank();
-		if (bank)
-		{
-			auto window = bank->getWindow();
-			reply.options.idempotence.advertise(window);
-		}
+		reply.code = SOCKS6_AUTH_REPLY_SUCCESS;
+		return reply;
 	}
-
+	
+	/* new bank */
+	session->makeBank(opts->idempotence.requestedSize());
+	
+	SyncedTokenBank *bank = session->getTokenBank();
+	
+	/* advert */
+	if (bank)
+	{
+		auto window = bank->getWindow();
+		reply.options.idempotence.advertise(window);
+	}
+	
+	/* spend token */
+	auto token = opts->idempotence.getToken();
+	if (!token)
+	{
+		reply.code = SOCKS6_AUTH_REPLY_SUCCESS;
+		return reply;
+	}
+	/* got bank? */
+	if (!bank || !bank->withdraw(token.value()))
+	{
+		reply.options.idempotence.setReply(false);
+		return reply;
+	}
+	reply.options.idempotence.setReply(true);
 	reply.code = SOCKS6_AUTH_REPLY_SUCCESS;
 	return reply;
 }
