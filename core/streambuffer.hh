@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
 #include <stdexcept>
 
 class StreamBuffer
@@ -50,9 +51,26 @@ public:
 		tail += count;
 	}
 	
-	void makeHeadroom(size_t size);
+	void makeHeadroom(size_t size)
+	{
+		size_t dataSize = usedSize();
+		
+		if (BUF_SIZE - dataSize < size)
+			throw std::runtime_error("No room in stream buffer");
+		if (size > head)
+		{
+			memmove(&buf[size], &buf[head], dataSize);
+			tail += size - head;
+			head = size;
+		}
+	}
 	
-	void prepend(uint8_t *stuff, uint8_t size);
+	void prepend(uint8_t *stuff, uint8_t size)
+	{
+		makeHeadroom(size);
+		memcpy(&buf[head - size], stuff, size);
+		head -= size;
+	}
 };
 
 #endif // STREAMBUFFER_HH

@@ -24,7 +24,6 @@ SOURCES += \
     proxy/connectproxydownstreamer.cc \
     sixtysocks.cc \
     authentication/simplepasswordchecker.cc \
-    core/streambuffer.cc \
     proxy/authserver.cc \
     proxifier/tfocookiesupplicationagent.cc \
     core/stickreactor.cc \
