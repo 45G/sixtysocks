@@ -83,12 +83,14 @@ AuthenticationReply authenticate(OptionSet *opts, Proxy *proxy)
 		reply.code = SOCKS6_AUTH_REPLY_SUCCESS;
 		return reply;
 	}
+	
 	/* got bank? */
 	if (!bank || !bank->withdraw(token.value()))
 	{
 		reply.options.idempotence.setReply(false);
 		return reply;
 	}
+	
 	reply.options.idempotence.setReply(true);
 	reply.code = SOCKS6_AUTH_REPLY_SUCCESS;
 	return reply;
