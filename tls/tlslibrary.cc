@@ -51,7 +51,7 @@ TLSLibrary::TLSLibrary(const string &configDir)
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_FALSE_START,     PR_TRUE));
 	tlsCheck(SSL_OptionSetDefault(SSL_ENABLE_0RTT_DATA,       PR_TRUE));
 
-	static const int  SID_CACHE_ENTRIES = 1024;
+	static constexpr int SID_CACHE_ENTRIES = 1024;
 	tlsCheck(SSL_ConfigServerSessionIDCache(SID_CACHE_ENTRIES, 0, 0, nullptr));
 
 	try
@@ -60,7 +60,7 @@ TLSLibrary::TLSLibrary(const string &configDir)
 		/* nothing; done in TLSContext */
 #else
 #ifdef SSL_SetupAntiReplay
-		static const int AR_WINDOW = 30;
+		static constexpr int AR_WINDOW = 30;
 		tlsCheck(SSL_SetupAntiReplay(AR_WINDOW * PR_USEC_PER_SEC, 7, 14));
 #endif
 #endif

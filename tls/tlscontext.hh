@@ -47,7 +47,7 @@ public:
 			try
 			{
 #ifdef SSL_CreateAntiReplayContext
-				static const int AR_WINDOW = 1;
+				static constexpr int AR_WINDOW = 1;
 				SSLAntiReplayContext *ctx;
 				SECStatus status = SSL_CreateAntiReplayContext(PR_Now(), AR_WINDOW * PR_USEC_PER_SEC, 7, 14, &ctx);
 				antiReplayCtx.reset(ctx);

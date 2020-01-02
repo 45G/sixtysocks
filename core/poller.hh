@@ -27,8 +27,8 @@ class Poller
 	std::atomic<bool> alive { true };
 	
 public:
-	static const uint32_t IN_EVENTS  = EPOLLIN | EPOLLRDHUP;
-	static const uint32_t OUT_EVENTS = EPOLLOUT;
+	static constexpr uint32_t IN_EVENTS  = EPOLLIN | EPOLLRDHUP;
+	static constexpr uint32_t OUT_EVENTS = EPOLLOUT;
 	
 	Poller(int numThreads, size_t expectedFDs = 1 << 17);
 	

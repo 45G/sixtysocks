@@ -74,8 +74,8 @@ void ListenReactor::process(int fd, uint32_t events)
 			continue;
 		}
 		
-		const static int one = 1;
-		setsockopt(clientFD, SOL_TCP, TCP_NODELAY, &one, sizeof(int)); // tolerable error
+		static const int ONE = 1;
+		setsockopt(clientFD, SOL_TCP, TCP_NODELAY, &ONE, sizeof(ONE)); // tolerable error
 
 		handleNewConnection(clientFD);		
 resched:
