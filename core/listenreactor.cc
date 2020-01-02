@@ -17,9 +17,8 @@ ListenReactor::ListenReactor(Poller *poller, const S6U::SocketAddress &bindAddr)
 	if (listenFD < 0)
 		throw system_error(errno, system_category());
 
-	// tolerable error
 	static const int ONE = 1;
-	setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &ONE, sizeof(ONE));
+	setsockopt(listenFD, SOL_SOCKET, SO_REUSEADDR, &ONE, sizeof(ONE)); // tolerable error
 
 	int rc = ::bind(listenFD, &bindAddr.sockAddress, bindAddr.size());
 	if (rc < 0)
