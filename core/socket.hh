@@ -25,6 +25,8 @@ struct Socket
 		{
 			if (errno == EAGAIN || errno == EWOULDBLOCK) //TODO: maybe EINTR as well
 				throw RescheduleException(fd, Poller::IN_EVENTS);
+			if (errno == EPIPE)
+				return 0;
 			throw std::system_error(errno, std::system_category());
 		}
 		buf->use(bytes);
@@ -38,6 +40,8 @@ struct Socket
 		{
 			if (errno == EAGAIN || errno == EWOULDBLOCK) //TODO: maybe EINTR as well
 				throw RescheduleException(fd, Poller::OUT_EVENTS);
+			if (errno == EPIPE)
+				return 0;
 			throw std::system_error(errno, std::system_category());
 		}
 		buf->unuse(bytes);
