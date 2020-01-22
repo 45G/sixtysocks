@@ -172,7 +172,7 @@ int main(int argc, char **argv)
 		usage();
 
 	if (mode == M_PROXY && username.length() > 0)
-		passwordChecker.reset(new SimplePasswordChecker(username, password));
+		passwordChecker.reset(new SimplePasswordChecker({ username, password }));
 
 	if (!useTLS)
 		tlsPort = 0;
@@ -205,7 +205,7 @@ int main(int argc, char **argv)
 			bindAddr.ipv4.sin_addr.s_addr = htonl(INADDR_ANY);
 			bindAddr.ipv4.sin_port        = htons(port);
 
-			poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, defer, username, password, clientCtx.get()));
+			poller.assign(new Proxifier(&poller, proxyAddr.storage, bindAddr, defer, { username, password }, clientCtx.get()));
 		}
 		else /* M_PROXY */
 		{

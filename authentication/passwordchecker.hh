@@ -7,7 +7,7 @@
 class PasswordChecker
 {
 public:
-	virtual bool check(std::pair<const std::string *, const std::string *> creds) = 0;
+	virtual bool check(const std::pair<std::string_view, std::string_view> &credentials) = 0;
 	
 	virtual ~PasswordChecker() = default;
 };

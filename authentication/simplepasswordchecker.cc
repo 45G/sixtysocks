@@ -2,21 +2,18 @@
 
 using namespace std;
 
-SimplePasswordChecker::SimplePasswordChecker(const std::string &user, const std::string &password)
-	: user(user), password(password)
+SimplePasswordChecker::SimplePasswordChecker(const std::pair<string_view, string_view> &credentials)
+	: user(credentials.first), password(credentials.second)
 {
-	if (    user.size()     < 1 || user.size()     > 255 ||
-		password.size() < 1 || password.size() > 255)
+	for (auto s: { user, password })
 	{
-		//TODO: proper exception
-		throw length_error("Bad username or password length");
+		if (s.size() < 1 || s.size() > 255)
+			throw length_error("Bad username or password length");
 	}
 }
 
-bool SimplePasswordChecker::check(std::pair<const string *, const string *> creds)
+bool SimplePasswordChecker::check(const std::pair<string_view, string_view> &credentials)
 {
-	auto [user, password] = creds;
-	if (!user)
-		return false;
-	return this->user == *user && this->password == *password;
+	auto [user, password] = credentials;
+	return this->user == user && this->password == password;
 }

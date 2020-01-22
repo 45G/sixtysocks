@@ -18,8 +18,9 @@ SessionSupplicationAgent::SessionSupplicationAgent(Proxifier *proxifier, std::sh
 		sock.tls = make_shared<TLS>(clientCtx, sock.fd);
 	
 	S6M::Request req(SOCKS6_REQUEST_NOOP, S6U::Socket::QUAD_ZERO, 0);
-	if (proxifier->getUsername()->length() > 0)
-		req.options.userPassword.setCredentials(*proxifier->getUsername(), *proxifier->getPassword());
+	auto credentials = proxifier->getCredentials();
+	if (credentials.first.length() > 0)
+		req.options.userPassword.setCredentials(credentials);
 	supplicant->process(&req);
 
 	S6M::ByteBuffer bb(buf.getTail(), buf.availSize());
