@@ -26,7 +26,7 @@ class Proxy: public ListenReactor
 	
 	TLSContext *serverCtx;
 
-	boost::intrusive_ptr<TimeoutReactor> timeoutReactor { new TimeoutReactor(poller, { T_IDLE_CONNECTION }) };
+	//boost::intrusive_ptr<TimeoutReactor> timeoutReactor { new TimeoutReactor(poller, { T_IDLE_CONNECTION }) };
 
 public:
 	static const std::set<uint16_t> DEFAULT_SERVICES;
@@ -61,10 +61,10 @@ public:
 		return resolver.get();
 	}
 
-	TimeoutReactor *getTimeoutReactor() const
-	{
-		return timeoutReactor.get();
-	}
+//	TimeoutReactor *getTimeoutReactor() const
+//	{
+//		return timeoutReactor.get();
+//	}
 };
 
 #endif // PROXY_HH

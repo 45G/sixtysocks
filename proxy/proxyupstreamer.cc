@@ -94,7 +94,7 @@ ProxyUpstreamer::ProxyUpstreamer(Proxy *proxy, UniqFD &&srcFD)
 
 void ProxyUpstreamer::start()
 {
-	proxy->getTimeoutReactor()->add(&timer);
+	//proxy->getTimeoutReactor()->add(&timer);
 	process(-1, 0);
 }
 
@@ -145,7 +145,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 			}
 		}
 
-		timer.refresh();
+		//timer.refresh();
 		
 		S6U::SocketAddress sockAddr(addr, request->port);
 		try
@@ -207,7 +207,7 @@ void ProxyUpstreamer::process(int fd, uint32_t events)
 	}
 	case S_STREAM:
 	{
-		timer.refresh();
+		//timer.refresh();
 		StreamReactor::process(fd, events);
 		break;
 	}

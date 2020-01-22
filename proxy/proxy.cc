@@ -15,7 +15,7 @@ const std::set<uint16_t> Proxy::DEFAULT_SERVICES = {
 void Proxy::start()
 {
 	ListenReactor::start();
-	timeoutReactor->start();
+	//timeoutReactor->start();
 }
 
 void Proxy::handleNewConnection(int fd)

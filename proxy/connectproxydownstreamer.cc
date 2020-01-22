@@ -15,6 +15,6 @@ ConnectProxyDownstreamer::ConnectProxyDownstreamer(ProxyUpstreamer *upstreamer, 
 
 void ConnectProxyDownstreamer::process(int fd, uint32_t events)
 {
-	upstreamer->getTimer()->refresh();
+	//upstreamer->getTimer()->refresh();
 	StreamReactor::process(fd, events);
 }

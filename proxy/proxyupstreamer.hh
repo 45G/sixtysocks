@@ -37,7 +37,7 @@ class ProxyUpstreamer: public StreamReactor
 	
 	AuthServer *authServer = nullptr;
 
-	ReactorInactivityTimer timer { T_IDLE_CONNECTION, this };
+	//ReactorInactivityTimer timer { T_IDLE_CONNECTION, this };
 
 	/* resolve state */
 	S6M::Address addr;
@@ -76,10 +76,10 @@ public:
 		return proxy.get();
 	}
 	
-	ReactorInactivityTimer *getTimer()
-	{
-		return &timer;
-	}
+//	ReactorInactivityTimer *getTimer()
+//	{
+//		return &timer;
+//	}
 };
 
 #endif // PROXYUPSTREAMER_HH
