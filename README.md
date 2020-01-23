@@ -70,24 +70,24 @@ iptables -t mangle -A OUTPUT            -j SIXTYSOCKS_MARK
 
 ### The proxifier
 
-Run the proxifier and proxy as follows:
-
-```
-./sixtysocks -m proxify -l 12345 -s <proxy IP> -p <proxy port> -C /path/to/database -S <proxy CN>
-```
+Run the proxy and proxifier as follows:
 
 ```
 ./sixtysocks -m proxy -t <proxy port> -C /path/to/database -n socks
 ```
 
+```
+./sixtysocks -m proxify -l 12345 -s <proxy IP> -p <proxy port> -C /path/to/database -S <proxy CN>
+```
+
 If you don't need TLS, use these commands instead:
 
 ```
-./sixtysocks -m proxify -l 12345 -s <proxy IP> -p <proxy port>
+./sixtysocks -m proxy -l <proxy port>
 ```
 
 ```
-./sixtysocks -m proxy -l <proxy port>
+./sixtysocks -m proxify -l 12345 -s <proxy IP> -p <proxy port>
 ```
 
 Optionally, you can also require authentication by supplying both the proxifier and proxy with a username and a password.
