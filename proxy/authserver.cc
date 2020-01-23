@@ -17,7 +17,7 @@ AuthServer::AuthServer(ProxyUpstreamer *upstreamer)
 	
 	reply = AuthUtil::authenticate(&upstreamer->getRequest()->options, upstreamer->getProxy());
 	
-	buf.use(reply.pack(buf.getTail(), buf.availSize()));
+	buf.use(reply->pack(buf.getTail(), buf.availSize()));
 }
 
 void AuthServer::sendReply()
@@ -30,7 +30,7 @@ void AuthServer::sendReply()
 	{
 		poller->add(this, sock.fd, Poller::OUT_EVENTS);
 	}
-	else if (reply.code == SOCKS6_AUTH_REPLY_SUCCESS)
+	else if (reply->code == SOCKS6_AUTH_REPLY_SUCCESS)
 	{
 		poller->runAs(upstreamer, [&] {
 			upstreamer->authDone();

@@ -7,7 +7,7 @@
 namespace AuthUtil
 {
 
-S6M::AuthenticationReply authenticate(S6M::OptionSet *opts, Proxy *proxy);
+std::unique_ptr<S6M::AuthenticationReply> authenticate(S6M::OptionSet *opts, Proxy *proxy);
 
 }
 
