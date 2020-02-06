@@ -37,16 +37,13 @@ TLS::TLS(TLSContext *ctx, int fd)
 		.identity = PR_NSPR_IO_LAYER,
 	});
 
-	PRFileDesc *higherDesc = SSL_ImportFD(nullptr, lowerDesc);
-	if (!higherDesc)
+	descriptor.reset(SSL_ImportFD(nullptr, lowerDesc));
+	if (!descriptor)
 	{
 		PRErrorCode err = PR_GetError();
 		PR_Close(lowerDesc); //might return error
 		throw TLSException(err);
 	}
-
-	descriptor.reset(higherDesc);
-	
 
 	if (ctx->isServer())
 	{
