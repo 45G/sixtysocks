@@ -32,7 +32,8 @@ void AuthServer::sendReply()
 	}
 	else if (reply->code == SOCKS6_AUTH_REPLY_SUCCESS)
 	{
-		poller->runAs(upstreamer, [&] {
+		poller->runAs(upstreamer, [&]
+		{
 			upstreamer->authDone();
 		});
 	}
