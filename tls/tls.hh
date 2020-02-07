@@ -36,7 +36,30 @@ class TLS
 	int readFD;
 	int writeFD;
 
-	std::unique_ptr<PRFileDesc, PRStatus (*)(PRFileDesc *)> descriptor { nullptr, PR_Close };
+	struct UniqPRFileDesc: public std::unique_ptr<PRFileDesc, PRStatus (*)(PRFileDesc *)>
+	{
+		using unique_ptr::unique_ptr;
+
+		UniqPRFileDesc(PRFileDesc *d) noexcept
+			: unique_ptr(d, PR_Close) {}
+
+		UniqPRFileDesc() noexcept
+			: unique_ptr(nullptr, PR_Close) {}
+	};
+
+	UniqPRFileDesc TLSImport(UniqPRFileDesc &&lower)
+	{
+		UniqPRFileDesc higher { SSL_ImportFD(nullptr, lower.get()) };
+		if (!higher)
+			throw TLSException();
+
+		/* woop woop woop double ownership! lower is now owned by higher */
+		lower.release();
+
+		return higher;
+	}
+
+	UniqPRFileDesc descriptor;
 
 public:
 	TLS(TLSContext *ctx, int fd);

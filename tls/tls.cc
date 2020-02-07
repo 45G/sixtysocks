@@ -28,22 +28,16 @@ static void PR_CALLBACK descriptorDeleter(PRFileDesc *fd) noexcept
 TLS::TLS(TLSContext *ctx, int fd)
 	: readFD(fd), writeFD(fd)
 {
-	PRFileDesc *lowerDesc = new PRFileDesc({
+	UniqPRFileDesc lowerDesc { new PRFileDesc({
 		.methods  = &METHODS,
 		.secret   = reinterpret_cast<PRFilePrivate *>(this),
 		.lower    = nullptr,
 		.higher   = nullptr,
 		.dtor     = descriptorDeleter,
 		.identity = PR_NSPR_IO_LAYER,
-	});
+	}) };
 
-	descriptor.reset(SSL_ImportFD(nullptr, lowerDesc));
-	if (!descriptor)
-	{
-		PRErrorCode err = PR_GetError();
-		PR_Close(lowerDesc); //might return error
-		throw TLSException(err);
-	}
+	descriptor = TLSImport(move(lowerDesc));
 
 	if (ctx->isServer())
 	{
